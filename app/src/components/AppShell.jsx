@@ -12,24 +12,24 @@ import {
 } from 'lucide-react'
 
 const NAV=[
-  { to:'/app', label:'Dashboard', icon:LayoutDashboard, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
-  { to:'/app/schools', label:'Schools', icon:Building2, roles:['owner'] },
-  { to:'/app/accounts', label:'Accounts', icon:UserCog, roles:['schooladmin'] },
-  { to:'/app/students', label:'Students', icon:Users, roles:['schooladmin','admin','supervisor','teacher'] },
-  { to:'/app/teachers', label:'Teachers', icon:GraduationCap, roles:['schooladmin','admin'] },
-  { to:'/app/evaluate', label:'Evaluate', icon:ClipboardCheck, roles:['teacher'] },
-  { to:'/app/attendance', label:'Attendance', icon:CalendarCheck, roles:['teacher','admin'] },
-  { to:'/app/homework', label:'Homework', icon:BookOpen, roles:['teacher','admin','parent'] },
-  { to:'/app/exams', label:'Exams', icon:Award, roles:['schooladmin','admin','teacher','parent'] },
-  { to:'/app/finance', label:'Finance / Fees', icon:Wallet, roles:['schooladmin','admin'] },
-  { to:'/app/payments', label:'My Payments', icon:CreditCard, roles:['parent'] },
-  { to:'/app/library', label:'Library', icon:BookMarked, roles:['schooladmin','admin','teacher'] },
+  { to:'/app', label:'Tableau de bord', icon:LayoutDashboard, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
+  { to:'/app/schools', label:'Écoles', icon:Building2, roles:['owner'] },
+  { to:'/app/accounts', label:'Comptes', icon:UserCog, roles:['schooladmin'] },
+  { to:'/app/students', label:'Élèves', icon:Users, roles:['schooladmin','admin','supervisor','teacher'] },
+  { to:'/app/teachers', label:'Enseignants', icon:GraduationCap, roles:['schooladmin','admin'] },
+  { to:'/app/evaluate', label:'Évaluer', icon:ClipboardCheck, roles:['teacher'] },
+  { to:'/app/attendance', label:'Présence', icon:CalendarCheck, roles:['teacher','admin'] },
+  { to:'/app/homework', label:'Devoirs', icon:BookOpen, roles:['teacher','admin','parent'] },
+  { to:'/app/exams', label:'Examens', icon:Award, roles:['schooladmin','admin','teacher','parent'] },
+  { to:'/app/finance', label:'Frais & Finances', icon:Wallet, roles:['schooladmin','admin'] },
+  { to:'/app/payments', label:'Mes paiements', icon:CreditCard, roles:['parent'] },
+  { to:'/app/library', label:'Bibliothèque', icon:BookMarked, roles:['schooladmin','admin','teacher'] },
   { to:'/app/transport', label:'Transport', icon:Bus, roles:['schooladmin','admin','parent'] },
-  { to:'/app/events', label:'Events', icon:CalendarDays, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
+  { to:'/app/events', label:'Événements', icon:CalendarDays, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
   { to:'/app/incidents', label:'Incidents', icon:ShieldAlert, roles:['supervisor','admin','schooladmin'] },
-  { to:'/app/requests', label:'Requests', icon:FileText, roles:['teacher','admin','schooladmin'] },
+  { to:'/app/requests', label:'Demandes', icon:FileText, roles:['teacher','admin','schooladmin'] },
   { to:'/app/messages', label:'Messages', icon:MessageSquare, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
-  { to:'/app/notices', label:'Notices', icon:Megaphone, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
+  { to:'/app/notices', label:'Annonces', icon:Megaphone, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
 ]
 
 export default function AppShell({ children }){
@@ -51,7 +51,7 @@ export default function AppShell({ children }){
         <header className="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-line">
           <div className="flex items-center gap-3 px-4 lg:px-6 py-3">
             <button className="lg:hidden text-muted" onClick={()=>setOpen(!open)}><MenuIcon size={20}/></button>
-            <div className="hidden sm:flex items-center gap-2 bg-canvas rounded-xl px-3 py-2 w-72 max-w-full"><Search size={16} className="text-muted"/><input placeholder="Search…" className="bg-transparent text-sm outline-none w-full"/></div>
+            <div className="hidden sm:flex items-center gap-2 bg-canvas rounded-xl px-3 py-2 w-72 max-w-full"><Search size={16} className="text-muted"/><input placeholder="Rechercher…" className="bg-transparent text-sm outline-none w-full"/></div>
             <div className="ml-auto flex items-center gap-2"><BellMenu user={u}/><UserMenu user={u} role={role} onLogout={()=>{logout();nav('/')}}/></div>
           </div>
         </header>
@@ -72,15 +72,15 @@ function BellMenu({ user }){
         {unread>0&&<span className="absolute top-1.5 right-1.5 min-w-4 h-4 px-1 grid place-items-center text-[10px] font-bold text-white rounded-full" style={{background:'#FF6B81'}}>{unread}</span>}
       </Menu.Button>
       <Menu.Items className="absolute right-0 mt-2 w-80 card p-2 shadow-xl z-50 focus:outline-none">
-        <div className="px-2 py-1.5 text-xs font-bold text-muted flex justify-between"><span>Notifications</span>{unread>0&&<span className="accent-text">{unread} new</span>}</div>
+        <div className="px-2 py-1.5 text-xs font-bold text-muted flex justify-between"><span>Notifications</span>{unread>0&&<span className="accent-text">{unread} nouv.</span>}</div>
         {list.length? list.map(n=>(
           <Menu.Item key={n.id}>{()=>(
             <button onClick={()=>openN(n)} className={`w-full text-left px-3 py-2 rounded-xl ${!n.read?'accent-soft':''}`}>
               <div className="text-sm font-semibold">{n.title}</div><div className="text-xs text-muted truncate">{n.body}</div>
               <div className="text-[10px] text-muted mt-0.5">{formatDistanceToNow(n.at,{addSuffix:true})}{n.link&&' · open →'}</div>
             </button>)}</Menu.Item>
-        )) : <div className="px-3 py-6 text-center text-sm text-muted">No notifications</div>}
-        <Menu.Item>{()=> <button onClick={()=>nav('/app/notifications')} className="w-full text-center text-sm font-semibold accent-text py-2 mt-1 border-t border-line">See all notifications</button>}</Menu.Item>
+        )) : <div className="px-3 py-6 text-center text-sm text-muted">Aucune notification</div>}
+        <Menu.Item>{()=> <button onClick={()=>nav('/app/notifications')} className="w-full text-center text-sm font-semibold accent-text py-2 mt-1 border-t border-line">Voir toutes les notifications</button>}</Menu.Item>
       </Menu.Items>
     </Menu>
   )
@@ -94,7 +94,7 @@ function UserMenu({ user, role, onLogout }){
         <ChevronDown size={15} className="text-muted"/>
       </Menu.Button>
       <Menu.Items className="absolute right-0 mt-2 w-44 card p-1.5 shadow-xl z-50 focus:outline-none">
-        <Menu.Item>{()=> <button onClick={onLogout} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-canvas text-coral"><LogOut size={15}/> Log out</button>}</Menu.Item>
+        <Menu.Item>{()=> <button onClick={onLogout} className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm hover:bg-canvas text-coral"><LogOut size={15}/> Déconnexion</button>}</Menu.Item>
       </Menu.Items>
     </Menu>
   )
