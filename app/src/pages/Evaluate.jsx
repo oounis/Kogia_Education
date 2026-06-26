@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react'
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core'
-import { Clock, ChevronRight, ChevronLeft, Check, Zap, RotateCcw } from 'lucide-react'
+import { Clock, ChevronRight, ChevronLeft, Check, Zap, RotateCcw, Users, MapPin, CalendarDays } from 'lucide-react'
 import { StudentChip, DropZone } from '../components/dnd.jsx'
 import { PageHead, Btn } from '../components/ui.jsx'
-import { currentClass, QUESTIONS, BUCKETS, BADGES } from '../data.js'
+import { teacherSchedule, QUESTIONS, BUCKETS, BADGES } from '../data.js'
 import { db, mutate, uid, studentById } from '../db.js'
 import { notify } from '../notify.js'
 import { studentSummary, mentionFor } from '../results.js'
@@ -12,41 +12,63 @@ import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'
 
 export default function Evaluate(){
-  const cls=useMemo(()=>currentClass(new Date()),[])
-  const students=cls.students
+  const sched=useMemo(()=>teacherSchedule(new Date()),[])
+  const [slot,setSlot]=useState(null)
   const [step,setStep]=useState(0)
   const [placements,setPlacements]=useState({})
   const [badges,setBadges]=useState({})
   const [note,setNote]=useState("")
   const [active,setActive]=useState(null)
+  const [saved,setSaved]=useState([])
   const sensors=useSensors(useSensor(PointerSensor,{activationConstraint:{distance:5}}))
+
+  const cls = slot ? {slot, cls:slot.cls, students:slot.students, isLive:slot.isLive} : null
+  const students = cls ? cls.students : []
   const q=QUESTIONS[step]; const place=placements[q?.id]||{}; const pool=students.filter(s=>!place[s.id])
+  const classHistory=useMemo(()=> cls ? db().evaluations.filter(e=>e.classId===cls.cls.id) : [], [step,slot])
 
   function onDragEnd({active,over}){ setActive(null); if(!over)return; const sid=active.id
     setPlacements(prev=>{ const cur={...(prev[q.id]||{})}; if(over.id==='pool')delete cur[sid]; else cur[sid]=over.id; return {...prev,[q.id]:cur} }) }
   const autoFill=b=>setPlacements(prev=>{ const cur={...(prev[q.id]||{})}; pool.forEach(s=>cur[s.id]=b); return {...prev,[q.id]:cur} })
+  function reset(){ setStep(0);setPlacements({});setBadges({});setNote("");setSaved([]) }
+  function backToSchedule(){ setSlot(null); reset() }
 
-  const [saved,setSaved]=useState([])
   function submit(){
-    // ne garder que les questions réellement remplies, mais conserver TOUTES celles touchées
     const cleanPlacements={}
     for(const qid in placements){ const p=placements[qid]; if(p && Object.keys(p).length) cleanPlacements[qid]=p }
     const graded=students.filter(s=>studentSummary({placements:cleanPlacements},s.id).score!=null)
     if(graded.length===0){ toast.error("Placez au moins un élève sur une réponse avant d'enregistrer."); return }
     const ev={ id:uid('ev'), at:Date.now(), classId:cls.cls.id, className:cls.cls.name, subject:cls.slot.subject, teacher:'Othman Ounis', placements:cleanPlacements, badges, note }
     mutate(db=>{ db.evaluations.unshift(ev) })
-    // notify each student's parent
     students.forEach(s=>{ if(s.parentId){ const sum=studentSummary(ev,s.id); if(sum.score!=null) notify({to:s.parentId,kind:'evaluation',title:`Nouvelle évaluation pour ${s.name.split(' ')[0]}`,body:`${cls.slot.subject} : ${sum.score}/100${sum.badge?` · ${sum.badge.emoji} ${sum.badge.label}`:''}`,link:'/app'}) } })
-    // notify admin + direction so the evaluation is visible to administration too
     notify({role:'admin',kind:'evaluation',actor:'Othman Ounis',title:`Évaluation enregistrée — ${cls.cls.name}`,body:`${cls.slot.subject} · ${graded.length} élèves notés`,link:'/app/students'})
     notify({role:'schooladmin',kind:'evaluation',actor:'Othman Ounis',title:`Évaluation enregistrée — ${cls.cls.name}`,body:`${cls.slot.subject} · ${graded.length} élèves notés`,link:'/app/students'})
-    // recap of this saved evaluation for the success screen
     setSaved(graded.map(s=>{const sum=studentSummary(ev,s.id);return {name:s.name,...sum,mention:mentionFor(sum.score)}}))
     toast.success(`Évaluation enregistrée · ${graded.length} élèves notés · parents notifiés`); setStep(6)
   }
-  // historique des évaluations déjà enregistrées pour cette classe (preuve de persistance)
-  const classHistory=useMemo(()=>db().evaluations.filter(e=>e.classId===cls.cls.id),[step])
 
+  /* ---------- 1) SCHEDULE PICKER (entry screen) ---------- */
+  if(!slot) return (<>
+    <PageHead title="Mon emploi du temps" sub="Choisissez la classe à évaluer — la séance en cours est mise en avant. Les élèves se chargent automatiquement."/>
+    <div className="flex items-center gap-2 text-sm text-muted mb-4"><CalendarDays size={16} className="accent-text"/> {format(new Date(),'EEEE d MMMM yyyy',{locale:fr})}</div>
+    <div className="grid sm:grid-cols-2 gap-4">
+      {sched.map((s,i)=>(
+        <button key={i} onClick={()=>{reset();setSlot(s)}} className="card p-5 text-left hover:shadow-lg transition relative" style={s.isLive?{boxShadow:'0 0 0 2px var(--accent)'}:{}}>
+          {s.isLive && <span className="absolute top-4 right-4 text-[11px] font-bold px-2 py-0.5 rounded-full text-white" style={{background:'#2BD9A8'}}>● EN COURS</span>}
+          <div className="flex items-center gap-2 text-sm font-bold accent-text"><Clock size={15}/> {s.start} – {s.end}</div>
+          <div className="text-xl font-extrabold mt-2">{s.cls.name} <span className="text-muted text-base font-medium">· {s.subject}</span></div>
+          <div className="text-sm text-muted">{s.cls.grade}</div>
+          <div className="flex items-center gap-4 mt-3 text-sm text-muted">
+            <span className="flex items-center gap-1"><Users size={14}/> {s.students.length} élèves</span>
+            {s.room && <span className="flex items-center gap-1"><MapPin size={14}/> {s.room}</span>}
+          </div>
+          <div className="mt-4 inline-flex items-center gap-1 text-sm font-semibold accent-text">Évaluer cette classe <ChevronRight size={15}/></div>
+        </button>
+      ))}
+    </div>
+  </>)
+
+  /* ---------- 3) SUCCESS ---------- */
   if(step===6) return (
     <div className="max-w-[640px] mx-auto pt-8">
       <div className="text-center">
@@ -74,16 +96,20 @@ export default function Evaluate(){
           </div>))}
         </div>
       </div>
-      <div className="text-center"><Btn className="mt-6" onClick={()=>{setStep(0);setPlacements({});setBadges({});setNote("");setSaved([])}}>Nouvelle évaluation</Btn></div>
+      <div className="flex items-center justify-center gap-3 mt-6">
+        <Btn variant="ghost" onClick={backToSchedule}><ChevronLeft size={16}/> Emploi du temps</Btn>
+        <Btn onClick={reset}>Nouvelle évaluation · cette classe</Btn>
+      </div>
     </div>)
 
+  /* ---------- 2) EVALUATION ---------- */
   return (<>
     <PageHead title="Évaluation rapide" sub="Glissez chaque élève sur une réponse. Cinq questions, en quelques secondes."/>
     <div className="card p-4 mb-5 flex items-center justify-between flex-wrap gap-3">
       <div className="flex items-center gap-3"><span className="w-11 h-11 rounded-xl grid place-items-center accent-soft accent-text"><Clock size={20}/></span>
-        <div><div className="font-semibold">{cls.cls.name} · {cls.slot.subject}</div>
+        <div><div className="font-semibold">{cls.cls.name} · {cls.slot.subject} <span className="text-muted font-normal">· {cls.cls.grade}</span></div>
           <div className="text-sm text-muted">{cls.slot.start}–{cls.slot.end} · {students.length} élèves {cls.isLive&&<span className="ml-1 text-xs font-bold px-2 py-0.5 rounded-full text-white" style={{background:'#2BD9A8'}}>● EN COURS</span>}</div></div></div>
-      <div className="text-sm text-muted">Chargé depuis votre emploi du temps</div>
+      <button onClick={backToSchedule} className="text-sm accent-text font-semibold inline-flex items-center gap-1 hover:underline"><ChevronLeft size={15}/> Emploi du temps</button>
     </div>
     <div className="flex items-center gap-1.5 mb-4">{QUESTIONS.map((_,i)=><div key={i} className="h-1.5 flex-1 rounded-full" style={{background:i<=step?'var(--accent)':'#E8EDF2'}}/>)}<div className="h-1.5 flex-1 rounded-full" style={{background:step>=5?'var(--accent)':'#E8EDF2'}}/></div>
 

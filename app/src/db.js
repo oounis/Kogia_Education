@@ -1,4 +1,4 @@
-const KEY="coreon_db_v8"
+const KEY="coreon_db_v9"
 const MONTHS=["Sep","Oct","Nov","Déc","Jan","Fév","Mar","Avr","Mai","Juin"]
 export const FEE_MONTHS=MONTHS
 // Tout le système tunisien
@@ -32,6 +32,9 @@ function seed(){
     S("s11","Salma","Ferchichi","c6a",null,{gender:"Fille"}),S("s12","Wassim","Oueslati","c6a",null,{gender:"Garçon"}),
     S("s13","Mariem","Saidi","c9a",null,{gender:"Fille",dob:"2011-03-02"}),S("s14","Skander","Ayari","c9a",null,{gender:"Garçon",dob:"2011-07-12"}),
     S("s15","Yasmine","Bouzid","l2s",null,{gender:"Fille",dob:"2009-01-20"}),S("s16","Oussama","Mansouri","l2s",null,{gender:"Garçon",dob:"2009-09-05"}),
+    S("s17","Firas","Nasri","c6a",null,{gender:"Garçon"}),S("s18","Ines","Hidri","c6a",null,{gender:"Fille"}),S("s19","Malek","Riahi","c6a",null,{gender:"Garçon"}),S("s20","Dorra","Lahmar","c6a",null,{gender:"Fille"}),
+    S("s21","Aymen","Zouari","c9a",null,{gender:"Garçon"}),S("s22","Khouloud","Belhaj","c9a",null,{gender:"Fille"}),S("s23","Seif","Mabrouk","c9a",null,{gender:"Garçon"}),S("s24","Rim","Gabsi","c9a",null,{gender:"Fille"}),
+    S("s25","Nadia","Toumi","l2s",null,{gender:"Fille"}),S("s26","Walid","Charfi","l2s",null,{gender:"Garçon"}),S("s27","Emna","Brahmi","l2s",null,{gender:"Fille"}),S("s28","Zied","Karray","l2s",null,{gender:"Garçon"}),
   ]
   const teachers=[
     {id:"t1",name:"Othman Ounis",subject:"Mathématiques",classes:["c5a","c6a"],gender:"Garçon",qualification:"Maîtrise en Mathématiques",experience:8,joiningDate:"2022-09-01",designation:"Instituteur principal",phone:"+216 20 333 333",email:"enseignant@alnour.tn",address:"Tunis",salary:1800},

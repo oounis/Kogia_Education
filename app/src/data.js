@@ -17,8 +17,11 @@ export const BADGES=[
   {key:"team",label:"Esprit d'équipe",emoji:"🤝"},{key:"idea",label:"Bonne idée",emoji:"💡"},{key:"focus",label:"Très concentré",emoji:"🎯"},
 ]
 export const SCHEDULE=[
-  {day:1,start:"08:00",end:"10:00",classId:"c5a",subject:"Mathématiques"},
-  {day:1,start:"10:15",end:"12:00",classId:"c6a",subject:"Mathématiques"},
+  {day:1,start:"08:00",end:"10:00",classId:"c5a",subject:"Mathématiques",room:"Salle 12"},
+  {day:1,start:"10:15",end:"12:00",classId:"c6a",subject:"Mathématiques",room:"Salle 12"},
+  {day:1,start:"13:00",end:"14:00",classId:"c9a",subject:"Mathématiques",room:"Salle 8"},
+  {day:1,start:"14:15",end:"15:45",classId:"l2s",subject:"Mathématiques",room:"Salle 21"},
 ]
 export function studentColor(id){const pal=["#36C5F0","#8B5CF6","#FF6B81","#FFA62B","#2BD9A8","#6C5CE7","#0BA5D8","#14B8A6"];let h=0;for(const c of String(id))h=(h*31+c.charCodeAt(0))>>>0;return pal[h%pal.length]}
 export function currentClass(now){const hhmm=now.toTimeString().slice(0,5);const slot=SCHEDULE.find(s=>hhmm>=s.start&&hhmm<=s.end)||SCHEDULE[0];const cls=db().classes.find(c=>c.id===slot.classId);return{slot,isLive:hhmm>=slot.start&&hhmm<=slot.end,cls,students:studentsOfClass(slot.classId)}}
+export function teacherSchedule(now=new Date()){const hhmm=now.toTimeString().slice(0,5);return SCHEDULE.map(s=>{const cls=db().classes.find(c=>c.id===s.classId)||{};return{...s,cls,students:studentsOfClass(s.classId),isLive:hhmm>=s.start&&hhmm<=s.end}})}
