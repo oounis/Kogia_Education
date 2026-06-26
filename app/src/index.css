@@ -24,3 +24,12 @@ body{font-family:var(--font-sans);color:var(--color-ink);background:var(--color-
 .pop{animation:pop .18s ease}
 .scroll-thin::-webkit-scrollbar{width:8px;height:8px}.scroll-thin::-webkit-scrollbar-thumb{background:#E2E6EF;border-radius:8px}
 @media (prefers-reduced-motion:reduce){.pop{animation:none}}
+/* Impression : n'imprimer que le bulletin */
+@media print{
+  body{background:#fff}
+  body *{visibility:hidden}
+  #bulletin-print, #bulletin-print *{visibility:visible}
+  #bulletin-print{position:absolute;left:0;top:0;width:100%;padding:0 !important}
+  .print\:hidden{display:none !important}
+  @page{margin:14mm}
+}

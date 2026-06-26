@@ -9,7 +9,7 @@ export function StatCard({ label, value, sub, tint='brand', icon }){
     <div className="min-w-0"><div className="text-2xl font-extrabold leading-none">{value}</div><div className="text-xs text-muted mt-1 truncate">{label}{sub&&<span className="ml-1">· {sub}</span>}</div></div></div>
 }
 export function Badge({ status }){
-  const m={paid:['#E2FBF3','#10B981','Paid'],pending:['#FFF4DD','#E59A12','Pending'],overdue:['#FFE8EC','#EF4444','Overdue'],due:['#EEF1F6','#8A93A6','Unpaid'],open:['#FFF4DD','#E59A12','Open'],resolved:['#E2FBF3','#10B981','Resolved'],approved:['#E2FBF3','#10B981','Approved'],rejected:['#FFE8EC','#EF4444','Rejected'],present:['#E2FBF3','#10B981','Present'],absent:['#FFE8EC','#EF4444','Absent'],late:['#FFF4DD','#E59A12','Late']}
+  const m={paid:['#E2FBF3','#10B981','Payé'],pending:['#FFF4DD','#E59A12','En attente'],overdue:['#FFE8EC','#EF4444','En retard'],due:['#EEF1F6','#8A93A6','Impayé'],open:['#FFF4DD','#E59A12','Ouvert'],resolved:['#E2FBF3','#10B981','Résolu'],approved:['#E2FBF3','#10B981','Approuvé'],rejected:['#FFE8EC','#EF4444','Rejeté'],present:['#E2FBF3','#10B981','Présent'],absent:['#FFE8EC','#EF4444','Absent'],late:['#FFF4DD','#E59A12','Retard']}
   const [bg,fg,label]=m[status]||['#EEF1F6','#8A93A6',status]
   return <span className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{background:bg,color:fg}}>{label}</span>
 }

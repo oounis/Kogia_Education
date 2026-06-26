@@ -5,14 +5,15 @@ import { PageHead, Table, Avatar, Btn, Modal, Field, Input, Select, Section } fr
 import { studentColor } from '../data.js'
 import { GOVERNORATES, DOC_TYPES, LEGAL, idLabelFor } from '../tunisia.js'
 import Attach from '../components/Attach.jsx'
-import { UserPlus, Eye, Droplet, Search, ShieldCheck } from 'lucide-react'
+import Bulletin from '../components/Bulletin.jsx'
+import { UserPlus, Eye, Droplet, Search, ShieldCheck, FileText } from 'lucide-react'
 import toast from 'react-hot-toast'
 const BLANK={name:'',gender:'Garçon',dob:'',bloodGroup:'O+',nationality:'Tunisienne',grade:'5ème année',section:'A',rollNo:'',admissionDate:'',prevSchool:'',fatherName:'',motherName:'',guardianPhone:'',parentId:'',address:'',phone:'',email:'',medical:'Aucune',allergies:'Aucune',emergencyName:'',emergencyPhone:'',cin:'',governorate:'Tunis',attachments:[],consent:false}
 const cycleOf=g=>CYCLES.find(c=>c.grades.includes(g))?.cycle||'Primaire'
 export default function Students(){
   const u=current(); const canEdit=['schooladmin','admin'].includes(u.role)
   const [,force]=useState(0); const refresh=()=>force(x=>x+1)
-  const [open,setOpen]=useState(false); const [view,setView]=useState(null); const [q,setQ]=useState(''); const [f,setF]=useState(BLANK)
+  const [open,setOpen]=useState(false); const [view,setView]=useState(null); const [bulletin,setBulletin]=useState(null); const [q,setQ]=useState(''); const [f,setF]=useState(BLANK)
   const d=db(); const parents=d.users.filter(x=>x.role==='parent')
   const list=d.students.filter(s=>s.name.toLowerCase().includes(q.toLowerCase()))
   const add=()=>{ if(!f.name.trim())return toast.error('Le nom est requis'); if(!f.consent)return toast.error('Veuillez accepter le consentement (loi 2004-63)')
@@ -28,16 +29,18 @@ export default function Students(){
   return (<>
     <PageHead title="Élèves" sub={`${d.students.length} inscrits · ${d.classes.length} classes`} action={canEdit&&<Btn onClick={()=>{setF(BLANK);setOpen(true)}}><UserPlus size={16}/> Inscrire un élève</Btn>}/>
     <div className="card flex items-center gap-2 px-3 py-2 mb-4 max-w-sm"><Search size={16} className="text-muted"/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Rechercher un élève…" className="bg-transparent outline-none text-sm w-full"/></div>
-    <Table head={['Élève','Classe','Tuteur','Groupe sanguin','Statut','']}>
+    <Table head={['Élève','Classe','Tuteur','Groupe sanguin','Statut','','']}>
       {list.map(s=>(<tr key={s.id} className="hover:bg-canvas">
         <td className="px-4 py-3"><div className="flex items-center gap-3"><Avatar name={s.name} color={studentColor(s.id)}/><div><div className="font-medium">{s.name}</div><div className="text-xs text-muted">{s.gender} · N° {s.rollNo}</div></div></div></td>
         <td className="px-4 py-3">{classById(s.classId)?.name}</td>
         <td className="px-4 py-3 text-muted">{userById(s.parentId)?.name||s.fatherName||'—'}</td>
         <td className="px-4 py-3"><span className="inline-flex items-center gap-1 text-xs"><Droplet size={12} className="text-coral"/>{s.bloodGroup}</span></td>
         <td className="px-4 py-3"><span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{background:'#E2FBF3',color:'#10B981'}}>Actif</span></td>
-        <td className="px-4 py-3"><button onClick={()=>setView(s)} className="text-muted hover:accent-text"><Eye size={17}/></button></td>
+        <td className="px-4 py-3"><button onClick={()=>setBulletin(s)} title="Bulletin scolaire" className="text-muted hover:accent-text"><FileText size={17}/></button></td>
+        <td className="px-4 py-3"><button onClick={()=>setView(s)} title="Fiche élève" className="text-muted hover:accent-text"><Eye size={17}/></button></td>
       </tr>))}
     </Table>
+    {list.length===0 && <div className="card p-10 text-center text-muted mt-4">Aucun élève ne correspond à votre recherche.</div>}
     <Modal open={open} onClose={()=>setOpen(false)} title="Inscrire un nouvel élève" size="2xl" footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={add}>Inscrire</Btn></>}>
       <Section title="Informations personnelles">
         <Field label="Nom complet *"><Input value={f.name} onChange={e=>setF({...f,name:e.target.value})} placeholder="Amira Ben Salah"/></Field>
@@ -77,8 +80,9 @@ export default function Students(){
       <label className="flex items-start gap-2 text-xs text-muted bg-canvas rounded-xl p-3"><input type="checkbox" checked={f.consent} onChange={e=>setF({...f,consent:e.target.checked})} className="mt-0.5"/><span><ShieldCheck size={13} className="inline accent-text"/> {LEGAL.consent}</span></label>
     </Modal>
     <Modal open={!!view} onClose={()=>setView(null)} title="Fiche élève" size="xl">
-      {view&&(<div><div className="flex items-center gap-4 mb-5"><Avatar name={view.name} color={studentColor(view.id)} size={56}/><div><div className="text-xl font-extrabold">{view.name}</div><div className="text-muted text-sm">{classById(view.classId)?.name} · N° {view.rollNo} · {view.gender}</div></div></div>
+      {view&&(<div><div className="flex items-center gap-4 mb-5"><Avatar name={view.name} color={studentColor(view.id)} size={56}/><div className="flex-1"><div className="text-xl font-extrabold">{view.name}</div><div className="text-muted text-sm">{classById(view.classId)?.name} · N° {view.rollNo} · {view.gender}</div></div><Btn variant="soft" onClick={()=>{const v=view;setView(null);setBulletin(v)}}><FileText size={15}/> Bulletin</Btn></div>
         <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">{[['Naissance',view.dob],['Groupe sanguin',view.bloodGroup],['Nationalité',view.nationality],['Inscription',view.admissionDate],['École préc.',view.prevSchool],['Père',view.fatherName],['Mère',view.motherName],['Tél. tuteur',view.guardianPhone],['Compte parent',userById(view.parentId)?.name||'—'],['Adresse',view.address],['Téléphone',view.phone],['E-mail',view.email||'—'],['Médical',view.medical],['Allergies',view.allergies],['CIN/Acte',view.cin],['Gouvernorat',view.governorate],['Urgence',`${view.emergencyName} · ${view.emergencyPhone}`]].map(([k,v])=><div key={k} className="flex justify-between border-b border-line py-1.5"><span className="text-muted">{k}</span><span className="font-medium text-right">{v||'—'}</span></div>)}</div></div>)}
     </Modal>
+    <Bulletin student={bulletin} onClose={()=>setBulletin(null)}/>
   </>)
 }
