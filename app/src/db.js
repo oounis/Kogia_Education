@@ -9,6 +9,19 @@ export const CYCLES=[
 ]
 export const FILIERES=["Tronc commun","Sciences","Mathématiques","Sciences expérimentales","Sciences techniques","Économie & Gestion","Lettres","Sciences informatiques","Sport"]
 export const GRADES=CYCLES.flatMap(c=>c.grades)
+// ── timetable seed helpers (kept here to avoid a data.js↔db.js import cycle) ──
+export const TT_SUBJECTS=[['Arabe','#6C5CE7'],['Français','#36C5F0'],['Mathématiques','#FF6B81'],['Éveil scientifique','#2BD9A8'],['Éducation islamique','#FFA62B'],['Éducation civique','#0BA5D8'],['Sport','#10B981'],['Musique','#A78BFA'],['Arts plastiques','#E59A12'],['Informatique','#8B5CF6']]
+const TT_ROOMS=['Salle 12','Salle 8','Salle 21','Labo','Gymnase','Salle Info']
+function h32(s){let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h}
+function genTimetables(classes){
+  const t={}
+  classes.forEach(cl=>{ t[cl.id]=Array.from({length:6},(_,pi)=>Array.from({length:5},(_,di)=>{
+    if((di===2||di===4)&&pi>=4) return null
+    const [subject,color]=TT_SUBJECTS[h32(cl.id+'-'+di+'-'+pi)%TT_SUBJECTS.length]
+    return {subject,color,room:TT_ROOMS[h32(cl.id+di+pi+'r')%TT_ROOMS.length]}
+  })) })
+  return t
+}
 function seed(){
   const classes=[
     {id:"c5a",name:"5ème A",grade:"5ème année",cycle:"Primaire"},
@@ -93,9 +106,12 @@ function seed(){
   const att1={}; c5.forEach((s,i)=>att1[s.id]= i===3?'absent': i===6?'late':'present')
   const att2={}; c5.forEach((s,i)=>att2[s.id]= i===5?'late':'present')
   const attendance={["c5a_"+dstr(1)]:att1,["c5a_"+dstr(2)]:att2}
-  return {classes,students,teachers,users,payments,evaluations,incidents,requests,books,routes,homework,events,exams,messages,attendance,notifications}
+  return {classes,students,teachers,users,payments,evaluations,incidents,requests,books,routes,homework,events,exams,messages,attendance,notifications,timetables:genTimetables(classes)}
 }
-export function db(){let d=null;try{d=JSON.parse(localStorage.getItem(KEY))}catch{};if(!d){d=seed();localStorage.setItem(KEY,JSON.stringify(d))}return d}
+export function db(){let d=null;try{d=JSON.parse(localStorage.getItem(KEY))}catch{};if(!d){d=seed();localStorage.setItem(KEY,JSON.stringify(d))}
+  if(!d.timetables){ d.timetables=genTimetables(d.classes); localStorage.setItem(KEY,JSON.stringify(d)) }  // backfill older dbs
+  return d}
+export function setTimetableCell(classId,pi,di,cell){ return mutate(d=>{ d.timetables=d.timetables||{}; d.timetables[classId]=d.timetables[classId]||Array.from({length:6},()=>Array(5).fill(null)); d.timetables[classId][pi]=d.timetables[classId][pi]||Array(5).fill(null); d.timetables[classId][pi][di]=cell }) }
 export function save(d){localStorage.setItem(KEY,JSON.stringify(d))}
 export function mutate(fn){const d=db();fn(d);save(d);return d}
 export function resetDb(){localStorage.removeItem(KEY)}
