@@ -9,7 +9,7 @@ import { Mark } from './ui.jsx'
 import {
   LayoutDashboard, Users, GraduationCap, UserCog, ClipboardCheck, Wallet, CreditCard,
   ShieldAlert, FileText, Megaphone, Building2, Bell, Search, LogOut, ChevronDown, Menu as MenuIcon,
-  CalendarCheck, BookOpen, BookMarked, Bus, CalendarDays, MessageSquare, Award, CheckCheck
+  CalendarCheck, BookOpen, BookMarked, Bus, CalendarDays, MessageSquare, Award, CheckCheck, CalendarClock
 } from 'lucide-react'
 const NAV=[
   { to:'/app', label:'Tableau de bord', icon:LayoutDashboard, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
@@ -18,6 +18,7 @@ const NAV=[
   { to:'/app/students', label:'Élèves', icon:Users, roles:['schooladmin','admin','supervisor','teacher'] },
   { to:'/app/teachers', label:'Enseignants', icon:GraduationCap, roles:['schooladmin','admin'] },
   { to:'/app/evaluate', label:'Évaluer', icon:ClipboardCheck, roles:['teacher'] },
+  { to:'/app/timetable', label:'Emploi du temps', icon:CalendarClock, roles:['schooladmin','admin','teacher','parent','supervisor'] },
   { to:'/app/attendance', label:'Présence', icon:CalendarCheck, roles:['teacher','admin'] },
   { to:'/app/homework', label:'Devoirs', icon:BookOpen, roles:['teacher','admin','parent'] },
   { to:'/app/exams', label:'Examens', icon:Award, roles:['schooladmin','admin','teacher','parent'] },

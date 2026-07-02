@@ -25,3 +25,27 @@ export const SCHEDULE=[
 export function studentColor(id){const pal=["#36C5F0","#8B5CF6","#FF6B81","#FFA62B","#2BD9A8","#6C5CE7","#0BA5D8","#14B8A6"];let h=0;for(const c of String(id))h=(h*31+c.charCodeAt(0))>>>0;return pal[h%pal.length]}
 export function currentClass(now){const hhmm=now.toTimeString().slice(0,5);const slot=SCHEDULE.find(s=>hhmm>=s.start&&hhmm<=s.end)||SCHEDULE[0];const cls=db().classes.find(c=>c.id===slot.classId);return{slot,isLive:hhmm>=slot.start&&hhmm<=slot.end,cls,students:studentsOfClass(slot.classId)}}
 export function teacherSchedule(now=new Date()){const hhmm=now.toTimeString().slice(0,5);return SCHEDULE.map(s=>{const cls=db().classes.find(c=>c.id===s.classId)||{};return{...s,cls,students:studentsOfClass(s.classId),isLive:hhmm>=s.start&&hhmm<=s.end}})}
+
+// ─────────────── EMPLOI DU TEMPS (weekly timetable) ───────────────
+export const DAYS=['Lundi','Mardi','Mercredi','Jeudi','Vendredi']
+export const PERIODS=[['08:00','09:00'],['09:00','10:00'],['10:15','11:15'],['11:15','12:15'],['13:00','14:00'],['14:00','15:00']]
+const TT_SUBJECTS=[['Arabe','#6C5CE7'],['Français','#36C5F0'],['Mathématiques','#FF6B81'],['Éveil scientifique','#2BD9A8'],['Éducation islamique','#FFA62B'],['Éducation civique','#0BA5D8'],['Sport','#10B981'],['Musique','#A78BFA'],['Arts plastiques','#E59A12'],['Informatique','#8B5CF6']]
+const ROOMS=['Salle 12','Salle 8','Salle 21','Labo','Gymnase','Salle Info']
+function h32(str){let h=0;for(const c of String(str))h=(h*31+c.charCodeAt(0))>>>0;return h}
+export function timetableFor(classId){
+  return PERIODS.map(([s,e],pi)=>({start:s,end:e,cells:DAYS.map((_,di)=>{
+    if((di===2||di===4)&&pi>=4) return null            // mercredi & vendredi après-midi libres
+    const [subject,color]=TT_SUBJECTS[h32(classId+'-'+di+'-'+pi)%TT_SUBJECTS.length]
+    return {subject,color,room:ROOMS[h32(classId+di+pi+'r')%ROOMS.length]}
+  })}))
+}
+// a teacher's own weekly grid: only the periods where they teach one of their classes
+export function teacherTimetable(teacher){
+  const classes=teacher?.classes||[]
+  return PERIODS.map(([s,e],pi)=>({start:s,end:e,cells:DAYS.map((_,di)=>{
+    const cid=classes[h32('t'+di+pi)%Math.max(classes.length,1)]
+    if(!cid||((di===2||di===4)&&pi>=4)||h32(cid+di+pi+'x')%3===0) return null
+    const cls=db().classes.find(c=>c.id===cid)
+    return {subject:teacher.subject||'Cours',color:'#6C5CE7',room:ROOMS[h32(cid+di+pi)%ROOMS.length],className:cls?.name||cid}
+  })}))
+}

@@ -24,6 +24,7 @@ import Library from './pages/Library.jsx'
 import Transport from './pages/Transport.jsx'
 import Events from './pages/Events.jsx'
 import Exams from './pages/Exams.jsx'
+import Timetable from './pages/Timetable.jsx'
 
 // ── Security: strict per-route authorization by role ──
 const ALL=['owner','schooladmin','admin','teacher','supervisor','parent']
@@ -53,6 +54,7 @@ export default function App(){
         <Route path="/app/students" element={R(<Students/>, ['schooladmin','admin','supervisor','teacher'])}/>
         <Route path="/app/teachers" element={R(<Teachers/>, ['schooladmin','admin'])}/>
         <Route path="/app/evaluate" element={R(<Evaluate/>, ['teacher'])}/>
+        <Route path="/app/timetable" element={R(<Timetable/>, ['schooladmin','admin','teacher','parent','supervisor'])}/>
         <Route path="/app/attendance" element={R(<Attendance/>, ['teacher','admin','supervisor'])}/>
         <Route path="/app/homework" element={R(<Homework/>, ['teacher','admin','parent'])}/>
         <Route path="/app/exams" element={R(<Exams/>, ['schooladmin','admin','teacher','parent'])}/>
