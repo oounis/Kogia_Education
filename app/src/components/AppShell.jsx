@@ -9,10 +9,11 @@ import { Mark } from './ui.jsx'
 import {
   LayoutDashboard, Users, GraduationCap, UserCog, ClipboardCheck, Wallet, CreditCard,
   ShieldAlert, FileText, Megaphone, Building2, Bell, Search, LogOut, ChevronDown, Menu as MenuIcon,
-  CalendarCheck, BookOpen, BookMarked, Bus, CalendarDays, MessageSquare, Award, CheckCheck, CalendarClock
+  CalendarCheck, BookOpen, BookMarked, Bus, CalendarDays, MessageSquare, Award, CheckCheck, CalendarClock, Radio
 } from 'lucide-react'
 const NAV=[
   { to:'/app', label:'Tableau de bord', icon:LayoutDashboard, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
+  { to:'/app/live', label:'Suivi en direct', icon:Radio, roles:['parent'] },
   { to:'/app/schools', label:'Écoles', icon:Building2, roles:['owner'] },
   { to:'/app/accounts', label:'Comptes', icon:UserCog, roles:['schooladmin'] },
   { to:'/app/students', label:'Élèves', icon:Users, roles:['schooladmin','admin','supervisor','teacher'] },
