@@ -7,14 +7,15 @@ import { PageHead, Card, Avatar, Select } from '../components/ui.jsx'
 import { studentColor } from '../data.js'
 import { BookOpen, Coffee, Utensils, Stethoscope, DoorOpen, Radio, Clock, MapPin, GraduationCap } from 'lucide-react'
 
-// school "map" — rooms placed on a floor plan (percent coords)
+// school "map" — rooms placed on a floor plan (percent coords), with a scene emoji
 const PLACES={
-  class:      {label:'Salle de classe',   x:26, y:34, color:'#6C5CE7', Icon:BookOpen},
-  cour:       {label:'Cour de récréation', x:76, y:30, color:'#2BD9A8', Icon:Coffee},
-  cantine:    {label:'Cantine',            x:78, y:74, color:'#FFA62B', Icon:Utensils},
-  infirmerie: {label:'Infirmerie',         x:50, y:16, color:'#FF6B81', Icon:Stethoscope},
-  entree:     {label:'Entrée / Sortie',    x:50, y:90, color:'#8A93A6', Icon:DoorOpen},
+  class:      {label:'Salle de classe',   x:26, y:34, color:'#6C5CE7', Icon:BookOpen,     emoji:'🏫'},
+  cour:       {label:'Cour de récréation', x:76, y:30, color:'#2BD9A8', Icon:Coffee,       emoji:'🌳'},
+  cantine:    {label:'Cantine',            x:78, y:74, color:'#FFA62B', Icon:Utensils,     emoji:'🍽️'},
+  infirmerie: {label:'Infirmerie',         x:50, y:16, color:'#FF6B81', Icon:Stethoscope,  emoji:'🏥'},
+  entree:     {label:'Entrée / Sortie',    x:50, y:90, color:'#8A93A6', Icon:DoorOpen,     emoji:'🚪'},
 }
+const face=s=>s.gender==='Fille'?'👧':s.gender==='Garçon'?'👦':'🧑'
 const toMin=hhmm=>{const[h,m]=hhmm.split(':').map(Number);return h*60+m}
 const fmt=min=>`${String(Math.floor(min/60)).padStart(2,'0')}:${String(min%60).padStart(2,'0')}`
 
@@ -88,10 +89,11 @@ export default function Live(){
           {/* subtle floor grid */}
           <div className="absolute inset-0 opacity-[0.5]" style={{backgroundImage:'linear-gradient(#E7EAF5 1px,transparent 1px),linear-gradient(90deg,#E7EAF5 1px,transparent 1px)',backgroundSize:'40px 40px'}}/>
           {/* rooms */}
-          {Object.entries(PLACES).map(([k,p])=>{const active=st.place===k;const Ic=p.Icon;return(
+          {Object.entries(PLACES).map(([k,p])=>{const active=st.place===k;return(
             <div key={k} className="absolute -translate-x-1/2 -translate-y-1/2 text-center" style={{left:`${p.x}%`,top:`${p.y}%`}}>
-              <motion.div animate={active?{scale:1.06}:{scale:1}} className="rounded-2xl px-3 py-2 border-2 bg-white shadow-sm" style={{borderColor:active?p.color:'#EDEFF5'}}>
-                <span className="w-9 h-9 mx-auto rounded-xl grid place-items-center mb-1" style={{background:p.color+'1A',color:p.color}}><Ic size={18}/></span>
+              <motion.div animate={active?{scale:1.08,y:-2}:{scale:1,y:0}} className="rounded-2xl px-3 pt-2.5 pb-2 border-2 shadow-sm w-[104px]"
+                style={{borderColor:active?p.color:'#EDEFF5',background:active?`linear-gradient(160deg,#fff, ${p.color}14)`:'#fff'}}>
+                <div className="text-2xl leading-none mb-1">{p.emoji}</div>
                 <div className="text-[11px] font-bold leading-tight" style={{color:active?p.color:'#8A93A6'}}>{p.label}</div>
               </motion.div>
             </div>
@@ -102,7 +104,7 @@ export default function Live(){
             <div className="relative grid place-items-center">
               <motion.span className="absolute rounded-full" style={{background:place.color}} animate={{scale:[1,2.6],opacity:[.35,0]}} transition={{repeat:Infinity,duration:1.8}} initial={{width:44,height:44}}/>
               <span className="absolute rounded-full" style={{width:44,height:44,background:place.color,opacity:.18}}/>
-              <div className="relative w-11 h-11 rounded-full grid place-items-center text-white font-bold border-4 border-white shadow-lg" style={{background:studentColor(kid.id)}}>{kid.initials}</div>
+              <div className="relative w-12 h-12 rounded-full grid place-items-center text-2xl border-4 border-white shadow-lg" style={{background:studentColor(kid.id)+'33'}}>{face(kid)}</div>
               <div className="absolute -bottom-6 whitespace-nowrap text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{background:place.color}}>{st.title}</div>
             </div>
           </motion.div>
@@ -113,7 +115,7 @@ export default function Live(){
       <div className="space-y-5">
         <Card className="p-5">
           <div className="flex items-center gap-3">
-            <Avatar name={kid.name} initials={kid.initials} color={studentColor(kid.id)} size={46}/>
+            <span className="w-12 h-12 rounded-2xl grid place-items-center text-2xl shrink-0" style={{background:studentColor(kid.id)+'22'}}>{face(kid)}</span>
             <div><div className="font-bold">{kid.name}</div><div className="text-xs text-muted">{cls?.name} · {cls?.cycle}</div></div>
           </div>
           <div className="mt-4 rounded-2xl p-4" style={{background:place.color+'12'}}>
