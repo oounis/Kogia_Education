@@ -5,28 +5,39 @@ import { PageHead, Table, Avatar, Btn, Modal, Field, Input, Select, Section } fr
 import { studentColor } from '../data.js'
 import { GOVERNORATES, DOC_TYPES, validCIN } from '../tunisia.js'
 import Attach from '../components/Attach.jsx'
-import { UserPlus, Eye } from 'lucide-react'
+import { UserPlus, Eye, Search, ChevronRight } from 'lucide-react'
 import toast from 'react-hot-toast'
 const BLANK={name:'',gender:'Garçon',dob:'',subject:'',qualification:'',experience:'',joiningDate:'',designation:'Professeur',phone:'',email:'',address:'',salary:'',cin:'',governorate:'Tunis',attachments:[]}
+const tface=t=>t.gender==='Fille'?'👩‍🏫':'👨‍🏫'
 export default function Teachers(){
   const u=current(); const canEdit=['schooladmin','admin'].includes(u.role)
-  const [,force]=useState(0); const [open,setOpen]=useState(false); const [view,setView]=useState(null); const [f,setF]=useState(BLANK)
+  const [,force]=useState(0); const [open,setOpen]=useState(false); const [view,setView]=useState(null); const [f,setF]=useState(BLANK); const [q,setQ]=useState('')
   const d=db()
   const add=()=>{ if(!f.name.trim())return toast.error('Le nom est requis')
     mutate(db=>{db.teachers.push({...f,id:uid('t'),classes:[],experience:Number(f.experience)||0,salary:Number(f.salary)||0})})
     toast.success('Enseignant ajouté'); setOpen(false); setF(BLANK); force(x=>x+1) }
+  const query=q.trim().toLowerCase()
+  const list=query? d.teachers.filter(t=>t.name.toLowerCase().includes(query)||(t.subject||'').toLowerCase().includes(query)) : d.teachers
+  // group by subject
+  const subjects=[...new Set(list.map(t=>t.subject||'Autre'))].sort()
+  const TCard=({t})=>(
+    <button onClick={()=>setView(t)} className="card p-4 flex items-center gap-3 text-left hover:shadow-lg hover:-translate-y-0.5 transition w-full">
+      <span className="w-12 h-12 rounded-2xl grid place-items-center text-2xl shrink-0" style={{background:studentColor(t.id)+'22'}}>{tface(t)}</span>
+      <div className="min-w-0 flex-1"><div className="font-semibold truncate">{t.name}</div><div className="text-xs text-muted truncate">{t.designation} · {t.experience} ans</div></div>
+      <ChevronRight size={16} className="text-muted"/>
+    </button>
+  )
   return (<>
-    <PageHead title="Enseignants & personnel" sub={`${d.teachers.length} membres`} action={canEdit&&<Btn onClick={()=>{setF(BLANK);setOpen(true)}}><UserPlus size={16}/> Ajouter un enseignant</Btn>}/>
-    <Table head={['Enseignant','Matière','Fonction','Expérience','']}>
-      {d.teachers.map(t=>(
-        <tr key={t.id} className="hover:bg-canvas">
-          <td className="px-4 py-3"><div className="flex items-center gap-3"><Avatar name={t.name} color={studentColor(t.id)}/><div><div className="font-medium">{t.name}</div><div className="text-xs text-muted">{t.email}</div></div></div></td>
-          <td className="px-4 py-3">{t.subject}</td><td className="px-4 py-3 text-muted">{t.designation}</td>
-          <td className="px-4 py-3 text-muted">{t.experience} ans</td>
-          <td className="px-4 py-3"><button onClick={()=>setView(t)} className="text-muted hover:accent-text"><Eye size={17}/></button></td>
-        </tr>
+    <PageHead title="Enseignants & personnel" sub={`${d.teachers.length} membres · ${subjects.length} matières`} action={canEdit&&<Btn onClick={()=>{setF(BLANK);setOpen(true)}}><UserPlus size={16}/> Ajouter un enseignant</Btn>}/>
+    <div className="card flex items-center gap-2 px-3 py-2 mb-5 max-w-sm"><Search size={16} className="text-muted"/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Rechercher (nom ou matière)…" className="bg-transparent outline-none text-sm w-full"/></div>
+    <div className="space-y-6">
+      {subjects.map(sub=>(
+        <div key={sub}>
+          <div className="flex items-center gap-2 mb-3"><span className="w-2.5 h-2.5 rounded-full accent-bg"/><h2 className="font-bold">{sub}</h2><span className="text-xs text-muted">· {list.filter(t=>(t.subject||'Autre')===sub).length}</span></div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">{list.filter(t=>(t.subject||'Autre')===sub).map(t=><TCard key={t.id} t={t}/>)}</div>
+        </div>
       ))}
-    </Table>
+    </div>
     <Modal open={open} onClose={()=>setOpen(false)} title="Ajouter un enseignant / membre" size="2xl" footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={add}>Ajouter</Btn></>}>
       <Section title="Informations personnelles">
         <Field label="Nom complet *"><Input value={f.name} onChange={e=>setF({...f,name:e.target.value})}/></Field>

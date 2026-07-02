@@ -1,12 +1,15 @@
 import { Dialog } from '@headlessui/react'
 import { X } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 export function Card({ className='', children }){ return <div className={`card ${className}`}>{children}</div> }
-export function StatCard({ label, value, sub, tint='brand', icon }){
+export function StatCard({ label, value, sub, tint='brand', icon, to }){
   const map={brand:['#EEEBFF','#6C5CE7'],sky:['#E4F7FE','#0BA5D8'],butter:['#FFF4DD','#E59A12'],mint:['#E2FBF3','#10B981'],coral:['#FFE8EC','#FF6B81'],grape:['#F1ECFE','#8B5CF6']}
   const [bg,fg]=map[tint]||map.brand
-  return <div className="card p-4 flex items-center gap-3"><span className="w-12 h-12 rounded-2xl grid place-items-center shrink-0" style={{background:bg,color:fg}}>{icon}</span>
-    <div className="min-w-0"><div className="text-2xl font-extrabold leading-none">{value}</div><div className="text-xs text-muted mt-1 truncate">{label}{sub&&<span className="ml-1">· {sub}</span>}</div></div></div>
+  const inner=<><span className="w-12 h-12 rounded-2xl grid place-items-center shrink-0" style={{background:bg,color:fg}}>{icon}</span>
+    <div className="min-w-0"><div className="text-2xl font-extrabold leading-none">{value}</div><div className="text-xs text-muted mt-1 truncate">{label}{sub&&<span className="ml-1">· {sub}</span>}</div></div></>
+  if(to) return <Link to={to} className="card p-4 flex items-center gap-3 hover:shadow-lg hover:-translate-y-0.5 transition">{inner}</Link>
+  return <div className="card p-4 flex items-center gap-3">{inner}</div>
 }
 export function Badge({ status }){
   const m={paid:['#E2FBF3','#10B981','Payé'],pending:['#FFF4DD','#E59A12','En attente'],overdue:['#FFE8EC','#EF4444','En retard'],due:['#EEF1F6','#8A93A6','Impayé'],open:['#FFF4DD','#E59A12','Ouvert'],resolved:['#E2FBF3','#10B981','Résolu'],approved:['#E2FBF3','#10B981','Approuvé'],rejected:['#FFE8EC','#EF4444','Rejeté'],present:['#E2FBF3','#10B981','Présent'],absent:['#FFE8EC','#EF4444','Absent'],late:['#FFF4DD','#E59A12','Retard']}

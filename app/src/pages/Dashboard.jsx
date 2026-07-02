@@ -93,10 +93,10 @@ export default function Dashboard(){
   const radial=[{name:'Recouvrement',value:collectRate,fill:'#2BD9A8'}]
   return (<><PageHead title={greet} sub="Vue d'ensemble de l'école."/>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-      <StatCard label="Élèves" value={d.students.length} tint="grape" icon={<Users/>}/>
-      <StatCard label="Enseignants" value={d.teachers.length} tint="butter" icon={<GraduationCap/>}/>
-      <StatCard label="Incidents ouverts" value={d.incidents.filter(i=>i.status==='open').length} tint="coral" icon={<ShieldAlert/>}/>
-      <StatCard label="Demandes en attente" value={d.requests.filter(r=>r.status==='pending').length} tint="sky" icon={<FileText/>}/>
+      <StatCard label="Élèves" value={d.students.length} tint="grape" icon={<Users/>} to="/app/students"/>
+      <StatCard label="Enseignants" value={d.teachers.length} tint="butter" icon={<GraduationCap/>} to="/app/teachers"/>
+      <StatCard label="Incidents ouverts" value={d.incidents.filter(i=>i.status==='open').length} tint="coral" icon={<ShieldAlert/>} to="/app/incidents"/>
+      <StatCard label="Demandes en attente" value={d.requests.filter(r=>r.status==='pending').length} tint="sky" icon={<FileText/>} to="/app/requests"/>
     </div>
     <div className="grid lg:grid-cols-3 gap-4 mb-4">
       <Card className="p-5"><h3 className="font-bold mb-1">État des frais</h3><p className="text-xs text-muted mb-2">Tous mois confondus</p>
