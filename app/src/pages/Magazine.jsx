@@ -30,6 +30,9 @@ async function downloadStory(story){
     doc.text(p.t,W/2,M+f.h+34,{align:'center',maxWidth:W-2*M-20})
     doc.setTextColor(150,150,160); doc.setFontSize(9); doc.text(`${i+1} / ${story.pages.length}`,W/2,H-20,{align:'center'})
   }
+  if(story.moral){ doc.addPage(); doc.setFillColor(story.color); doc.rect(0,0,W,H,'F')
+    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(15); doc.text('La morale de l’histoire',W/2,H/2-26,{align:'center'})
+    doc.setFont('helvetica','italic'); doc.setFontSize(13); doc.text(story.moral,W/2,H/2+4,{align:'center',maxWidth:W-2*M}) }
   doc.save(`${story.id}-kogia.pdf`)
 }
 
@@ -69,11 +72,15 @@ export default function Magazine(){
         <Btn variant="ghost" onClick={()=>go(-1)} disabled={pg===0}><ChevronLeft size={16}/></Btn>
         <span className="text-sm text-muted self-center">{pg+1} / {story.pages.length}</span>
         <Btn onClick={()=>go(1)} disabled={pg===story.pages.length-1}>Suivant <ChevronRight size={16}/></Btn></>}>
-      {page&&<div>
-        <div className="rounded-2xl grid place-items-center p-3" style={{background:story.color+'10',minHeight:280}}>
-          <AnimatePresence mode="wait"><motion.img key={pg} src={storyImg(page.n)} alt="" initial={{opacity:0,x:30}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-30}} transition={{duration:.25}} className="max-h-[46vh] max-w-full object-contain drop-shadow-lg"/></AnimatePresence>
+      {page&&<div className="grid md:grid-cols-2 gap-5 items-center">
+        <div className="rounded-2xl grid place-items-center p-3" style={{background:story.color+'10',minHeight:240}}>
+          <AnimatePresence mode="wait"><motion.img key={pg} src={storyImg(page.n)} alt="" initial={{opacity:0,x:24}} animate={{opacity:1,x:0}} exit={{opacity:0,x:-24}} transition={{duration:.25}} className="max-h-[44vh] max-w-full object-contain drop-shadow-lg"/></AnimatePresence>
         </div>
-        <p className="text-center text-lg font-semibold mt-4 px-2 leading-snug">{page.t}</p>
+        <div>
+          <div className="text-xs font-bold uppercase tracking-wide mb-2" style={{color:story.color}}>Page {pg+1} sur {story.pages.length}</div>
+          <AnimatePresence mode="wait"><motion.p key={pg} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0}} transition={{duration:.2}} className="text-[15.5px] leading-relaxed text-ink">{page.t}</motion.p></AnimatePresence>
+          {pg===story.pages.length-1 && story.moral && <div className="mt-4 rounded-xl p-3 text-sm font-medium" style={{background:story.color+'14',color:story.color}}>🌟 La morale : {story.moral}</div>}
+        </div>
       </div>}
     </Modal>
   </>)
