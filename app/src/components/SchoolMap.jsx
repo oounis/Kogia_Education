@@ -91,6 +91,12 @@ export default function SchoolMap({ area, spot, kid, title, Kid }){
         <Tree x={470} y={110} s={0.85}/><Tree x={250} y={430} s={1}/><Tree x={700} y={330} s={0.8}/><Tree x={150} y={210} s={0.7}/>
         <Bush x={300} y={150}/><Bush x={520} y={200}/><Bush x={430} y={430}/>
         {[[210,120,'#FF6B81'],[560,320,'#FFC02E'],[480,380,'#7C5CE0'],[200,360,'#FF6B81'],[640,470,'#FFC02E']].map(([x,y,c],i)=><Flower key={i} x={x} y={y} c={c}/>)}
+        {/* flag on the school */}
+        <g transform="translate(153 34)"><rect x="0" y="-18" width="3" height="32" fill="#7A5A3A"/><path d="M3 -18 L24 -11 L3 -4 Z" fill="#22C55E"/></g>
+        {/* benches */}
+        {[[300,362],[470,362]].map(([x,y],i)=><g key={i} transform={`translate(${x} ${y})`}><rect x="-15" y="0" width="30" height="5" rx="2" fill="#C08A4C"/><rect x="-13" y="5" width="3" height="7" fill="#8C6B45"/><rect x="10" y="5" width="3" height="7" fill="#8C6B45"/></g>)}
+        {/* lamp posts */}
+        {[[212,238],[556,338],[430,150]].map(([x,y],i)=><g key={i} transform={`translate(${x} ${y})`}><rect x="-1.5" y="0" width="3" height="22" fill="#8F9BB3"/><circle cx="0" cy="-2" r="5" fill="#FFE08A"/><circle cx="0" cy="-2" r="8" fill="#FFE08A" opacity=".25"/></g>)}
       </svg>
 
       {/* the walking child (HTML overlay, positioned in % of the same box) */}
