@@ -26,6 +26,7 @@ import Events from './pages/Events.jsx'
 import Exams from './pages/Exams.jsx'
 import Timetable from './pages/Timetable.jsx'
 import Live from './pages/Live.jsx'
+import Settings from './pages/Settings.jsx'
 
 // ── Security: strict per-route authorization by role ──
 const ALL=['owner','schooladmin','admin','teacher','supervisor','parent']
@@ -51,6 +52,7 @@ export default function App(){
         <Route path="/login" element={<Login/>}/>
         <Route path="/app" element={R(<Dashboard/>, ALL)}/>
         <Route path="/app/schools" element={R(<Schools/>, ['owner'])}/>
+        <Route path="/app/settings" element={R(<Settings/>, ['owner','schooladmin'])}/>
         <Route path="/app/accounts" element={R(<Accounts/>, ['schooladmin'])}/>
         <Route path="/app/students" element={R(<Students/>, ['schooladmin','admin','supervisor','teacher'])}/>
         <Route path="/app/teachers" element={R(<Teachers/>, ['schooladmin','admin'])}/>

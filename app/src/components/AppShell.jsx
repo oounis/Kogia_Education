@@ -9,8 +9,9 @@ import { Mark } from './ui.jsx'
 import {
   LayoutDashboard, Users, GraduationCap, UserCog, ClipboardCheck, Wallet, CreditCard,
   ShieldAlert, FileText, Megaphone, Building2, Bell, Search, LogOut, ChevronDown, Menu as MenuIcon,
-  CalendarCheck, BookOpen, BookMarked, Bus, CalendarDays, MessageSquare, Award, CheckCheck, CalendarClock, Radio
+  CalendarCheck, BookOpen, BookMarked, Bus, CalendarDays, MessageSquare, Award, CheckCheck, CalendarClock, Radio, Settings
 } from 'lucide-react'
+import { settings } from '../db.js'
 const NAV=[
   { to:'/app', label:'Tableau de bord', icon:LayoutDashboard, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
   { to:'/app/live', label:'Suivi en direct', icon:Radio, roles:['parent'] },
@@ -32,6 +33,7 @@ const NAV=[
   { to:'/app/requests', label:'Demandes', icon:FileText, roles:['teacher','admin','schooladmin'] },
   { to:'/app/messages', label:'Messages', icon:MessageSquare, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
   { to:'/app/notices', label:'Annonces', icon:Megaphone, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
+  { to:'/app/settings', label:'Paramètres', icon:Settings, roles:['owner','schooladmin'] },
 ]
 export default function AppShell({ children }){
   const u=current(); const loc=useLocation(); const nav=useNavigate(); const [open,setOpen]=useState(false)
@@ -46,7 +48,7 @@ export default function AppShell({ children }){
           {items.map(n=>{ const active=loc.pathname===n.to; return (
             <Link key={n.to} to={n.to} onClick={()=>setOpen(false)} className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium ${active?'accent-soft accent-text':'text-muted hover:bg-canvas'}`}><n.icon size={18}/> {n.label}</Link>) })}
         </nav>
-        <div className="rounded-2xl p-4 text-white text-sm mt-3" style={{background:`linear-gradient(135deg,${role.color},#10162B)`}}><div className="font-bold">{role.label}</div><div className="opacity-80 text-xs mt-1">École Al-Nour · Tunis</div></div>
+        <div className="rounded-2xl p-4 text-white text-sm mt-3" style={{background:`linear-gradient(135deg,${role.color},#10162B)`}}><div className="font-bold">{role.label}</div><div className="opacity-80 text-xs mt-1">{settings().schoolName} · {settings().city}</div></div>
       </aside>
       <div className="flex-1 min-w-0">
         <header className="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-line">

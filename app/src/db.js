@@ -106,10 +106,17 @@ function seed(){
   const att1={}; c5.forEach((s,i)=>att1[s.id]= i===3?'absent': i===6?'late':'present')
   const att2={}; c5.forEach((s,i)=>att2[s.id]= i===5?'late':'present')
   const attendance={["c5a_"+dstr(1)]:att1,["c5a_"+dstr(2)]:att2}
-  return {classes,students,teachers,users,payments,evaluations,incidents,requests,books,routes,homework,events,exams,messages,attendance,notifications,timetables:genTimetables(classes)}
+  const settings={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026',
+    director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis',
+    brand:'#6C5CE7', logoText:'AN', currency:'DT' }
+  return {classes,students,teachers,users,payments,evaluations,incidents,requests,books,routes,homework,events,exams,messages,attendance,notifications,timetables:genTimetables(classes),settings}
 }
+export const DEFAULT_SETTINGS={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026', director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis', brand:'#6C5CE7', logoText:'AN', currency:'DT' }
+export const settings=()=>({...DEFAULT_SETTINGS, ...(db().settings||{})})
+export function saveSettings(patch){ return mutate(d=>{ d.settings={...DEFAULT_SETTINGS, ...(d.settings||{}), ...patch} }) }
 export function db(){let d=null;try{d=JSON.parse(localStorage.getItem(KEY))}catch{};if(!d){d=seed();localStorage.setItem(KEY,JSON.stringify(d))}
   if(!d.timetables){ d.timetables=genTimetables(d.classes); localStorage.setItem(KEY,JSON.stringify(d)) }  // backfill older dbs
+  if(!d.settings){ d.settings={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026', director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis', brand:'#6C5CE7', logoText:'AN', currency:'DT' }; localStorage.setItem(KEY,JSON.stringify(d)) }
   return d}
 export function setTimetableCell(classId,pi,di,cell){ return mutate(d=>{ d.timetables=d.timetables||{}; d.timetables[classId]=d.timetables[classId]||Array.from({length:6},()=>Array(5).fill(null)); d.timetables[classId][pi]=d.timetables[classId][pi]||Array(5).fill(null); d.timetables[classId][pi][di]=cell }) }
 export function save(d){localStorage.setItem(KEY,JSON.stringify(d))}
