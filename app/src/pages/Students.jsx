@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { current } from '../auth.js'
 import { db, mutate, uid, classById, userById, CYCLES, studentsOfClass } from '../db.js'
 import { PageHead, Avatar, Btn, Modal, Field, Input, Select, Section, Card } from '../components/ui.jsx'
@@ -20,6 +21,8 @@ export default function Students(){
   const [open,setOpen]=useState(false); const [viewS,setViewS]=useState(null); const [bulletin,setBulletin]=useState(null)
   const [q,setQ]=useState(''); const [sel,setSel]=useState(null); const [f,setF]=useState(BLANK)
   const d=db(); const parents=d.users.filter(x=>x.role==='parent')
+  const loc=useLocation()
+  useEffect(()=>{ const id=loc.state?.openStudent; if(id){ const s=d.students.find(x=>x.id===id); if(s) setViewS(s) } },[loc.state])
 
   const add=()=>{ if(!f.name.trim())return toast.error('Le nom est requis'); if(!f.consent)return toast.error('Veuillez accepter le consentement (loi 2004-63)')
     let cid; mutate(db=>{ let cls=db.classes.find(c=>c.grade===f.grade && c.name.endsWith(' '+f.section))

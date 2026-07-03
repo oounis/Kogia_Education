@@ -11,7 +11,7 @@ import {
   ShieldAlert, FileText, Megaphone, Building2, Bell, Search, LogOut, ChevronDown, Menu as MenuIcon,
   CalendarCheck, BookOpen, BookMarked, Bus, CalendarDays, MessageSquare, Award, CheckCheck, CalendarClock, Radio, Settings
 } from 'lucide-react'
-import { settings } from '../db.js'
+import { settings, db, classById } from '../db.js'
 const NAV=[
   { to:'/app', label:'Tableau de bord', icon:LayoutDashboard, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
   { to:'/app/live', label:'Suivi en direct', icon:Radio, roles:['parent'] },
@@ -54,13 +54,37 @@ export default function AppShell({ children }){
         <header className="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-line">
           <div className="flex items-center gap-3 px-4 lg:px-6 py-3">
             <button className="lg:hidden text-muted" onClick={()=>setOpen(!open)}><MenuIcon size={20}/></button>
-            <div className="hidden sm:flex items-center gap-2 bg-canvas rounded-xl px-3 py-2 w-72 max-w-full"><Search size={16} className="text-muted"/><input placeholder="Rechercher…" className="bg-transparent text-sm outline-none w-full"/></div>
+            <GlobalSearch user={u}/>
             <div className="ml-auto flex items-center gap-2"><BellMenu user={u}/><UserMenu user={u} role={role} onLogout={()=>{logout();nav('/')}}/></div>
           </div>
         </header>
         <main className="px-4 lg:px-6 py-6 max-w-[1200px] mx-auto">{children}</main>
       </div>
       {open&&<div className="fixed inset-0 bg-ink/20 z-30 lg:hidden" onClick={()=>setOpen(false)}/>}
+    </div>
+  )
+}
+function GlobalSearch({ user }){
+  const nav=useNavigate(); const [q,setQ]=useState(''); const [open,setOpen]=useState(false)
+  const d=db(); const query=q.trim().toLowerCase()
+  const canStudents=['owner','schooladmin','admin','supervisor','teacher'].includes(user.role)
+  const canTeachers=['owner','schooladmin','admin'].includes(user.role)
+  const students= query&&canStudents? d.students.filter(s=>s.name.toLowerCase().includes(query)).slice(0,6):[]
+  const teachers= query&&canTeachers? d.teachers.filter(t=>t.name.toLowerCase().includes(query)).slice(0,3):[]
+  const has=students.length||teachers.length
+  const face=s=>s.gender==='Fille'?'👧':s.gender==='Garçon'?'👦':'🧑'
+  const go=(to,state)=>{ setQ(''); setOpen(false); nav(to,{state}) }
+  return (
+    <div className="relative hidden sm:block">
+      <div className="flex items-center gap-2 bg-canvas rounded-xl px-3 py-2 w-72"><Search size={16} className="text-muted"/>
+        <input value={q} onChange={e=>{setQ(e.target.value);setOpen(true)}} onFocus={()=>setOpen(true)} onBlur={()=>setTimeout(()=>setOpen(false),160)} placeholder="Rechercher un élève, un enseignant…" className="bg-transparent text-sm outline-none w-full"/></div>
+      {open&&query&&(<div className="absolute left-0 mt-2 w-80 card p-2 shadow-2xl z-50 max-h-[70vh] overflow-y-auto scroll-thin">
+        {!has&&<div className="px-3 py-6 text-center text-sm text-muted">Aucun résultat pour « {q} »</div>}
+        {students.length>0&&<div className="text-[10px] font-bold uppercase text-muted px-2 py-1">Élèves</div>}
+        {students.map(s=><button key={s.id} onMouseDown={()=>go('/app/students',{openStudent:s.id})} className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-canvas text-left"><span className="w-8 h-8 rounded-lg grid place-items-center text-lg bg-canvas">{face(s)}</span><div className="min-w-0"><div className="text-sm font-medium truncate">{s.name}</div><div className="text-[11px] text-muted">{classById(s.classId)?.name||''}</div></div></button>)}
+        {teachers.length>0&&<div className="text-[10px] font-bold uppercase text-muted px-2 py-1 mt-1">Enseignants</div>}
+        {teachers.map(t=><button key={t.id} onMouseDown={()=>go('/app/teachers',{openTeacher:t.id})} className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-canvas text-left"><span className="w-8 h-8 rounded-lg grid place-items-center text-lg bg-canvas">{t.gender==='Fille'?'👩‍🏫':'👨‍🏫'}</span><div className="min-w-0"><div className="text-sm font-medium truncate">{t.name}</div><div className="text-[11px] text-muted">{t.subject}</div></div></button>)}
+      </div>)}
     </div>
   )
 }

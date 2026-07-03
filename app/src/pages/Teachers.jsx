@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { current } from '../auth.js'
 import { db, mutate, uid } from '../db.js'
 import { PageHead, Table, Avatar, Btn, Modal, Field, Input, Select, Section } from '../components/ui.jsx'
@@ -12,7 +13,8 @@ const tface=t=>t.gender==='Fille'?'👩‍🏫':'👨‍🏫'
 export default function Teachers(){
   const u=current(); const canEdit=['schooladmin','admin'].includes(u.role)
   const [,force]=useState(0); const [open,setOpen]=useState(false); const [view,setView]=useState(null); const [f,setF]=useState(BLANK); const [q,setQ]=useState('')
-  const d=db()
+  const d=db(); const loc=useLocation()
+  useEffect(()=>{ const id=loc.state?.openTeacher; if(id){ const t=d.teachers.find(x=>x.id===id); if(t) setView(t) } },[loc.state])
   const add=()=>{ if(!f.name.trim())return toast.error('Le nom est requis')
     mutate(db=>{db.teachers.push({...f,id:uid('t'),classes:[],experience:Number(f.experience)||0,salary:Number(f.salary)||0})})
     toast.success('Enseignant ajouté'); setOpen(false); setF(BLANK); force(x=>x+1) }
