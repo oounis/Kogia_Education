@@ -16,10 +16,8 @@ async function buildPDF(card){
   const doc=new jsPDF({unit:'mm',format:'a6'}); const W=105,H=148
   const a=rgb(card.accent), b=rgb(card.bg), k=rgb(card.ink)
   doc.setFillColor(b[0],b[1],b[2]); doc.rect(0,0,W,H,'F')
-  doc.setDrawColor(a[0],a[1],a[2]); doc.setLineWidth(1.1); doc.roundedRect(7,7,W-14,H-14,5,5,'S')
-  doc.setLineWidth(0.35); doc.roundedRect(10,10,W-20,H-20,4,4,'S')
-  ;[[14,14],[W-14,14],[14,H-14],[W-14,H-14]].forEach(([x,y])=>heart(doc,x,y,2.3,a))
-  for(let x=24;x<=W-24;x+=6){ doc.setFillColor(a[0],a[1],a[2]); doc.circle(x,13,0.5,'F'); doc.circle(x,H-13,0.5,'F') }
+  doc.setDrawColor(a[0],a[1],a[2]); doc.setLineWidth(0.5); doc.roundedRect(8,8,W-16,H-16,6,6,'S')
+  doc.setFillColor(b[0],b[1],b[2]); doc.rect(W/2-6,6.4,12,3.2,'F'); heart(doc,W/2,8,2.4,a)
   const im=await toPNG(art(card.img)); const f=fit(im.w,im.h,W-34,70); doc.addImage(im.url,'PNG',(W-f.w)/2,19,f.w,f.h,undefined,'FAST')
   doc.setTextColor(k[0],k[1],k[2]); doc.setFont('times','italic'); doc.setFontSize(18)
   doc.text(doc.splitTextToSize(card.text,W-30),W/2,104,{align:'center'})
@@ -30,15 +28,10 @@ async function buildPDF(card){
 
 // on-screen card that mirrors the printed design
 function CardFace({ card }){
-  const dots=Array.from({length:11})
   return (
     <div className="relative w-full rounded-2xl overflow-hidden" style={{aspectRatio:'105/148', background:card.bg}}>
-      <div className="absolute rounded-xl" style={{inset:'6%', border:`2px solid ${card.accent}`}}/>
-      <div className="absolute rounded-lg" style={{inset:'8.5%', border:`1px solid ${card.accent}66`}}/>
-      {[['top-[4%] left-[4%]'],['top-[4%] right-[4%]'],['bottom-[4%] left-[4%]'],['bottom-[4%] right-[4%]']].map((p,i)=>
-        <Heart key={i} size={13} className={`absolute ${p}`} style={{color:card.accent,fill:card.accent}}/>)}
-      <div className="absolute top-[7.5%] inset-x-[18%] flex justify-between">{dots.map((_,i)=><span key={i} className="w-1 h-1 rounded-full" style={{background:card.accent}}/>)}</div>
-      <div className="absolute bottom-[8%] inset-x-[18%] flex justify-between">{dots.map((_,i)=><span key={i} className="w-1 h-1 rounded-full" style={{background:card.accent}}/>)}</div>
+      <div className="absolute rounded-2xl" style={{inset:'7%', border:`1.5px solid ${card.accent}`}}/>
+      <span className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 px-2" style={{top:'7%', background:card.bg}}><Heart size={16} style={{color:card.accent,fill:card.accent}}/></span>
       <div className="absolute inset-x-0 top-[12%] h-[48%] flex items-center justify-center px-[16%]"><img src={art(card.img)} alt="" className="max-h-full max-w-full object-contain drop-shadow-lg"/></div>
       <div className="absolute inset-x-0 top-[63%] px-[15%] text-center"><p className="font-serif italic leading-snug" style={{color:card.ink,fontSize:'clamp(13px,3.4vw,20px)'}}>{card.text}</p></div>
       <div className="absolute bottom-[10.5%] inset-x-0 flex justify-center items-center gap-1 opacity-90"><Mark size={13}/><span className="text-[9px] font-extrabold tracking-[.2em]" style={{color:card.accent}}>KOGIA EDU</span></div>
