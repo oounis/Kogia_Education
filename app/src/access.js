@@ -25,7 +25,7 @@ export const ROUTE_ROLES={
   '/app/messages': ALL,
   '/app/notices': ALL,
   '/app/notifications': ALL,
-  '/app/histoires': ALL,
+  '/app/cartes': ALL,
 }
 // can this role open this path? (ignores query/hash)
 export function canAccess(role, path){

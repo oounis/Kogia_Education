@@ -9,7 +9,7 @@ import { Mark } from './ui.jsx'
 import {
   LayoutDashboard, Users, GraduationCap, UserCog, ClipboardCheck, Wallet, CreditCard,
   ShieldAlert, FileText, Megaphone, Building2, Bell, Search, LogOut, ChevronDown, Menu as MenuIcon,
-  CalendarCheck, BookOpen, BookMarked, Bus, CalendarDays, MessageSquare, Award, CheckCheck, CalendarClock, Radio, Gift, Settings
+  CalendarCheck, BookOpen, BookMarked, Bus, CalendarDays, MessageSquare, Award, CheckCheck, CalendarClock, Radio, Gift, Settings, Sparkles
 } from 'lucide-react'
 import { settings, db, classById } from '../db.js'
 import { safeLink } from '../access.js'
@@ -35,7 +35,7 @@ const NAV=[
   { to:'/app/requests', label:'Demandes', icon:FileText, roles:['teacher','admin','schooladmin'] },
   { to:'/app/messages', label:'Messages', icon:MessageSquare, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
   { to:'/app/notices', label:'Annonces', icon:Megaphone, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
-  { to:'/app/histoires', label:'Coin des Histoires', icon:BookOpen, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
+  { to:'/app/cartes', label:'Cartes à imprimer', icon:Sparkles, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
   { to:'/app/settings', label:'Paramètres', icon:Settings, roles:['owner','schooladmin'] },
 ]
 export default function AppShell({ children }){
