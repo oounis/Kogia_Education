@@ -61,7 +61,7 @@ export default function AppShell({ children }){
             <div className="ml-auto flex items-center gap-2"><MeteoCorner/><BellMenu user={u}/><UserMenu user={u} role={role} onLogout={()=>{logout();nav('/')}}/></div>
           </div>
         </header>
-        <main className="px-4 lg:px-6 py-6 max-w-[1200px] mx-auto">{children}</main>
+        <main className="px-4 lg:px-6 py-5 max-w-[1280px] mx-auto">{children}</main>
       </div>
       {open&&<div className="fixed inset-0 bg-ink/20 z-30 lg:hidden" onClick={()=>setOpen(false)}/>}
     </div>

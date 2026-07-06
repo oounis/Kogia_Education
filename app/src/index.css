@@ -11,10 +11,12 @@
   --color-mint: #2BD9A8;         --color-mint-soft: #E2FBF3;
   --color-coral: #FF6B81;        --color-coral-soft: #FFE8EC;
   --color-grape: #A78BFA;        --color-grape-soft: #F1ECFE;
-  --font-sans: "Inter Variable", system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans Variable", "Inter Variable", system-ui, sans-serif;
 }
-html{scroll-behavior:smooth}
-body{font-family:var(--font-sans);color:var(--color-ink);background:var(--color-canvas);-webkit-font-smoothing:antialiased}
+/* denser base so more content fits the page (rem-based Tailwind scales down) */
+html{scroll-behavior:smooth;font-size:15px}
+body{font-family:var(--font-sans);color:var(--color-ink);background:var(--color-canvas);-webkit-font-smoothing:antialiased;letter-spacing:-0.006em}
+h1,h2,h3,h4{letter-spacing:-0.022em}
 .card{background:#fff;border:1px solid var(--color-line);border-radius:1rem}
 .accent-bg{background:var(--accent)} .accent-text{color:var(--accent)} .accent-soft{background:var(--accent-soft)}
 .accent-ring:focus{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent)}
