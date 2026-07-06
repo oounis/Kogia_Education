@@ -8,7 +8,7 @@ import { studentColor } from '../data.js'
 import { Radio, Clock, MapPin } from 'lucide-react'
 import { AREAS, fmt, daySegments, statusAt } from '../livestatus.js'
 import { Kid } from '../components/Kid.jsx'
-import RouteMap from '../components/RouteMap.jsx'
+import RouteMap from '../components/RouteMapFlow.jsx'
 
 const stopLabel=s=> s.kind==='class'?(s.cell?.subject||'Étude') : s.kind==='cour'?'Récré' : s.kind==='cantine'?'Déjeuner' : 'Étude'
 
