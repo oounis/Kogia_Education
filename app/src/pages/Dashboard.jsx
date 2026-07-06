@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, AreaChart, Area, RadialBarChart, RadialBar } from 'recharts'
-import { Users, GraduationCap, Wallet, ShieldAlert, ClipboardCheck, CreditCard, Star, ArrowRight, Bell, FileText, TrendingUp, CalendarCheck } from 'lucide-react'
+import { Users, GraduationCap, Wallet, ShieldAlert, ClipboardCheck, CreditCard, Star, ArrowRight, Bell, FileText, TrendingUp, CalendarCheck, Radio } from 'lucide-react'
 import { current } from '../auth.js'
-import { db, FEE_MONTHS, studentById } from '../db.js'
+import { db, FEE_MONTHS, studentById, classById } from '../db.js'
 import { StatCard, Card, PageHead, Badge, Avatar, Btn } from '../components/ui.jsx'
 import { currentClass, studentColor } from '../data.js'
 import { studentSummary, bulletinFor, mentionFor } from '../results.js'
+import { statusAt, AREAS, room, fmt, nowState } from '../livestatus.js'
+import { Kid } from './Live.jsx'
 import Bulletin from '../components/Bulletin.jsx'
 
 const chartTip={contentStyle:{borderRadius:12,border:'1px solid #EDEFF5',fontSize:12,boxShadow:'0 8px 24px rgba(30,36,51,.08)'}}
@@ -148,7 +150,27 @@ function ParentDashboard({u,d,greet}){
   const months=(d.payments[childId]||[]); const paid=months.filter(m=>m.status==='paid').length
   const sessions=b?.sessions||[]
   const trend=sessions.slice(-6).map((s,i)=>({i:i+1,score:s.score,subject:s.subject}))
+  const cls=child?classById(child.classId):null
+  const ns=nowState(); const preview=ns.inSchool?ns.nowMin:630
+  const live=cls?statusAt(child.classId,ns.dayIdx,preview,false):null
+  const larea=live?AREAS[live.place]:null
   return (<><PageHead title={greet} sub="Votre enfant, en un coup d'œil."/>
+    {child&&live&&<Link to="/app/live" className="relative block rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition mb-5 group">
+      <img src={room(larea.img)} alt="" className="absolute inset-0 w-full h-full object-cover"/>
+      <div className="absolute inset-0" style={{background:'linear-gradient(90deg, rgba(8,12,26,.78) 0%, rgba(8,12,26,.35) 55%, rgba(8,12,26,.1) 100%)'}}/>
+      <div className="relative flex items-center gap-4 p-5 min-h-[128px]">
+        <div className="text-white min-w-0">
+          <div className="flex items-center gap-2 text-[11px] font-bold">
+            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-white" style={{background:ns.inSchool?'#FF3B5C':'#8A93A6'}}><Radio size={11}/> {ns.inSchool?'EN DIRECT':'Aperçu'} · {fmt(preview)}</span>
+            <span className="opacity-80 uppercase tracking-wide">Suivi en direct</span>
+          </div>
+          <div className="text-2xl font-extrabold mt-1.5 leading-tight">{live.title}</div>
+          <div className="opacity-90 text-sm">{child.name.split(' ')[0]} · {live.sub}</div>
+          <div className="inline-flex items-center gap-1 text-xs font-bold mt-2 bg-white/90 text-ink px-3 py-1.5 rounded-full group-hover:gap-2 transition-all">Voir sur le plan de l’école <ArrowRight size={13}/></div>
+        </div>
+        <div className="ml-auto shrink-0 pr-2"><Kid gender={child.gender} size={92}/></div>
+      </div>
+    </Link>}
     <div className="grid sm:grid-cols-4 gap-4 mb-5">
       <StatCard label="Moyenne générale" value={b?.overall!=null?`${b.overall}/100`:'—'} sub={b?.mention.label} tint="mint" icon={<Star/>}/>
       <StatCard label="Mois payés" value={`${paid}/${months.length}`} tint="sky" icon={<CreditCard/>}/>

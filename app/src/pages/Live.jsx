@@ -2,43 +2,11 @@ import { useState, useMemo, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { current } from '../auth.js'
 import { db, studentById, classById } from '../db.js'
-import { DAYS, PERIODS, timetableFor } from '../data.js'
+import { DAYS } from '../data.js'
 import { PageHead, Card, Select } from '../components/ui.jsx'
 import { studentColor } from '../data.js'
-import { Radio, Clock, MapPin, GraduationCap } from 'lucide-react'
-import SchoolMap, { SPOTS } from '../components/SchoolMap.jsx'
-
-const AREAS={
-  class:      {label:'Salle de classe',    color:'#6C5CE7'},
-  infirmerie: {label:'Infirmerie',          color:'#FF6B81'},
-  cour:       {label:'Cour de récréation',  color:'#22C55E'},
-  cantine:    {label:'Cantine',             color:'#F59E0B'},
-  entree:     {label:'Entrée / Sortie',     color:'#8A93A6'},
-}
-const toMin=hhmm=>{const[h,m]=hhmm.split(':').map(Number);return h*60+m}
-const fmt=min=>`${String(Math.floor(min/60)).padStart(2,'0')}:${String(min%60).padStart(2,'0')}`
-
-function daySegments(classId, dayIdx){
-  const tt=timetableFor(classId); const segs=[]
-  PERIODS.forEach(([s,e],pi)=>{
-    const cell=tt[pi].cells[dayIdx]
-    segs.push({start:toMin(s),end:toMin(e),kind:cell?'class':'free',cell})
-    if(pi===1) segs.push({start:toMin('10:00'),end:toMin('10:15'),kind:'cour'})
-    if(pi===3) segs.push({start:toMin('12:15'),end:toMin('13:00'),kind:'cantine'})
-  })
-  return segs.sort((a,b)=>a.start-b.start)
-}
-function statusAt(classId, dayIdx, min, sick){
-  const segs=daySegments(classId,dayIdx); const open=segs[0].start, close=segs[segs.length-1].end
-  if(sick){ const seg=segs.find(s=>min>=s.start&&min<s.end)||{start:open,end:close}; return {place:'infirmerie',title:'À l’infirmerie',sub:'Sous la surveillance de l’infirmière',seg} }
-  if(min<open) return {place:'entree',title:'Avant l’école',sub:`Cours à ${fmt(open)}`,seg:{start:min,end:open}}
-  if(min>=close) return {place:'entree',title:'Journée terminée',sub:'Sortie des classes',seg:{start:close,end:close+1}}
-  const seg=segs.find(s=>min>=s.start&&min<s.end)||segs[segs.length-1]
-  if(seg.kind==='class'&&seg.cell) return {place:'class',title:'En classe',sub:`${seg.cell.subject} · ${seg.cell.room}`,seg}
-  if(seg.kind==='cour') return {place:'cour',title:'En récréation',sub:'Pause dans la cour',seg}
-  if(seg.kind==='cantine') return {place:'cantine',title:'Pause déjeuner',sub:'À la cantine',seg}
-  return {place:'class',title:'Étude',sub:'Salle de classe',seg}
-}
+import { Radio, Clock, MapPin, GraduationCap, Cross } from 'lucide-react'
+import { AREAS, KIND_AREA, room, fmt, daySegments, statusAt } from '../livestatus.js'
 
 // full-body child character (boy / girl)
 export function Kid({ gender, size=64 }){
@@ -60,6 +28,45 @@ export function Kid({ gender, size=64 }){
   )
 }
 
+// live "window" into the room the child is in right now
+function RoomScene({ area, place, kid, title, sub, live, min }){
+  return (
+    <div className="relative w-full aspect-video overflow-hidden bg-ink">
+      <AnimatePresence mode="popLayout">
+        <motion.img key={area.img} src={room(area.img)} alt="" className="absolute inset-0 w-full h-full object-cover"
+          initial={{opacity:0,scale:1.06}} animate={{opacity:1,scale:1}} exit={{opacity:0}} transition={{duration:.5}}/>
+      </AnimatePresence>
+      <div className="absolute inset-0" style={{background:'linear-gradient(to top, rgba(8,12,26,.62) 0%, rgba(8,12,26,.12) 34%, transparent 55%)'}}/>
+      {/* room plaque */}
+      <div className="absolute top-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-white/90 shadow" style={{color:area.color}}>
+        {place==='infirmerie'?<Cross size={13}/>:<MapPin size={13}/>} {area.label}
+      </div>
+      {/* live badge */}
+      <div className="absolute top-3 left-3 flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-full text-white shadow" style={{background:live?'#FF3B5C':'#8A93A6'}}>
+        <motion.span animate={{opacity:[1,.3,1]}} transition={{repeat:Infinity,duration:1.4}}><Radio size={12}/></motion.span>
+        {live?'EN DIRECT':'Aperçu'} · {fmt(min)}
+      </div>
+      {/* the child, standing in the room */}
+      <AnimatePresence mode="wait">
+        <motion.div key={place} className="absolute left-1/2 bottom-[7%] flex flex-col items-center"
+          initial={{opacity:0,x:60}} animate={{opacity:1,x:'-50%'}} exit={{opacity:0,x:-60}} transition={{type:'spring',stiffness:70,damping:16}}>
+          <div className="text-[11px] font-bold text-white px-2 py-0.5 rounded-full mb-1 shadow" style={{background:area.color}}>{kid.name.split(' ')[0]}</div>
+          <div className="relative">
+            <div className="absolute -inset-6 rounded-full" style={{background:'radial-gradient(closest-side, rgba(255,255,255,.35), transparent)'}}/>
+            <motion.div animate={{y:[0,-5,0]}} transition={{repeat:Infinity,duration:2.6,ease:'easeInOut'}} className="relative"><Kid gender={kid.gender} size={112}/></motion.div>
+          </div>
+          <div className="w-16 h-2.5 rounded-full -mt-1" style={{background:'rgba(8,12,26,.28)',filter:'blur(3px)'}}/>
+        </motion.div>
+      </AnimatePresence>
+      {/* status caption */}
+      <div className="absolute bottom-3 left-4 text-white drop-shadow">
+        <div className="text-lg font-extrabold leading-tight">{title}</div>
+        <div className="text-sm opacity-90">{sub}</div>
+      </div>
+    </div>
+  )
+}
+
 export default function Live(){
   const u=current(); const d=db()
   const kids=(u.childIds||[]).map(studentById).filter(Boolean)
@@ -78,7 +85,7 @@ export default function Live(){
   const sick=useMemo(()=>d.incidents.some(i=>i.studentId===kid?.id&&i.type==='Santé'&&i.status==='open'&&(Date.now()-i.at)<86400000),[d,kid])
   const st=useMemo(()=>kid?statusAt(kid.classId,dayIdx,min,sick):null,[kid,dayIdx,min,sick])
   if(!kid) return <Card className="p-10 text-center text-muted">Aucun enfant associé à ce compte.</Card>
-  const area=AREAS[st.place]; const spot=SPOTS[st.place]
+  const area=AREAS[st.place]
   const segLen=Math.max(1,st.seg.end-st.seg.start); const done=Math.min(1,Math.max(0,(min-st.seg.start)/segLen)); const remain=Math.max(0,st.seg.end-min)
   const segs=daySegments(kid.classId,dayIdx)
 
@@ -88,11 +95,16 @@ export default function Live(){
 
     <div className="grid lg:grid-cols-[1fr_340px] gap-5">
       <Card className="p-0 overflow-hidden relative">
-        <div className="absolute top-3 left-3 z-30 flex items-center gap-2 text-xs font-bold px-2.5 py-1.5 rounded-full text-white shadow" style={{background:liveNow?'#FF3B5C':'#8A93A6'}}>
-          <motion.span animate={{opacity:[1,.3,1]}} transition={{repeat:Infinity,duration:1.4}}><Radio size={13}/></motion.span>
-          {liveNow?'EN DIRECT':'Aperçu'} · {fmt(min)}
-        </div>
-        <SchoolMap area={area} spot={spot} kid={kid} title={st.title} Kid={<Kid gender={kid.gender} size={60}/>}/>
+        <RoomScene area={area} place={st.place} kid={kid} title={st.title} sub={st.sub} live={liveNow} min={min}/>
+        {(()=>{ const nx=segs.find(s=>s.start>min); const na=nx?AREAS[KIND_AREA[nx.kind]||'class']:null
+          const nlabel=nx&&(nx.kind==='class'?(nx.cell?.subject||'Étude'):nx.kind==='cour'?'Récréation':nx.kind==='cantine'?'Déjeuner':'Étude')
+          return <div className="flex items-center gap-3 px-4 py-3 border-t border-line">
+            {nx?<><img src={room(na.img)} alt="" className="w-14 h-10 rounded-lg object-cover shrink-0"/>
+              <div className="min-w-0"><div className="text-[11px] font-semibold text-muted uppercase tracking-wide">À suivre</div>
+                <div className="text-sm font-bold truncate">{nlabel} <span className="text-muted font-normal">· dès {fmt(nx.start)}</span></div></div>
+              <div className="ml-auto text-xs font-bold px-2.5 py-1 rounded-full shrink-0" style={{background:na.color+'18',color:na.color}}>{Math.max(0,nx.start-min)} min</div></>
+            :<div className="text-sm text-muted flex items-center gap-2"><GraduationCap size={15}/> Journée terminée — sortie des classes.</div>}
+          </div> })()}
       </Card>
 
       <div className="space-y-5">
@@ -125,13 +137,16 @@ export default function Live(){
     <Card className="p-4 mt-5">
       <div className="font-bold text-sm mb-3 flex items-center gap-2"><GraduationCap size={16} className="accent-text"/> Journée de {kid.name.split(' ')[0]} · {realWeekday?DAYS[dayIdx]:'Lundi (aperçu)'}</div>
       <div className="flex gap-2 overflow-x-auto scroll-thin pb-1">
-        {segs.map((s,i)=>{const isNow=min>=s.start&&min<s.end;const c=s.kind==='class'?AREAS.class.color:s.kind==='cour'?AREAS.cour.color:s.kind==='cantine'?AREAS.cantine.color:'#C7CDDA';
+        {segs.map((s,i)=>{const isNow=min>=s.start&&min<s.end;const a=AREAS[KIND_AREA[s.kind]||'class'];const c=a.color;
           const label=s.kind==='class'?(s.cell?.subject||'Étude'):s.kind==='cour'?'Récréation':s.kind==='cantine'?'Déjeuner':'Libre'
-          return <div key={i} className={`shrink-0 w-32 rounded-xl p-2.5 border ${isNow?'border-transparent':'border-line'}`} style={isNow?{boxShadow:`inset 0 0 0 2px ${c}`,background:c+'10'}:{}}>
-            <div className="text-[10px] text-muted">{fmt(s.start)}–{fmt(s.end)}</div>
-            <div className="text-[13px] font-bold mt-0.5 truncate" style={{color:isNow?c:'#1E2433'}}>{label}</div>
-            {s.cell?.room&&<div className="text-[10px] text-muted">{s.cell.room}</div>}
-            {isNow&&<div className="text-[10px] font-bold mt-1" style={{color:c}}>● maintenant</div>}
+          return <div key={i} className={`shrink-0 w-32 rounded-xl overflow-hidden border ${isNow?'border-transparent':'border-line'}`} style={isNow?{boxShadow:`0 0 0 2px ${c}`}:{}}>
+            <div className="relative h-14"><img src={room(a.img)} alt="" className="w-full h-full object-cover"/>
+              {isNow&&<div className="absolute inset-0 grid place-items-center" style={{background:c+'55'}}><span className="w-7 h-7 rounded-full bg-white/90 grid place-items-center"><Radio size={13} style={{color:c}}/></span></div>}</div>
+            <div className="p-2">
+              <div className="text-[10px] text-muted">{fmt(s.start)}–{fmt(s.end)}</div>
+              <div className="text-[12px] font-bold truncate" style={{color:isNow?c:'#1E2433'}}>{label}</div>
+              {s.cell?.room&&<div className="text-[10px] text-muted truncate">{s.cell.room}</div>}
+            </div>
           </div>})}
       </div>
     </Card>
