@@ -5,18 +5,19 @@ import { db, studentById, classById } from '../db.js'
 import { DAYS } from '../data.js'
 import { PageHead, Card, Select } from '../components/ui.jsx'
 import { studentColor } from '../data.js'
-import { Radio, Clock, MapPin } from 'lucide-react'
+import { Radio, Clock, MapPin, Pencil } from 'lucide-react'
 import { AREAS, fmt, daySegments, statusAt } from '../livestatus.js'
 import { Kid } from '../components/Kid.jsx'
-import { studentAvatar, avatarBg } from '../people.js'
+import { studentAvatar, avatarBg, resolveStudentAvatar, setStudentAvatar } from '../people.js'
 import RouteMap from '../components/RouteMapFlow.jsx'
+import AvatarPicker from '../components/AvatarPicker.jsx'
 
 const stopLabel=s=> s.kind==='class'?(s.cell?.subject||'Étude') : s.kind==='cour'?'Récré' : s.kind==='cantine'?'Déjeuner' : 'Étude'
 
 export default function Live(){
   const u=current(); const d=db()
   const kids=(u.childIds||[]).map(studentById).filter(Boolean)
-  const [kidId,setKidId]=useState(kids[0]?.id)
+  const [kidId,setKidId]=useState(kids[0]?.id); const [avPick,setAvPick]=useState(false); const [,force]=useState(0)
   const kid=kids.find(k=>k.id===kidId)||kids[0]
   const cls=kid?classById(kid.classId):null
 
@@ -69,7 +70,7 @@ export default function Live(){
       <div className="space-y-5">
         <Card className="p-5">
           <div className="flex items-center gap-3">
-            <span className="w-14 h-14 rounded-2xl overflow-hidden grid place-items-center shrink-0" style={{background:avatarBg(kid.id)}}><img src={studentAvatar(kid.gender,kid.id)} alt="" className="w-full h-full object-contain"/></span>
+            <div className="relative shrink-0"><span className="w-14 h-14 rounded-2xl overflow-hidden grid place-items-center block" style={{background:avatarBg(kid.id)}}><img src={resolveStudentAvatar(kid)} alt="" className="w-full h-full object-contain"/></span><button onClick={()=>setAvPick(true)} title="Changer l'avatar" className="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full accent-bg text-white grid place-items-center shadow"><Pencil size={12}/></button></div>
             <div><div className="font-bold">{kid.name}</div><div className="text-xs text-muted">{cls?.name} · {cls?.cycle}</div></div>
           </div>
           <div className="mt-4 rounded-2xl p-4" style={{background:area.color+'12'}}>
@@ -92,5 +93,6 @@ export default function Live(){
         </Card>
       </div>
     </div>
+    <AvatarPicker open={avPick} current={kid?.avatar} name={first} onClose={()=>setAvPick(false)} onSelect={rel=>{ setStudentAvatar(kid.id,rel); setAvPick(false); force(x=>x+1); }}/>
   </>)
 }
