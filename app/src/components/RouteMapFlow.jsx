@@ -4,7 +4,7 @@ import '@xyflow/react/dist/style.css'
 import { Check } from 'lucide-react'
 
 const COLOR = { entree:'#7C8698', class:'#6C5CE7', cour:'#22C55E', cantine:'#F59E0B' }
-const rmap = s => `${import.meta.env.BASE_URL}rmap/${s}.jpg`
+const rmap = s => `${import.meta.env.BASE_URL}rmap/${s}.png`
 // map a stop to one of the user's room-scene illustrations
 function slugFor(kind, label){
   if(kind==='entree') return label==='Sortie' ? 'sortie' : 'arrivee'
@@ -20,33 +20,33 @@ function slugFor(kind, label){
   if(l.includes('angl')) return 'anglais'
   if(l.includes('math')) return 'maths'
   if(l.includes('scien')||l.includes('éveil')||l.includes('eveil')) return 'sciences'
+  if(l.includes('islam')) return 'prayer'
+  if(l.includes('civi')) return 'civic'
   return 'arabe' // generic classroom (islamique / civique / étude…)
 }
 const H = { opacity:0, width:1, height:1, minWidth:0, minHeight:0, border:0 }
-const HC = { ...H, top:49 } // align L/R handles to thumbnail centre
+const HC = { ...H, top:50 } // align L/R handles to tile centre
 
 function StationNode({ data }){
-  const { color, img, label, time, sub, state, name, remain, done=0 } = data
+  const { color, img, label, time, sub, state, name, remain } = data
   const isDone=state==='done', isCur=state==='current', isFut=state==='future'
-  const ring = isCur?`0 0 0 3.5px ${color}` : isDone?`0 0 0 2.5px ${color}` : '0 0 0 2px #DFE4EC'
-  const D=2*Math.PI*33
+  const shadow = isCur?`0 0 0 3px ${color}, 0 8px 18px rgba(30,36,51,.18)` : isDone?`0 0 0 2px ${color}, 0 5px 12px rgba(30,36,51,.10)` : '0 0 0 1.5px #E3E8F0, 0 4px 10px rgba(30,36,51,.07)'
   return (
-    <div className="relative flex flex-col items-center" style={{width:130}}>
-      <div className="text-[10px] font-extrabold mb-1.5" style={{color:'#AAB3C2'}}>{time}</div>
+    <div className="relative flex flex-col items-center" style={{width:126}}>
+      <div className="text-[10px] font-extrabold mb-1" style={{color:'#AAB3C2'}}>{time}</div>
       <div className="relative grid place-items-center">
-        {isCur && <span className="absolute w-16 h-16 rounded-full animate-ping" style={{background:color,opacity:.22}}/>}
-        {isCur && <svg className="absolute" width="72" height="72" viewBox="0 0 72 72"><circle cx="36" cy="36" r="33" fill="none" stroke={color} strokeWidth="3.5" strokeDasharray={D} strokeDashoffset={D*(1-done)} strokeLinecap="round" transform="rotate(-90 36 36)"/></svg>}
-        <div className="w-16 h-16 rounded-full overflow-hidden bg-white relative" style={{boxShadow:`${ring}, 0 5px 14px rgba(30,36,51,.14)`}}>
-          <img src={img} alt="" className="w-full h-full object-cover" style={{filter:isFut?'grayscale(.65) opacity(.62)':'none'}}/>
-          {isDone && <div className="absolute inset-0 grid place-items-center" style={{background:color+'9E'}}><Check size={22} strokeWidth={3.4} className="text-white"/></div>}
+        {isCur && <span className="absolute w-[72px] h-[72px] rounded-2xl animate-ping" style={{background:color,opacity:.2}}/>}
+        <div className="w-[72px] h-[72px] rounded-2xl bg-white grid place-items-center relative overflow-hidden" style={{boxShadow:shadow}}>
+          <img src={img} alt="" className="w-full h-full object-contain p-0.5" style={{filter:isFut?'grayscale(.55) opacity(.7)':'none'}}/>
+          {isDone && <div className="absolute inset-0 grid place-items-center" style={{background:color+'82'}}><Check size={24} strokeWidth={3.6} className="text-white"/></div>}
         </div>
-        {isCur && <div className="absolute -top-6 whitespace-nowrap bg-white rounded-full shadow-lg px-2.5 py-1 flex items-center gap-1.5 border border-line z-10">
+        {isCur && <div className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap bg-white rounded-full shadow-lg px-2.5 py-1 flex items-center gap-1.5 border border-line z-10">
           <span className="w-2 h-2 rounded-full" style={{background:color}}/>
           <span className="text-[11px] font-extrabold text-ink">{name}{remain>0?` · ${remain}m`:''}</span>
         </div>}
       </div>
-      <div className={`text-[11px] mt-2 text-center leading-tight ${isCur?'font-extrabold':'font-semibold'}`} style={{color:isFut?'#B2BAC8':'#333B4C'}}>{label}</div>
-      {sub && !isFut && <div className="text-[9.5px]" style={{color:'#A6AFBE'}}>{sub}</div>}
+      <div className={`text-[11px] mt-1.5 text-center leading-tight ${isCur?'font-extrabold':'font-semibold'}`} style={{color:isFut?'#B2BAC8':'#333B4C'}}>{label}</div>
+      {sub && !isFut && <div className="text-[9px]" style={{color:'#A6AFBE'}}>{sub}</div>}
       <Handle id="r" type="source" position={Position.Right} style={HC}/>
       <Handle id="l" type="target" position={Position.Left} style={HC}/>
       <Handle id="l2" type="source" position={Position.Left} style={HC}/>
