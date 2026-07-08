@@ -8,7 +8,7 @@ import { StatCard, Card, PageHead, Badge, Avatar, Btn, IconTile, EmptyState, STA
 import { currentClass } from '../data.js'
 import { studentSummary, bulletinFor, mentionFor, strengthsWeaknesses, lessonBreakdown } from '../results.js'
 import LessonMap from '../components/LessonMap.jsx'
-import { statusAt, AREAS, fmt, nowState } from '../livestatus.js'
+import { statusAt, AREAS, fmt, nowState, schoolPhase } from '../livestatus.js'
 import { subjectMeta, PLACES } from '../subjects.jsx'
 import Bulletin from '../components/Bulletin.jsx'
 // place → shared icon system (subjects.jsx) — same visual family as the live map
@@ -150,30 +150,30 @@ export default function Dashboard(){
       <StatCard label="Demandes en attente" value={d.requests.filter(r=>r.status==='pending').length} tint="sky" icon={<FileText/>} to="/app/requests"/>
     </div>
     <div className="grid lg:grid-cols-3 gap-4 mb-4">
-      <Card className="p-5"><h3 className="font-bold mb-1">État des frais</h3><p className="text-xs text-muted mb-2">Tous mois confondus</p>
+      <Link to="/app/finance" className="card p-5 block hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-1 flex items-center justify-between">État des frais <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3><p className="text-xs text-muted mb-2">Tous mois confondus</p>
         <div className="h-48 relative">
           <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={pie} dataKey="value" nameKey="name" innerRadius={52} outerRadius={80} paddingAngle={2}>{pie.map((p,i)=><Cell key={i} fill={p.color}/>)}</Pie><Tooltip {...chartTip}/></PieChart></ResponsiveContainer>
           <div className="absolute inset-0 grid place-items-center pointer-events-none"><div className="text-center"><div className="text-2xl font-extrabold">{collectRate}%</div><div className="text-[10px] text-muted">recouvrés</div></div></div>
         </div>
         <div className="flex flex-wrap gap-2.5 justify-center mt-1">{pie.map(p=><span key={p.name} className="text-[11px] flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full" style={{background:p.color}}/>{p.name} · {p.value}</span>)}</div>
-      </Card>
-      <Card className="p-5 lg:col-span-2"><h3 className="font-bold mb-1">Présence hebdomadaire</h3><p className="text-xs text-muted mb-2">Présents vs absents</p>
+      </Link>
+      <Link to="/app/attendance" className="card p-5 lg:col-span-2 block hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-1 flex items-center justify-between">Présence hebdomadaire <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3><p className="text-xs text-muted mb-2">Présents vs absents</p>
         <div className="h-52"><ResponsiveContainer width="100%" height="100%"><AreaChart data={attend} margin={{left:-20}}>
           <defs><linearGradient id="gP" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#36C5F0" stopOpacity={.35}/><stop offset="100%" stopColor="#36C5F0" stopOpacity={0}/></linearGradient></defs>
           <XAxis dataKey="m" tick={{fontSize:11,fill:'#8A93A6'}} axisLine={false} tickLine={false}/><YAxis tick={{fontSize:11,fill:'#8A93A6'}} axisLine={false} tickLine={false}/><Tooltip {...chartTip}/>
           <Area type="monotone" dataKey="present" name="Présents" stroke="#36C5F0" strokeWidth={2.5} fill="url(#gP)"/>
           <Area type="monotone" dataKey="absent" name="Absents" stroke={STATUS.danger} strokeWidth={2} fill="transparent"/>
         </AreaChart></ResponsiveContainer></div>
-      </Card>
+      </Link>
     </div>
     <div className="grid lg:grid-cols-3 gap-4">
-      {cycleData.length>0 && <Card className="p-5"><h3 className="font-bold mb-3">Effectif par classe</h3>
+      {cycleData.length>0 && <Link to="/app/students" className="card p-5 block hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-3 flex items-center justify-between">Effectif par classe <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3>
         <div className="h-44"><ResponsiveContainer width="100%" height="100%"><BarChart data={cycleData}><XAxis dataKey="name" tick={{fontSize:11,fill:'#8A93A6'}} axisLine={false} tickLine={false}/><Tooltip {...chartTip}/><Bar dataKey="value" radius={[6,6,0,0]}>{cycleData.map((p,i)=><Cell key={i} fill={p.color}/>)}</Bar></BarChart></ResponsiveContainer></div>
-      </Card>}
-      <Card className="p-5"><h3 className="font-bold mb-3">Taux de recouvrement</h3>
+      </Link>}
+      <Link to="/app/finance" className="card p-5 block hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-3 flex items-center justify-between">Taux de recouvrement <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3>
         <div className="h-44"><ResponsiveContainer width="100%" height="100%"><RadialBarChart innerRadius="65%" outerRadius="100%" data={radial} startAngle={90} endAngle={90-(collectRate*3.6)}><RadialBar background={{fill:'#EDEFF5'}} dataKey="value" cornerRadius={10}/></RadialBarChart></ResponsiveContainer></div>
         <div className="text-center -mt-24 mb-12"><div className="text-3xl font-extrabold">{collectRate}%</div><div className="text-xs text-muted">{collected} / {totalFees} mois</div></div>
-      </Card>
+      </Link>
       <Card className="p-5"><h3 className="font-bold mb-3">Prochains événements</h3>
         <div className="space-y-2.5">
           {[...d.events].filter(e=>e.date>=new Date().toISOString().slice(0,10)).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4).map(e=>(<Link key={e.id} to="/app/events" className="flex items-center gap-3 text-sm group">
@@ -184,7 +184,7 @@ export default function Dashboard(){
         </div>
       </Card>
     </div>
-    <Card className="p-5 mt-4"><div className="flex items-center justify-between mb-3"><h3 className="font-bold flex items-center gap-1.5"><ClipboardCheck size={16}/> Évaluations enregistrées</h3><span className="text-xs text-muted">{d.evaluations.length} au total</span></div>
+    <Card className="p-5 mt-4"><div className="flex items-center justify-between mb-3"><h3 className="font-bold flex items-center gap-1.5"><ClipboardCheck size={16}/> Évaluations enregistrées</h3><Link to="/app/results" className="text-xs font-semibold accent-text inline-flex items-center gap-1">Suivi élèves <ChevronRight size={13}/></Link></div>
       {d.evaluations.length? <div className="overflow-x-auto scroll-thin -mx-5 -mb-5"><table className="w-full text-sm"><thead><tr className="text-left text-[11px] uppercase tracking-wide text-muted bg-canvas"><th className="px-4 py-3 font-semibold">Date</th><th className="px-4 py-3 font-semibold">Classe</th><th className="px-4 py-3 font-semibold">Matière</th><th className="px-4 py-3 font-semibold">Leçon</th><th className="px-4 py-3 font-semibold">Enseignant</th><th className="px-4 py-3 font-semibold text-center">Élèves notés</th><th className="px-4 py-3 font-semibold text-center">Moyenne</th></tr></thead>
         <tbody className="divide-y divide-line">{d.evaluations.slice(0,8).map(ev=>{ const cls=d.classes.find(c=>c.id===ev.classId); const studs=d.students.filter(s=>s.classId===ev.classId); const scores=studs.map(s=>studentSummary(ev,s.id).score).filter(x=>x!=null); const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):null; const m=mentionFor(avg)
         return (<tr key={ev.id}><td className="px-4 py-3 text-muted whitespace-nowrap">{new Date(ev.at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})}</td><td className="px-4 py-3 font-medium">{ev.className||cls?.name}</td><td className="px-4 py-3">{ev.subject}</td><td className="px-4 py-3 text-muted">{ev.lesson||"—"}</td><td className="px-4 py-3 text-muted">{ev.teacher}</td><td className="px-4 py-3 text-center">{scores.length}</td><td className="px-4 py-3 text-center font-bold" style={{color:m.color}}>{avg!=null?`${avg}/100`:'—'}</td></tr>) })}</tbody></table></div>
@@ -254,9 +254,9 @@ function ParentDashboard({u,d,greet}){
   const recentEvals=childEvals.map(e=>({id:e.id,at:e.at,subject:e.subject,lesson:e.lesson,score:studentSummary(e,childId).score}))
     .filter(x=>x.score!=null).sort((a,b)=>b.at-a.at).slice(0,6)
   const ns=nowState()
-  const phase=!ns.realWeekday?'weekend':ns.nowMin<480?'before':ns.nowMin>900?'after':'live'
+  const phase=schoolPhase(new Date())
   const preview=phase==='live'?ns.nowMin:phase==='after'?900:phase==='before'?480:630
-  const pillTxt=phase==='live'?`EN DIRECT · ${fmt(preview)}`:phase==='after'?'Journée terminée':phase==='before'?'Ouvre à 08:00':'Week-end'
+  const pillTxt=phase==='live'?`EN DIRECT · ${fmt(preview)}`:phase==='after'?'Journée terminée':phase==='before'?'Ouvre à 08:00':phase==='vacances'?"Vacances d'été":'Week-end'
   const live=cls?statusAt(child.classId,ns.dayIdx,preview,false):null
   const larea=live?AREAS[live.place]:null
   const pm=live?placeMeta(live):null
@@ -268,8 +268,8 @@ function ParentDashboard({u,d,greet}){
             <span className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{background:phase==='live'?STATUS.live:'rgba(255,255,255,.25)'}}><Radio size={11}/> {pillTxt}</span>
             <span className="opacity-80 uppercase tracking-wide">Suivi en direct</span>
           </div>
-          <div className="text-2xl font-extrabold mt-1.5 leading-tight">{live.title}</div>
-          <div className="opacity-90 text-sm">{child.name.split(' ')[0]} · {live.sub}</div>
+          <div className="text-2xl font-extrabold mt-1.5 leading-tight">{phase==='vacances'?"Vacances d'été":live.title}</div>
+          <div className="opacity-90 text-sm">{child.name.split(' ')[0]} · {phase==='vacances'?'Reprise le lundi 15 septembre':live.sub}</div>
           <div className="inline-flex items-center gap-1 text-xs font-bold mt-2 bg-white text-ink px-3 py-1.5 rounded-full group-hover:gap-2 transition-all">Voir le parcours de la journée <ArrowRight size={13}/></div>
         </div>
         <span className="ml-auto w-16 h-16 rounded-full grid place-items-center shrink-0 mr-2 group-hover:scale-110 transition" style={{background:pm.color+'16',color:pm.color}}><pm.Icon size={30}/></span>

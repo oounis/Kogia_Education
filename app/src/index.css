@@ -63,3 +63,8 @@ h1,h2,h3,h4{font-family:var(--font-display);letter-spacing:-0.022em}
   .print\:hidden{display:none !important}
   @page{margin:14mm}
 }
+
+/* cloche : petite sonnerie périodique tant qu'il reste du non-lu */
+@keyframes bellring{0%,88%,100%{transform:rotate(0)}90%{transform:rotate(14deg)}93%{transform:rotate(-12deg)}96%{transform:rotate(8deg)}98%{transform:rotate(-4deg)}}
+.bell-ring{animation:bellring 3.5s ease-in-out infinite;transform-origin:top center}
+@media (prefers-reduced-motion:reduce){.bell-ring{animation:none}}

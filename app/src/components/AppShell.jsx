@@ -4,6 +4,8 @@ import { Menu } from '@headlessui/react'
 import { applyAccent, ROLE } from '../theme.js'
 import { current, logout } from '../auth.js'
 import { inboxFor, unreadFor, markRead, markAllRead } from '../notify.js'
+import toast from 'react-hot-toast'
+import { useRef } from 'react'
 import { NotifRow } from './NotifItem.jsx'
 import { Mark, Avatar, STATUS } from './ui.jsx'
 import { Bell, Search, LogOut, ChevronDown, Menu as MenuIcon, CheckCheck } from 'lucide-react'
@@ -56,10 +58,27 @@ export default function AppShell({ children }){
 function BellMenu({ user }){
   const nav=useNavigate(); const [,force]=useState(0); const unread=unreadFor(user); const list=inboxFor(user).slice(0,7)
   const openN=n=>{ markRead(n.id); nav(safeLink(user.role, n.link)) }
+  // détection en direct : toute nouvelle notification déclenche un toast cliquable
+  const seen=useRef(unread)
+  useEffect(()=>{
+    const t=setInterval(()=>{
+      const u2=unreadFor(user)
+      if(u2>seen.current){
+        const latest=inboxFor(user).find(n=>!n.read)
+        if(latest) toast(tp=>(
+          <button onClick={()=>{toast.dismiss(tp.id);openN(latest)}} className="text-left">
+            <b className="block text-sm">{latest.title}</b>
+            <span className="block text-xs text-muted">{latest.body?.slice(0,80)}</span>
+          </button>),{duration:6000})
+      }
+      seen.current=u2; force(x=>x+1)
+    },15000)
+    return ()=>clearInterval(t)
+  },[user])
   return (
     <Menu as="div" className="relative">
       <Menu.Button className="relative w-10 h-10 grid place-items-center rounded-xl hover:bg-canvas" aria-label="Notifications">
-        <Bell size={19} className="text-muted"/>
+        <Bell size={19} className={unread>0?"accent-text bell-ring":"text-muted"}/>
         {unread>0&&<span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 grid place-items-center text-[10px] font-bold text-white rounded-full" style={{background:STATUS.live}}>{unread}</span>}
       </Menu.Button>
       <Menu.Items className="absolute right-0 mt-2 w-[360px] max-w-[92vw] card p-0 shadow-2xl z-50 focus:outline-none overflow-hidden">

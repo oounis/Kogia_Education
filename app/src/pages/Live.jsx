@@ -5,7 +5,7 @@ import { db, studentById, classById } from '../db.js'
 import { DAYS } from '../data.js'
 import { PageHead, Card, Select, Avatar, Badge, EmptyState, STATUS } from '../components/ui.jsx'
 import { Radio, Clock, MapPin, Moon, Sun, CalendarCheck, ClipboardCheck } from 'lucide-react'
-import { AREAS, fmt, daySegments, statusAt } from '../livestatus.js'
+import { AREAS, fmt, daySegments, statusAt, schoolPhase } from '../livestatus.js'
 import { studentSummary, mentionFor } from '../results.js'
 import RouteMap from '../components/RouteMapFlow.jsx'
 
@@ -22,8 +22,8 @@ export default function Live(){
   const now=new Date(); const wd=now.getDay(); const realWeekday=wd>=1&&wd<=5
   const dayIdx=realWeekday?wd-1:0
   const nowMin=now.getHours()*60+now.getMinutes()
-  const phase = !realWeekday ? 'weekend' : nowMin<480 ? 'before' : nowMin>900 ? 'after' : 'live'
-  const defMin = phase==='live'?nowMin : phase==='after'?900 : phase==='before'?480 : 630
+  const phase = schoolPhase(now)
+  const defMin = phase==='live'?nowMin : phase==='after'?900 : phase==='before'?480 : 630   // vacances/week-end → aperçu 10:30
   const [min,setMin]=useState(defMin)
   const [liveNow,setLiveNow]=useState(phase==='live')
   const exploring = !liveNow && min!==defMin
@@ -52,10 +52,11 @@ export default function Live(){
     : phase==='after' ? {txt:'Journée terminée',bg:'#8B5CF6'}
     : phase==='before' ? {txt:`Ouvre à ${fmt(open)}`,bg:STATUS.info}
     : phase==='weekend' ? {txt:'Week-end · journée type',bg:STATUS.neutral}
+    : phase==='vacances' ? {txt:"Vacances d'été",bg:'#F59E0B'}
     : {txt:`Aperçu · ${fmt(min)}`,bg:STATUS.neutral}
 
   return (<>
-    <PageHead title="Suivi en direct" sub={phase==='live'?`Le parcours de ${first}, en ce moment.`:phase==='after'?`La journée de ${first} est terminée — voici son récapitulatif.`:phase==='before'?`L'école n'a pas encore ouvert — aperçu de la journée de ${first}.`:`Pas d'école aujourd'hui — aperçu d'une journée type de ${first}.`}
+    <PageHead title="Suivi en direct" sub={phase==='live'?`Le parcours de ${first}, en ce moment.`:phase==='after'?`La journée de ${first} est terminée — voici son récapitulatif.`:phase==='before'?`L'école n'a pas encore ouvert — aperçu de la journée de ${first}.`:phase==='vacances'?`C'est les vacances d'été — aperçu d'une journée type de ${first}.`:`Pas d'école aujourd'hui — aperçu d'une journée type de ${first}.`}
       action={kids.length>1&&<Select value={kidId} onChange={e=>setKidId(e.target.value)}>{kids.map(k=><option key={k.id} value={k.id}>{k.name}</option>)}</Select>}/>
 
     <div className="grid lg:grid-cols-[1fr_340px] gap-5">
@@ -121,6 +122,11 @@ export default function Live(){
           {phase==='weekend' && !exploring && <div className="mt-4 rounded-2xl p-4 bg-canvas">
             <div className="flex items-center gap-2 text-sm font-bold text-muted"><Sun size={15}/> Pas d'école aujourd'hui</div>
             <div className="text-sm text-muted mt-1">Bon week-end ! Le suivi reprendra lundi à {fmt(open)}.</div>
+          </div>}
+
+          {phase==='vacances' && !exploring && <div className="mt-4 rounded-2xl p-4" style={{background:'#F59E0B14'}}>
+            <div className="flex items-center gap-2 text-sm font-bold" style={{color:'#B45309'}}><Sun size={15}/> Vacances d'été</div>
+            <div className="text-sm text-muted mt-1">L'école reprend le <b>lundi 15 septembre</b>. Le suivi en direct redémarrera automatiquement à la rentrée — bel été à {first} !</div>
           </div>}
         </Card>
 

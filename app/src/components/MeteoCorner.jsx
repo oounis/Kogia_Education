@@ -10,12 +10,13 @@ const GRAD={clear:['#FFE7A0','#FDB44B'],partly:['#DCEBFF','#9FC0F0'],cloudy:['#E
 const INK={clear:'#7A5A12',default:'#334155'}
 
 export default function MeteoCorner(){
-  const [w,setW]=useState(null); const [err,setErr]=useState(false)
-  useEffect(()=>{ let ok=true
-    const load=()=>fetchWeather().then(x=>ok&&setW(x)).catch(()=>ok&&setErr(true))
-    load(); const t=setInterval(load,600000)  // refresh every 10 min
-    return ()=>{ok=false;clearInterval(t)} },[])
-  if(err) return null
+  // cache localStorage : la météo survit aux coupures réseau (on montre la dernière connue)
+  const [w,setW]=useState(()=>{ try{ return JSON.parse(localStorage.getItem('kogia_meteo')||'null')?.w||null }catch{ return null } })
+  useEffect(()=>{ let alive=true
+    const load=()=>fetchWeather().then(x=>{ if(!alive)return; setW(x); try{localStorage.setItem('kogia_meteo',JSON.stringify({w:x,at:Date.now()}))}catch{} })
+      .catch(()=>{ if(alive) setTimeout(load,120000) })   // hors-ligne → on réessaie dans 2 min
+    load(); const t=setInterval(load,600000)
+    return ()=>{alive=false;clearInterval(t)} },[])
   if(!w) return <div className="hidden md:flex items-center gap-2 text-xs text-muted px-3 py-2 rounded-2xl bg-canvas animate-pulse">Météo…</div>
   const [c1,c2]=GRAD[w.mode]||GRAD.cloudy; const ink=w.mode==='clear'?INK.clear:INK.default
   return (

@@ -36,6 +36,15 @@ export function statusAt(classId, dayIdx, min, sick){
   if(seg.kind==='cantine') return {place:'cantine',title:'Pause déjeuner',sub:'À la cantine',seg}
   return {place:'class',title:'Étude',sub:'Salle de classe',seg}
 }
+// Année scolaire tunisienne : vacances d'été du 1er juillet au 14 septembre.
+export function schoolPhase(now=new Date()){
+  const m=now.getMonth() // 0-based : juin=5, juillet=6, août=7, septembre=8
+  const summer = m===6 || m===7 || (m===8 && now.getDate()<15)
+  if(summer) return 'vacances'
+  const wd=now.getDay(); if(wd===0||wd===6) return 'weekend'
+  const min=now.getHours()*60+now.getMinutes()
+  return min<480 ? 'before' : min>900 ? 'after' : 'live'
+}
 // current-time helpers
 export function nowState(){
   const now=new Date(); const wd=now.getDay(); const realWeekday=wd>=1&&wd<=5
