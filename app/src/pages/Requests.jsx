@@ -145,12 +145,12 @@ function docModel(r){
 }
 function OfficialDoc({ r }){ const m=docModel(r); return (
   <div className="bg-white p-2 text-sm">
-    <div className="flex items-center justify-between border-b-2 pb-3 mb-4" style={{borderColor:'#6C5CE7'}}>
-      <div className="flex items-center gap-2"><svg viewBox="0 0 68 72" width="34" height="34"><defs><linearGradient id="al" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#6C5CE7"/><stop offset="1" stopColor="#36C5F0"/></linearGradient></defs><path d="M34 62 C31 52 28 47 22 43 C15 38 10 31 7 22 C18 27 28 33 31 41 L34 46 L37 41 C40 33 50 27 61 22 C58 31 53 38 46 43 C40 47 37 52 34 62 Z" fill="url(#al)"/></svg><div><div className="font-extrabold">École Al-Nour</div><div className="text-xs text-muted">Tunis, Tunisie · Tél : +216 71 000 000</div></div></div>
+    <div className="flex items-center justify-between border-b-2 pb-3 mb-4" style={{borderColor:'#6366F1'}}>
+      <div className="flex items-center gap-2"><svg viewBox="0 0 68 72" width="34" height="34"><defs><linearGradient id="al" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#6366F1"/><stop offset="1" stopColor="#36C5F0"/></linearGradient></defs><path d="M34 62 C31 52 28 47 22 43 C15 38 10 31 7 22 C18 27 28 33 31 41 L34 46 L37 41 C40 33 50 27 61 22 C58 31 53 38 46 43 C40 47 37 52 34 62 Z" fill="url(#al)"/></svg><div><div className="font-extrabold">École Al-Nour</div><div className="text-xs text-muted">Tunis, Tunisie · Tél : +216 71 000 000</div></div></div>
       <div className="text-xs text-right text-muted">Réf : {m.ref}<br/>Tunis, le {m.today}</div></div>
     <h2 className="text-center text-xl font-extrabold uppercase my-4">{m.title}</h2>
     <p className="leading-7">{m.intro}</p>
-    <div className="my-3 pl-4 border-l-2" style={{borderColor:'#EEEBFF'}}>{m.rows.map(([k,v])=><div key={k}><b>{k} :</b> {v}</div>)}</div>
+    <div className="my-3 pl-4 border-l-2" style={{borderColor:'#EEF2FF'}}>{m.rows.map(([k,v])=><div key={k}><b>{k} :</b> {v}</div>)}</div>
     <p className="leading-7">{m.body}</p>
     <div className="mt-6 grid grid-cols-2 gap-4"><div className="text-xs text-muted"><b>Circuit de validation :</b>{m.r.approvals.map((a,i)=><div key={i} className="flex items-center gap-1"><Check size={10} className="shrink-0"/> {ROLE[a.role]?.label} — {a.by} ({format(a.at,'dd/MM/yyyy')})</div>)}</div>
       <div className="text-center"><div className="h-12"></div><div className="border-t border-ink/30 pt-1 text-xs">Cachet & signature de la Direction</div></div></div>

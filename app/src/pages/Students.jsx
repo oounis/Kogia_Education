@@ -11,7 +11,7 @@ import { UserPlus, Droplet, Search, ShieldCheck, FileText, ChevronRight, ArrowLe
 import toast from 'react-hot-toast'
 const BLANK={name:'',gender:'Garçon',dob:'',bloodGroup:'O+',nationality:'Tunisienne',grade:'5ème année',section:'A',rollNo:'',admissionDate:'',prevSchool:'',fatherName:'',motherName:'',guardianPhone:'',parentId:'',address:'',phone:'',email:'',medical:'Aucune',allergies:'Aucune',emergencyName:'',emergencyPhone:'',cin:'',governorate:'Tunis',attachments:[],consent:false}
 const cycleOf=g=>CYCLES.find(c=>c.grades.includes(g))?.cycle||'Primaire'
-const CYCLE_COLOR={Primaire:'#6C5CE7',Collège:'#36C5F0',Lycée:'#FFA62B'}
+const CYCLE_COLOR={Primaire:'#6366F1',Collège:'#36C5F0',Lycée:'#FFA62B'}
 
 export default function Students(){
   const u=current(); const canEdit=['schooladmin','admin'].includes(u.role)

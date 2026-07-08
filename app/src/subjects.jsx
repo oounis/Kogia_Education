@@ -6,7 +6,7 @@ import { Calculator, FlaskConical, BookOpen, BookText, Languages, Music, Palette
   Dumbbell, MoonStar, Landmark, UtensilsCrossed, Trees, LogIn, LogOut, NotebookPen } from 'lucide-react'
 
 const RULES=[
-  [/math/,               Calculator,   '#6C5CE7'],
+  [/math/,               Calculator,   '#6366F1'],
   [/scien|éveil|eveil/,  FlaskConical, '#10B981'],
   [/fran/,               BookOpen,     '#4F84E0'],
   [/arabe/,              BookText,     '#E59A12'],
@@ -21,7 +21,7 @@ const RULES=[
 export function subjectMeta(label=''){
   const l=String(label).toLowerCase()
   for(const [re,Icon,color] of RULES) if(re.test(l)) return {Icon,color}
-  return {Icon:NotebookPen,color:'#6C5CE7'}
+  return {Icon:NotebookPen,color:'#6366F1'}
 }
 // Places of the school day (arrival, recess, canteen…) — same visual family.
 export const PLACES={
@@ -29,7 +29,7 @@ export const PLACES={
   sortie: {Icon:LogOut,           color:'#7C8698'},
   recre:  {Icon:Trees,            color:'#22C55E'},
   cantine:{Icon:UtensilsCrossed,  color:'#F59E0B'},
-  etude:  {Icon:NotebookPen,      color:'#6C5CE7'},
+  etude:  {Icon:NotebookPen,      color:'#6366F1'},
 }
 // Small colour-coded icon tile for a subject (lists, grids, timetable cells).
 export function SubjectDot({ label, size=36, iconSize=17, radius='rounded-xl', className='' }){

@@ -43,6 +43,6 @@ export function teacherTimetable(teacher){
     const cid=classes[h32('t'+di+pi)%Math.max(classes.length,1)]
     if(!cid||((di===2||di===4)&&pi>=4)||h32(cid+di+pi+'x')%3===0) return null
     const cls=db().classes.find(c=>c.id===cid)
-    return {subject:teacher.subject||'Cours',color:'#6C5CE7',room:ROOMS[h32(cid+di+pi)%ROOMS.length],className:cls?.name||cid}
+    return {subject:teacher.subject||'Cours',color:'#6366F1',room:ROOMS[h32(cid+di+pi)%ROOMS.length],className:cls?.name||cid}
   })}))
 }

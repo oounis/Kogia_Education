@@ -5,7 +5,7 @@ import { Check } from 'lucide-react'
 import { Avatar } from './ui.jsx'
 import { subjectMeta, PLACES } from '../subjects.jsx'
 
-const COLOR = { entree:'#7C8698', class:'#6C5CE7', cour:'#22C55E', cantine:'#F59E0B' }
+const COLOR = { entree:'#7C8698', class:'#6366F1', cour:'#22C55E', cantine:'#F59E0B' }
 // each stop renders as an icon badge from the shared subject/place icon system
 function metaFor(kind, label){
   if(kind==='entree') return PLACES[label==='Sortie'?'sortie':'arrivee']

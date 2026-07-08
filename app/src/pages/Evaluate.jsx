@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core'
 import { Clock, ChevronRight, ChevronLeft, Check, Zap, RotateCcw, Users, MapPin, CalendarDays } from 'lucide-react'
 import { StudentChip, DropZone } from '../components/dnd.jsx'
-import { PageHead, Btn, Avatar, Textarea, STATUS } from '../components/ui.jsx'
+import { PageHead, Btn, Avatar, Textarea, STATUS, Whale } from '../components/ui.jsx'
 import { teacherSchedule, QUESTIONS, BUCKETS, BADGES } from '../data.js'
 import { db, mutate, uid, studentById } from '../db.js'
 import { notify } from '../notify.js'
@@ -70,10 +70,13 @@ export default function Evaluate(){
 
   /* ---------- 3) SUCCESS ---------- */
   if(step===6) return (
-    <div className="max-w-[640px] mx-auto pt-8">
+    <div className="max-w-[640px] mx-auto pt-8 relative">
+      <div className="confetti" aria-hidden="true">{Array.from({length:26}).map((_,i)=>
+        <i key={i} style={{left:`${(i*37)%100}%`,background:['#6366F1','#22D3EE','#FBBF24','#FB7185','#34D399','#8B5CF6'][i%6],animationDelay:`${(i%9)*0.14}s`}}/>)}</div>
       <div className="text-center">
-        <div className="w-16 h-16 rounded-full grid place-items-center text-white mx-auto accent-bg pop"><Check size={30}/></div>
-        <h1 className="text-2xl font-extrabold mt-4">Enregistré & partagé</h1>
+        <div className="floaty mx-auto w-fit"><Whale size={54}/></div>
+        <div className="w-12 h-12 -mt-3 rounded-full grid place-items-center text-white mx-auto accent-bg pop relative"><Check size={24}/></div>
+        <h1 className="text-2xl font-extrabold mt-3">Enregistré & partagé</h1>
         <p className="text-muted mt-1">{cls.cls.name} · {cls.slot.subject} — {saved.length} élèves notés. Parents et direction notifiés.</p>
       </div>
       {saved.length>0 && (

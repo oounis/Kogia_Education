@@ -117,7 +117,7 @@ export default function Dashboard(){
   const openInc=d.incidents.filter(i=>i.status==='open').length
   const pendReq=d.requests.filter(r=>r.status==='pending').length
   // effectif par cycle
-  const cycleData=['Primaire','Collège','Lycée'].map((cy,i)=>({name:cy,value:d.students.filter(s=>{const c=d.classes.find(x=>x.id===s.classId);return c?.cycle===cy}).length,color:['#6C5CE7','#36C5F0',STATUS.warn][i]})).filter(x=>x.value>0)
+  const cycleData=['Primaire','Collège','Lycée'].map((cy,i)=>({name:cy,value:d.students.filter(s=>{const c=d.classes.find(x=>x.id===s.classId);return c?.cycle===cy}).length,color:['#6366F1','#36C5F0',STATUS.warn][i]})).filter(x=>x.value>0)
   const radial=[{name:'Recouvrement',value:collectRate,fill:STATUS.ok}]
   return (<><PageHead title={greet} sub="Vue d'ensemble de l'école."/>
     {/* Ce matin — l'essentiel en 30 secondes */}
@@ -136,7 +136,7 @@ export default function Dashboard(){
             label={openInc?`${openInc} incident${openInc>1?'s':''} ouvert${openInc>1?'s':''}`:'Aucun incident'}/>
           <BriefChip to="/app/requests" icon={<FileText size={14}/>} color={pendReq?STATUS.info:STATUS.ok}
             label={pendReq?`${pendReq} demande${pendReq>1?'s':''} à traiter`:'Demandes à jour'}/>
-          <BriefChip to="/app/events" icon={<CalendarDays size={14}/>} color={eventsToday.length?'#6C5CE7':STATUS.neutral}
+          <BriefChip to="/app/events" icon={<CalendarDays size={14}/>} color={eventsToday.length?'#6366F1':STATUS.neutral}
             label={eventsToday.length?`Aujourd'hui : ${eventsToday[0].title}${eventsToday.length>1?` +${eventsToday.length-1}`:''}`:"Aucun événement aujourd'hui"}/>
         </div>
       </div>
@@ -198,7 +198,7 @@ function PlatformDashboard({ d, greet }){
   const mrr=actives.reduce((n,s)=>n+s.price,0)
   const totalStudents=schools.filter(s=>s.status!=='suspended').reduce((n,s)=>n+count(s),0)
   const planPie=[
-    {name:'Plan Pro',value:actives.filter(s=>s.plan==='Pro').length,color:'#6C5CE7'},
+    {name:'Plan Pro',value:actives.filter(s=>s.plan==='Pro').length,color:'#6366F1'},
     {name:'Plan Essentiel',value:actives.filter(s=>s.plan==='Essentiel').length,color:'#0BA5D8'},
     {name:'En essai',value:trials.length,color:STATUS.warn},
   ].filter(x=>x.value>0)

@@ -10,7 +10,7 @@ export const CYCLES=[
 export const FILIERES=["Tronc commun","Sciences","Mathématiques","Sciences expérimentales","Sciences techniques","Économie & Gestion","Lettres","Sciences informatiques","Sport"]
 export const GRADES=CYCLES.flatMap(c=>c.grades)
 // ── timetable seed helpers (kept here to avoid a data.js↔db.js import cycle) ──
-export const TT_SUBJECTS=[['Arabe','#6C5CE7'],['Français','#36C5F0'],['Mathématiques','#FF6B81'],['Éveil scientifique','#2BD9A8'],['Éducation islamique','#FFA62B'],['Éducation civique','#0BA5D8'],['Sport','#10B981'],['Musique','#A78BFA'],['Arts plastiques','#E59A12'],['Informatique','#8B5CF6']]
+export const TT_SUBJECTS=[['Arabe','#6366F1'],['Français','#36C5F0'],['Mathématiques','#FF6B81'],['Éveil scientifique','#2BD9A8'],['Éducation islamique','#FFA62B'],['Éducation civique','#0BA5D8'],['Sport','#10B981'],['Musique','#A78BFA'],['Arts plastiques','#E59A12'],['Informatique','#8B5CF6']]
 const TT_ROOMS=['Salle 12','Salle 8','Salle 21','Labo','Gymnase','Salle Info']
 function h32(s){let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h}
 function genTimetables(classes){
@@ -152,7 +152,7 @@ function seed(){
   }
   const settings={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026',
     director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis',
-    brand:'#6C5CE7', logoText:'AN', currency:'DT' }
+    brand:'#6366F1', logoText:'AN', currency:'DT' }
   // ── écoles clientes de la plateforme (console Kogia Group). Al-Nour est
   // l'école de démo « vivante » ; les autres sont des abonnements clients. ──
   const schools=[
@@ -163,12 +163,12 @@ function seed(){
   ]
   return {classes,students,teachers,users,payments,evaluations,incidents,requests,books,routes,homework,events,exams,messages,attendance,notifications,timetables:genTimetables(classes),settings,schools}
 }
-export const DEFAULT_SETTINGS={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026', director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis', brand:'#6C5CE7', logoText:'AN', currency:'DT' }
+export const DEFAULT_SETTINGS={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026', director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis', brand:'#6366F1', logoText:'AN', currency:'DT' }
 export const settings=()=>({...DEFAULT_SETTINGS, ...(db().settings||{})})
 export function saveSettings(patch){ return mutate(d=>{ d.settings={...DEFAULT_SETTINGS, ...(d.settings||{}), ...patch} }) }
 export function db(){let d=null;try{d=JSON.parse(localStorage.getItem(KEY))}catch{};if(!d){d=seed();localStorage.setItem(KEY,JSON.stringify(d))}
   if(!d.timetables){ d.timetables=genTimetables(d.classes); localStorage.setItem(KEY,JSON.stringify(d)) }  // backfill older dbs
-  if(!d.settings){ d.settings={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026', director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis', brand:'#6C5CE7', logoText:'AN', currency:'DT' }; localStorage.setItem(KEY,JSON.stringify(d)) }
+  if(!d.settings){ d.settings={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026', director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis', brand:'#6366F1', logoText:'AN', currency:'DT' }; localStorage.setItem(KEY,JSON.stringify(d)) }
   return d}
 export function setTimetableCell(classId,pi,di,cell){ return mutate(d=>{ d.timetables=d.timetables||{}; d.timetables[classId]=d.timetables[classId]||Array.from({length:6},()=>Array(5).fill(null)); d.timetables[classId][pi]=d.timetables[classId][pi]||Array(5).fill(null); d.timetables[classId][pi][di]=cell }) }
 export function save(d){localStorage.setItem(KEY,JSON.stringify(d))}

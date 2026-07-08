@@ -12,7 +12,7 @@ import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'
 
 const TYPES=[
-  {k:'Événement',c:'#6C5CE7'}, {k:'Réunion',c:STATUS.info}, {k:'Examen',c:STATUS.danger},
+  {k:'Événement',c:'#6366F1'}, {k:'Réunion',c:STATUS.info}, {k:'Examen',c:STATUS.danger},
   {k:'Vacances',c:STATUS.ok}, {k:'Sortie',c:STATUS.warn},
 ]
 const tint=t=>(TYPES.find(x=>x.k===t)||TYPES[0]).c

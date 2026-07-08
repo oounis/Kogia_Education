@@ -31,7 +31,7 @@ export function mentionFor(score){
   if(score==null) return {label:'—',color:'#8A93A6'}
   if(score>=85) return {label:'Excellent',color:'#10B981'}
   if(score>=70) return {label:'Très bien',color:'#0BA5D8'}
-  if(score>=55) return {label:'Bien',color:'#6C5CE7'}
+  if(score>=55) return {label:'Bien',color:'#6366F1'}
   if(score>=40) return {label:'Passable',color:'#E59A12'}
   return {label:'Insuffisant',color:'#EF4444'}
 }

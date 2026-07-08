@@ -15,7 +15,7 @@ const BTN="inline-flex items-center justify-center gap-1.5 rounded-xl font-semib
 const BTN_MD=`${BTN} text-sm px-4 py-2.5`, BTN_LG=`${BTN} text-sm px-5 py-3`
 
 const MODULES = [
-  [ClipboardCheck,'Évaluation express','Notez toute la classe en 30 s par glisser-déposer — 5 questions, des badges, une note. Partagé en direct.','#6C5CE7'],
+  [ClipboardCheck,'Évaluation express','Notez toute la classe en 30 s par glisser-déposer — 5 questions, des badges, une note. Partagé en direct.','#6366F1'],
   [CalendarCheck,'Présence','Appel en un tap, retards et absences suivis, alertes automatiques aux parents.','#36C5F0'],
   [Wallet,'Frais & paiements','Frais de scolarité mensuels, reçus, relances et suivi des impayés — clair pour la direction et les parents.',STATUS.ok],
   [BookOpen,'Devoirs & examens','Devoirs, calendrier des examens, bulletins imprimables — enseignants, élèves et parents alignés.',STATUS.warn],
@@ -46,7 +46,7 @@ const FAQ = [
 
 export default function Landing(){
   const nav=useNavigate(); const [faq,setFaq]=useState(0)
-  const A='#6C5CE7'
+  const A='#6366F1'
   return (
     <div className="bg-white text-ink">
       {/* NAV */}
@@ -68,10 +68,10 @@ export default function Landing(){
 
       {/* HERO */}
       <section id="top" className="relative overflow-hidden">
-        <div className="absolute inset-0 -z-10" style={{background:'radial-gradient(60% 60% at 80% 0%, #EEEBFF 0%, transparent 60%), radial-gradient(50% 50% at 0% 20%, #E4F7FE 0%, transparent 55%)'}}/>
+        <div className="absolute inset-0 -z-10" style={{background:'radial-gradient(60% 60% at 80% 0%, #EEF2FF 0%, transparent 60%), radial-gradient(50% 50% at 0% 20%, #E4F7FE 0%, transparent 55%)'}}/>
         <div className="mx-auto max-w-[1120px] px-5 pt-16 pb-10 grid lg:grid-cols-2 gap-12 items-center">
           <motion.div {...up}>
-            <div className="inline-flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-full" style={{background:'#EEEBFF',color:A}}><Zap size={13}/> La gestion scolaire, enfin simple</div>
+            <div className="inline-flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-full" style={{background:'#EEF2FF',color:A}}><Zap size={13}/> La gestion scolaire, enfin simple</div>
             <h1 className="text-4xl md:text-5xl font-extrabold leading-[1.08] mt-5">Toute votre école,<br/>sur <span style={{color:A}}>une seule</span> plateforme.</h1>
             <p className="text-lg text-muted mt-5 max-w-[48ch]">Évaluations, présence, frais, examens, incidents et communication avec les parents. Pensé pour les écoles tunisiennes — <b className="text-ink">rapide, clair, sécurisé.</b></p>
             <div className="flex flex-wrap gap-3 mt-7">
@@ -108,7 +108,7 @@ export default function Landing(){
             <p className="text-muted mt-4 max-w-[46ch]">Fini les carnets. L’enseignant voit la classe de l’instant à l’écran, glisse chaque élève dans un niveau, ajoute un badge et une note — et tout est partagé en direct avec la direction et les parents.</p>
             <ul className="mt-5 space-y-3">
               {['Glisser-déposer les élèves : Excellent · Bien · Moyen · Insuffisant','Badges de motivation (élève du jour, progrès, esprit d’équipe…)','Résultats visibles instantanément par la direction et les parents'].map(t=>(
-                <li key={t} className="flex items-start gap-3"><span className="w-6 h-6 rounded-full grid place-items-center shrink-0 mt-0.5" style={{background:'#EEEBFF',color:A}}><Check size={14}/></span><span className="text-sm">{t}</span></li>
+                <li key={t} className="flex items-start gap-3"><span className="w-6 h-6 rounded-full grid place-items-center shrink-0 mt-0.5" style={{background:'#EEF2FF',color:A}}><Check size={14}/></span><span className="text-sm">{t}</span></li>
               ))}
             </ul>
           </div>
@@ -161,7 +161,7 @@ export default function Landing(){
             [ShieldCheck,'Sécurisé par rôle','Chaque portail est cloisonné : un parent ne voit jamais les finances, un enseignant jamais un autre établissement.'],
             [Sparkles,'Adopté en un jour','Import des classes, création des comptes, et l’école tourne dès le lendemain — sans formation lourde.']].map(([Icon,t,d])=>(
             <motion.div key={t} {...up} className="card p-7">
-              <span className="w-12 h-12 rounded-2xl grid place-items-center" style={{background:'#EEEBFF',color:A}}><Icon size={22}/></span>
+              <span className="w-12 h-12 rounded-2xl grid place-items-center" style={{background:'#EEF2FF',color:A}}><Icon size={22}/></span>
               <h3 className="font-bold mt-4 text-lg">{t}</h3><p className="text-sm text-muted mt-2">{d}</p>
             </motion.div>
           ))}
@@ -221,7 +221,7 @@ export default function Landing(){
 
       {/* CTA */}
       <section className="mx-auto max-w-[1120px] px-5 pb-16">
-        <motion.div {...up} className="rounded-3xl p-10 md:p-14 text-center text-white relative overflow-hidden" style={{background:'linear-gradient(135deg,#6C5CE7,#36C5F0)'}}>
+        <motion.div {...up} className="rounded-3xl p-10 md:p-14 text-center text-white relative overflow-hidden" style={{background:'linear-gradient(135deg,#6366F1,#36C5F0)'}}>
           <h2 className="text-3xl md:text-4xl font-extrabold">Prêt à moderniser votre école ?</h2>
           <p className="mt-3 text-white/85 max-w-[52ch] mx-auto">Testez Kogia Edu gratuitement — choisissez un rôle et découvrez la plateforme en un clic.</p>
           <button onClick={()=>nav('/login')} className={`${BTN_LG} mt-7 bg-white shadow-sm hover:opacity-90`} style={{color:A}}>Démarrer la démo <ArrowRight size={18}/></button>
@@ -242,7 +242,7 @@ export default function Landing(){
 
 // --- small product mock (drag-drop evaluation preview) ---
 function EvalMock({ compact }){
-  const A='#6C5CE7'
+  const A='#6366F1'
   const buckets=[['Excellent',STATUS.ok,STATUS.okSoft,['AB','YT']],['Bien',STATUS.info,STATUS.infoSoft,['LK','SM']],['Moyen',STATUS.warn,STATUS.warnSoft,['HB']],['Insuffisant',STATUS.danger,STATUS.dangerSoft,['NJ']]]
   return (
     <div className="card p-4 shadow-2xl" style={{boxShadow:'0 30px 60px -25px rgba(108,92,231,.45)'}}>

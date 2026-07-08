@@ -96,11 +96,11 @@ export default function Results(){
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={trend} margin={{top:6,right:6,left:-18,bottom:0}}>
-                <defs><linearGradient id="gAvg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6C5CE7" stopOpacity={.25}/><stop offset="100%" stopColor="#6C5CE7" stopOpacity={0}/></linearGradient></defs>
+                <defs><linearGradient id="gAvg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6366F1" stopOpacity={.25}/><stop offset="100%" stopColor="#6366F1" stopOpacity={0}/></linearGradient></defs>
                 <XAxis dataKey="name" tick={{fontSize:11,fill:'#8A93A6'}} axisLine={false} tickLine={false}/>
                 <YAxis domain={[0,100]} tick={{fontSize:11,fill:'#8A93A6'}} axisLine={false} tickLine={false}/>
                 <Tooltip contentStyle={{borderRadius:12,border:'1px solid #EDEFF5',fontSize:12}} formatter={v=>[`${v}/100`,'Moyenne']}/>
-                <Area type="monotone" dataKey="moyenne" stroke="#6C5CE7" strokeWidth={2.5} fill="url(#gAvg)"/>
+                <Area type="monotone" dataKey="moyenne" stroke="#6366F1" strokeWidth={2.5} fill="url(#gAvg)"/>
               </AreaChart>
             </ResponsiveContainer>
           </div>

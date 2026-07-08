@@ -4,7 +4,7 @@ import { PERIODS, timetableFor } from './data.js'
 
 export const room = n => `${import.meta.env.BASE_URL}rooms/${n}.jpg`
 export const AREAS = {
-  class:      { label:'Salle de classe',   color:'#6C5CE7', img:'class' },
+  class:      { label:'Salle de classe',   color:'#6366F1', img:'class' },
   infirmerie: { label:'Infirmerie',         color:'#FF6B81', img:'infirmerie' },
   cour:       { label:'Cour de récréation', color:'#22C55E', img:'cour' },
   cantine:    { label:'Cantine',            color:'#F59E0B', img:'cantine' },

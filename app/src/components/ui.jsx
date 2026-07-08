@@ -2,13 +2,13 @@ import { Dialog } from '@headlessui/react'
 import { X, Search } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-const TINTS={brand:['#EEEBFF','#6C5CE7'],sky:['#E4F7FE','#0BA5D8'],butter:['#FFF4DD','#E59A12'],mint:['#E2FBF3','#10B981'],coral:['#FFE8EC','#FF6B81'],grape:['#F1ECFE','#8B5CF6'],slate:['#EEF1F6','#64748B']}
+const TINTS={brand:['#EEF2FF','#6366F1'],sky:['#E4F7FE','#0BA5D8'],butter:['#FFF4DD','#E59A12'],mint:['#E2FBF3','#10B981'],coral:['#FFE8EC','#FF6B81'],grape:['#F1ECFE','#8B5CF6'],slate:['#EEF1F6','#64748B']}
 // ── Semantic status colours — the ONLY hexes pages may use for state. ──
 export const STATUS={ ok:'#10B981', okSoft:'#E2FBF3', warn:'#E59A12', warnSoft:'#FFF4DD', danger:'#EF4444', dangerSoft:'#FFE8EC', info:'#0BA5D8', infoSoft:'#E4F7FE', neutral:'#8A93A6', neutralSoft:'#EEF1F6', live:'#FF3B5C' }
 
 export function Card({ className='', children }){ return <div className={`card ${className}`}>{children}</div> }
 export function StatCard({ label, value, sub, tint='brand', icon, to }){
-  const map={brand:['#EEEBFF','#6C5CE7'],sky:['#E4F7FE','#0BA5D8'],butter:['#FFF4DD','#E59A12'],mint:['#E2FBF3','#10B981'],coral:['#FFE8EC','#FF6B81'],grape:['#F1ECFE','#8B5CF6']}
+  const map={brand:['#EEF2FF','#6366F1'],sky:['#E4F7FE','#0BA5D8'],butter:['#FFF4DD','#E59A12'],mint:['#E2FBF3','#10B981'],coral:['#FFE8EC','#FF6B81'],grape:['#F1ECFE','#8B5CF6']}
   const [bg,fg]=map[tint]||map.brand
   const inner=<><span className="w-12 h-12 rounded-2xl grid place-items-center shrink-0" style={{background:bg,color:fg}}>{icon}</span>
     <div className="min-w-0"><div className="text-2xl font-extrabold leading-none">{value}</div><div className="text-xs text-muted mt-1 truncate">{label}{sub&&<span className="ml-1">· {sub}</span>}</div></div></>
@@ -22,7 +22,7 @@ export function Badge({ status }){
 }
 // ── Initials avatar: THE one avatar style of the product. Deterministic soft
 // tint + matching text colour from the person's id/name — no raster images. ──
-const AVATAR_TINTS=[['#EEEBFF','#6C5CE7'],['#E4F7FE','#0BA5D8'],['#FFF4DD','#E59A12'],['#E2FBF3','#10B981'],['#FFE8EC','#F43F5E'],['#F1ECFE','#8B5CF6'],['#DFF4F3','#0D9488'],['#E8F0FF','#4F84E0'],['#FDECF3','#DB2777']]
+const AVATAR_TINTS=[['#EEF2FF','#6366F1'],['#E4F7FE','#0BA5D8'],['#FFF4DD','#E59A12'],['#E2FBF3','#10B981'],['#FFE8EC','#F43F5E'],['#F1ECFE','#8B5CF6'],['#DFF4F3','#0D9488'],['#E8F0FF','#4F84E0'],['#FDECF3','#DB2777']]
 const hashSeed=s=>{let x=0;for(const c of String(s))x=(x*31+c.charCodeAt(0))>>>0;return x}
 export const avatarTint=seed=>AVATAR_TINTS[hashSeed(seed)%AVATAR_TINTS.length]
 export function Avatar({ name, initials, seed, size=36, ring, className='' }){
@@ -88,8 +88,12 @@ export function SectionCard({ title, sub, action, icon, tint='brand', children, 
 }
 // ── Consistent empty state with optional CTA ──
 export function EmptyState({ icon, title, sub, action, className='' }){
-  return <div className={`flex flex-col items-center text-center py-14 px-6 ${className}`}>
-    {icon && <div className="w-14 h-14 rounded-2xl grid place-items-center mb-3.5 accent-soft accent-text">{icon}</div>}
+  return <div className={`flex flex-col items-center text-center py-12 px-6 ${className}`}>
+    <div className="relative mb-3 floaty" aria-hidden="true">
+      <Whale size={46} from="var(--accent)" to="var(--accent-2, var(--accent))"/>
+      <span className="bub" style={{left:'-14px',top:'6px'}}/>
+      <span className="bub" style={{right:'-10px',bottom:'2px',animationDelay:'.9s'}}/>
+    </div>
     <div className="font-bold text-ink">{title}</div>
     {sub && <p className="text-sm text-muted mt-1 max-w-sm">{sub}</p>}
     {action && <div className="mt-4">{action}</div>}
@@ -129,9 +133,16 @@ export function UserCard({ name, seed, meta, size=44, action, className='' }){
     {action}
   </div>
 }
-export function Mark({ size=34 }){
-  return (<svg viewBox="0 0 68 72" width={size} height={size} aria-hidden="true">
-    <defs><linearGradient id="kmark" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#6C5CE7"/><stop offset="1" stopColor="#36C5F0"/></linearGradient></defs>
-    <path d="M34 62 C31 52 28 47 22 43 C15 38 10 31 7 22 C18 27 28 33 31 41 L34 46 L37 41 C40 33 50 27 61 22 C58 31 53 38 46 43 C40 47 37 52 34 62 Z" fill="url(#kmark)"/>
+// ── Le Cachalot : la marque Kogia v2 (colorway Education indigo→violet) ──
+export function Whale({ size=40, from='#6366F1', to='#8B5CF6', className='' }){
+  const id='kw'+String(from).replace(/[^a-zA-Z0-9]/g,'')
+  return (<svg viewBox="0 0 132 96" width={size*1.32} height={size} aria-hidden="true" className={className}>
+    <defs><linearGradient id={id} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor={from}/><stop offset="1" stopColor={to}/></linearGradient></defs>
+    <path fill={'url(#'+id+')'} d="M12 54 C12 34 28 22 52 22 C74 22 88 32 91 46 C94 38 99 30 107 25 C105 32 104 38 105 43 C110 41 117 41 124 44 C117 48 111 50 106 50 C102 62 92 70 76 73 C58 76 34 74 22 68 C14 64 12 60 12 54 Z"/>
+    <circle cx="34" cy="45" r="4.2" fill="#0F172A"/>
+    <path d="M22 57 q11 7 26 5" stroke="#fff" strokeWidth="3.6" fill="none" strokeLinecap="round" opacity=".9"/>
+    <path d="M56 62 q6 8 16 8 q-10 4 -20 -2 Z" fill={from} opacity=".45"/>
+    <path d="M42 12 q-1 -7 5 -9 M50 12 q4 -6 11 -6" stroke={to} strokeWidth="3.4" fill="none" strokeLinecap="round"/>
   </svg>)
 }
+export function Mark({ size=34 }){ return <Whale size={size}/> }

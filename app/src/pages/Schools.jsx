@@ -4,7 +4,7 @@ import { PageHead, Card, StatCard, SectionCard, Avatar, IconTile, Btn, Modal, Fi
 import { Building2, Users, Wallet, Hourglass, KeyRound, Plus, Ban, Check, ShieldAlert, MapPin } from 'lucide-react'
 import toast from 'react-hot-toast'
 
-const PLAN_TINT={Pro:['#EEEBFF','#6C5CE7'],Essentiel:['#E4F7FE','#0BA5D8']}
+const PLAN_TINT={Pro:['#EEF2FF','#6366F1'],Essentiel:['#E4F7FE','#0BA5D8']}
 const ST={active:{label:'Active',bg:'#E2FBF3',fg:STATUS.ok},trial:{label:"Période d'essai",bg:'#FFF4DD',fg:STATUS.warn},suspended:{label:'Suspendue',bg:'#EEF1F6',fg:STATUS.neutral}}
 const BLANK={name:'',city:'Tunis',plan:'Essentiel',director:'',email:''}
 

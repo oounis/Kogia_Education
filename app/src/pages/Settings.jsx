@@ -5,7 +5,7 @@ import { PageHead, Card, Btn, Field, Input, Section, Modal } from '../components
 import { Building2, Palette, Save, Check } from 'lucide-react'
 import toast from 'react-hot-toast'
 
-const BRANDS=['#6C5CE7','#2563EB','#0EA5E9','#10B981','#F59E0B','#EF4444','#EC4899','#8B5CF6']
+const BRANDS=['#6366F1','#2563EB','#0EA5E9','#10B981','#F59E0B','#EF4444','#EC4899','#8B5CF6']
 
 export default function Settings(){
   const u=current()
