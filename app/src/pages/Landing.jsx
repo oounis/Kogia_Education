@@ -38,7 +38,7 @@ const PRICING = [
   ['Groupe','Sur devis',['Plusieurs écoles','Tableau propriétaire consolidé','Rôles & permissions avancés','Accompagnement dédié','Formation sur site'],false],
 ]
 const FAQ = [
-  ['Est-ce adapté au système tunisien ?','Oui — Primaire, Collège et Lycée, filières (Sciences, Maths, Éco-Gestion…), années et matières tunisiennes sont intégrés. Interface en français, prête pour l’arabe.'],
+  ['Est-ce adapté au système tunisien ?','Oui — conçu pour l\'école primaire tunisienne : les 6 niveaux (1ère → 6ème année) et les matières officielles sont intégrés. Interface en français, prête pour l’arabe.'],
   ['Faut-il installer quelque chose ?','Non. Kogia Edu fonctionne dans le navigateur, sur ordinateur, tablette et mobile. Rien à installer.'],
   ['Nos données sont-elles en sécurité ?','Accès par rôle strict (chaque portail ne voit que ce qui le concerne), sessions protégées et export contrôlé de vos données.'],
   ['Combien de temps pour démarrer ?','Une journée. On importe vos classes et élèves, on crée les comptes, et vos enseignants évaluent dès le lendemain.'],
@@ -157,7 +157,7 @@ export default function Landing(){
       {/* WHY / TRUST */}
       <section className="bg-canvas border-y border-line py-16">
         <div className="mx-auto max-w-[1120px] px-5 grid md:grid-cols-3 gap-6">
-          {[[Globe,'100% tunisien','Primaire · Collège · Lycée, filières et matières officielles. Français aujourd’hui, arabe prêt.'],
+          {[[Globe,'100% primaire tunisien','Les 6 niveaux du primaire et les matières officielles. Français aujourd’hui, arabe prêt.'],
             [ShieldCheck,'Sécurisé par rôle','Chaque portail est cloisonné : un parent ne voit jamais les finances, un enseignant jamais un autre établissement.'],
             [Sparkles,'Adopté en un jour','Import des classes, création des comptes, et l’école tourne dès le lendemain — sans formation lourde.']].map(([Icon,t,d])=>(
             <motion.div key={t} {...up} className="card p-7">
@@ -193,8 +193,8 @@ export default function Landing(){
         <div className="mx-auto max-w-[1120px] px-5">
           <div className="grid md:grid-cols-3 gap-5">
             {[['« En 30 secondes, toute la classe est évaluée et les parents sont au courant le soir même. »','Directrice — École Al-Nour, Tunis'],
-              ['« Les impayés se sont réglés tout seuls : les parents voient enfin clair sur les frais. »','Administration — Collège privé, Sfax'],
-              ['« Un seul endroit pour la présence, les notes et les annonces. On a arrêté WhatsApp. »','Enseignant — Lycée, Sousse']].map(([q,a])=>(
+              ['« Les impayés se sont réglés tout seuls : les parents voient enfin clair sur les frais. »','Administration — École primaire privée, Sfax'],
+              ['« Un seul endroit pour la présence, les notes et les annonces. On a arrêté WhatsApp. »','Enseignant — École primaire, Sousse']].map(([q,a])=>(
               <motion.div key={a} {...up} className="card p-6">
                 <div className="flex gap-0.5 mb-3">{[...Array(5)].map((_,i)=><Star key={i} size={15} fill="#FFC24B" stroke="#FFC24B"/>)}</div>
                 <p className="text-sm">{q}</p><div className="text-xs text-muted mt-4 font-semibold">{a}</div>

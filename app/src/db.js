@@ -1,13 +1,11 @@
-const KEY="coreon_db_v15"
+const KEY="coreon_db_v16"
 const MONTHS=["Sep","Oct","Nov","Déc","Jan","Fév","Mar","Avr","Mai","Juin"]
 export const FEE_MONTHS=MONTHS
 // Tout le système tunisien
+// Kogia Edu est spécialisé ÉCOLE PRIMAIRE : 6 niveaux, un seul cycle.
 export const CYCLES=[
   {cycle:"Primaire",grades:["1ère année","2ème année","3ème année","4ème année","5ème année","6ème année"]},
-  {cycle:"Collège",grades:["7ème année","8ème année","9ème année"]},
-  {cycle:"Lycée",grades:["1ère année secondaire","2ème année secondaire","3ème année secondaire","4ème année secondaire (Bac)"]},
 ]
-export const FILIERES=["Tronc commun","Sciences","Mathématiques","Sciences expérimentales","Sciences techniques","Économie & Gestion","Lettres","Sciences informatiques","Sport"]
 export const GRADES=CYCLES.flatMap(c=>c.grades)
 // ── timetable seed helpers (kept here to avoid a data.js↔db.js import cycle) ──
 export const TT_SUBJECTS=[['Arabe','#6366F1'],['Français','#36C5F0'],['Mathématiques','#FF6B81'],['Éveil scientifique','#2BD9A8'],['Éducation islamique','#FFA62B'],['Éducation civique','#0BA5D8'],['Sport','#10B981'],['Musique','#A78BFA'],['Arts plastiques','#E59A12'],['Informatique','#8B5CF6']]
@@ -26,8 +24,8 @@ function seed(){
   const classes=[
     {id:"c5a",name:"5ème A",grade:"5ème année",cycle:"Primaire"},
     {id:"c6a",name:"6ème A",grade:"6ème année",cycle:"Primaire"},
-    {id:"c9a",name:"9ème A",grade:"9ème année",cycle:"Collège"},
-    {id:"l2s",name:"2ème Sc",grade:"2ème année secondaire",cycle:"Lycée",filiere:"Sciences"},
+    {id:"c9a",name:"3ème A",grade:"3ème année",cycle:"Primaire"},
+    {id:"l2s",name:"4ème A",grade:"4ème année",cycle:"Primaire"},
   ]
   const S=(id,first,last,cls,parent,extra={})=>({id,name:`${first} ${last}`,initials:first[0]+last[0],classId:cls,parentId:parent,
     gender:extra.gender||"—",dob:extra.dob||"2015-05-10",bloodGroup:extra.bloodGroup||"O+",nationality:extra.nationality||"Tunisienne",
@@ -43,8 +41,8 @@ function seed(){
     S("s8","Bilel","Chaabane","c5a",null,{gender:"Garçon"}),S("s9","Rania","Sassi","c5a",null,{gender:"Fille"}),
     S("s10","Aziz","Hammami","c5a",null,{gender:"Garçon"}),
     S("s11","Salma","Ferchichi","c6a",null,{gender:"Fille"}),S("s12","Wassim","Oueslati","c6a",null,{gender:"Garçon"}),
-    S("s13","Mariem","Saidi","c9a",null,{gender:"Fille",dob:"2011-03-02"}),S("s14","Skander","Ayari","c9a",null,{gender:"Garçon",dob:"2011-07-12"}),
-    S("s15","Yasmine","Bouzid","l2s",null,{gender:"Fille",dob:"2009-01-20"}),S("s16","Oussama","Mansouri","l2s",null,{gender:"Garçon",dob:"2009-09-05"}),
+    S("s13","Mariem","Saidi","c9a",null,{gender:"Fille",dob:"2018-03-02"}),S("s14","Skander","Ayari","c9a",null,{gender:"Garçon",dob:"2018-07-12"}),
+    S("s15","Yasmine","Bouzid","l2s",null,{gender:"Fille",dob:"2019-01-20"}),S("s16","Oussama","Mansouri","l2s",null,{gender:"Garçon",dob:"2019-09-05"}),
     S("s17","Firas","Nasri","c6a",null,{gender:"Garçon"}),S("s18","Ines","Hidri","c6a",null,{gender:"Fille"}),S("s19","Malek","Riahi","c6a",null,{gender:"Garçon"}),S("s20","Dorra","Lahmar","c6a",null,{gender:"Fille"}),
     S("s21","Aymen","Zouari","c9a",null,{gender:"Garçon"}),S("s22","Khouloud","Belhaj","c9a",null,{gender:"Fille"}),S("s23","Seif","Mabrouk","c9a",null,{gender:"Garçon"}),S("s24","Rim","Gabsi","c9a",null,{gender:"Fille"}),
     S("s25","Nadia","Toumi","l2s",null,{gender:"Fille"}),S("s26","Walid","Charfi","l2s",null,{gender:"Garçon"}),S("s27","Emna","Brahmi","l2s",null,{gender:"Fille"}),S("s28","Zied","Karray","l2s",null,{gender:"Garçon"}),

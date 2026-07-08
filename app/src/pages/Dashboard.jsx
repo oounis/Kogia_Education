@@ -117,7 +117,8 @@ export default function Dashboard(){
   const openInc=d.incidents.filter(i=>i.status==='open').length
   const pendReq=d.requests.filter(r=>r.status==='pending').length
   // effectif par cycle
-  const cycleData=['Primaire','Collège','Lycée'].map((cy,i)=>({name:cy,value:d.students.filter(s=>{const c=d.classes.find(x=>x.id===s.classId);return c?.cycle===cy}).length,color:['#6366F1','#36C5F0',STATUS.warn][i]})).filter(x=>x.value>0)
+  const GC=['#6366F1','#36C5F0','#8B5CF6','#2BD9A8','#FFA62B','#FF6B81']
+  const cycleData=d.classes.map((c,i)=>({name:c.name,value:d.students.filter(s=>s.classId===c.id).length,color:GC[i%GC.length]})).filter(x=>x.value>0)
   const radial=[{name:'Recouvrement',value:collectRate,fill:STATUS.ok}]
   return (<><PageHead title={greet} sub="Vue d'ensemble de l'école."/>
     {/* Ce matin — l'essentiel en 30 secondes */}
@@ -165,7 +166,7 @@ export default function Dashboard(){
       </Card>
     </div>
     <div className="grid lg:grid-cols-3 gap-4">
-      {cycleData.length>0 && <Card className="p-5"><h3 className="font-bold mb-3">Effectif par cycle</h3>
+      {cycleData.length>0 && <Card className="p-5"><h3 className="font-bold mb-3">Effectif par classe</h3>
         <div className="h-44"><ResponsiveContainer width="100%" height="100%"><BarChart data={cycleData}><XAxis dataKey="name" tick={{fontSize:11,fill:'#8A93A6'}} axisLine={false} tickLine={false}/><Tooltip {...chartTip}/><Bar dataKey="value" radius={[6,6,0,0]}>{cycleData.map((p,i)=><Cell key={i} fill={p.color}/>)}</Bar></BarChart></ResponsiveContainer></div>
       </Card>}
       <Card className="p-5"><h3 className="font-bold mb-3">Taux de recouvrement</h3>
