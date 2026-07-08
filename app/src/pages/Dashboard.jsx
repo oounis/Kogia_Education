@@ -6,7 +6,8 @@ import { current } from '../auth.js'
 import { db, FEE_MONTHS, studentById, classById } from '../db.js'
 import { StatCard, Card, PageHead, Badge, Avatar, Btn, IconTile, EmptyState, STATUS } from '../components/ui.jsx'
 import { currentClass } from '../data.js'
-import { studentSummary, bulletinFor, mentionFor, strengthsWeaknesses } from '../results.js'
+import { studentSummary, bulletinFor, mentionFor, strengthsWeaknesses, lessonBreakdown } from '../results.js'
+import LessonMap from '../components/LessonMap.jsx'
 import { statusAt, AREAS, fmt, nowState } from '../livestatus.js'
 import { subjectMeta, PLACES } from '../subjects.jsx'
 import Bulletin from '../components/Bulletin.jsx'
@@ -184,9 +185,9 @@ export default function Dashboard(){
       </Card>
     </div>
     <Card className="p-5 mt-4"><div className="flex items-center justify-between mb-3"><h3 className="font-bold flex items-center gap-1.5"><ClipboardCheck size={16}/> Évaluations enregistrées</h3><span className="text-xs text-muted">{d.evaluations.length} au total</span></div>
-      {d.evaluations.length? <div className="overflow-x-auto scroll-thin -mx-5 -mb-5"><table className="w-full text-sm"><thead><tr className="text-left text-[11px] uppercase tracking-wide text-muted bg-canvas"><th className="px-4 py-3 font-semibold">Date</th><th className="px-4 py-3 font-semibold">Classe</th><th className="px-4 py-3 font-semibold">Matière</th><th className="px-4 py-3 font-semibold">Enseignant</th><th className="px-4 py-3 font-semibold text-center">Élèves notés</th><th className="px-4 py-3 font-semibold text-center">Moyenne</th></tr></thead>
+      {d.evaluations.length? <div className="overflow-x-auto scroll-thin -mx-5 -mb-5"><table className="w-full text-sm"><thead><tr className="text-left text-[11px] uppercase tracking-wide text-muted bg-canvas"><th className="px-4 py-3 font-semibold">Date</th><th className="px-4 py-3 font-semibold">Classe</th><th className="px-4 py-3 font-semibold">Matière</th><th className="px-4 py-3 font-semibold">Leçon</th><th className="px-4 py-3 font-semibold">Enseignant</th><th className="px-4 py-3 font-semibold text-center">Élèves notés</th><th className="px-4 py-3 font-semibold text-center">Moyenne</th></tr></thead>
         <tbody className="divide-y divide-line">{d.evaluations.slice(0,8).map(ev=>{ const cls=d.classes.find(c=>c.id===ev.classId); const studs=d.students.filter(s=>s.classId===ev.classId); const scores=studs.map(s=>studentSummary(ev,s.id).score).filter(x=>x!=null); const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):null; const m=mentionFor(avg)
-        return (<tr key={ev.id}><td className="px-4 py-3 text-muted whitespace-nowrap">{new Date(ev.at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})}</td><td className="px-4 py-3 font-medium">{ev.className||cls?.name}</td><td className="px-4 py-3">{ev.subject}</td><td className="px-4 py-3 text-muted">{ev.teacher}</td><td className="px-4 py-3 text-center">{scores.length}</td><td className="px-4 py-3 text-center font-bold" style={{color:m.color}}>{avg!=null?`${avg}/100`:'—'}</td></tr>) })}</tbody></table></div>
+        return (<tr key={ev.id}><td className="px-4 py-3 text-muted whitespace-nowrap">{new Date(ev.at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})}</td><td className="px-4 py-3 font-medium">{ev.className||cls?.name}</td><td className="px-4 py-3">{ev.subject}</td><td className="px-4 py-3 text-muted">{ev.lesson||"—"}</td><td className="px-4 py-3 text-muted">{ev.teacher}</td><td className="px-4 py-3 text-center">{scores.length}</td><td className="px-4 py-3 text-center font-bold" style={{color:m.color}}>{avg!=null?`${avg}/100`:'—'}</td></tr>) })}</tbody></table></div>
        : <EmptyState icon={<ClipboardCheck size={22}/>} title="Aucune évaluation enregistrée" sub="Les évaluations des enseignants apparaîtront ici."/>}
     </Card></>)
 }
@@ -247,7 +248,11 @@ function ParentDashboard({u,d,greet}){
   const sessions=b?.sessions||[]
   const trend=sessions.slice(-6).map((s,i)=>({i:i+1,score:s.score,subject:s.subject}))
   const cls=child?classById(child.classId):null
-  const sw=childId?strengthsWeaknesses(d.evaluations.filter(e=>e.classId===child?.classId),childId):{strong:[],weak:[]}
+  const childEvals=childId?d.evaluations.filter(e=>e.classId===child?.classId):[]
+  const sw=childId?strengthsWeaknesses(childEvals,childId):{strong:[],weak:[]}
+  const bk=childId?lessonBreakdown(childEvals,childId):[]
+  const recentEvals=childEvals.map(e=>({id:e.id,at:e.at,subject:e.subject,lesson:e.lesson,score:studentSummary(e,childId).score}))
+    .filter(x=>x.score!=null).sort((a,b)=>b.at-a.at).slice(0,6)
   const ns=nowState()
   const phase=!ns.realWeekday?'weekend':ns.nowMin<480?'before':ns.nowMin>900?'after':'live'
   const preview=phase==='live'?ns.nowMin:phase==='after'?900:phase==='before'?480:630
@@ -293,6 +298,25 @@ function ParentDashboard({u,d,greet}){
         </div> : <EmptyState icon={<Star size={22}/>} title="Aucune note disponible" sub="Les moyennes par matière apparaîtront ici."/>}
       </Card>
     </div>
+    {recentEvals.length>0 && <Card className="p-5 mb-4">
+      <div className="flex items-center justify-between mb-3"><h3 className="font-bold">Dernières évaluations</h3>
+        <span className="text-xs text-muted">{childEvals.length} au total</span></div>
+      <div className="divide-y divide-line">
+        {recentEvals.map(e=>{ const m=mentionFor(e.score); return (
+          <div key={e.id} className="flex items-center gap-3 py-2 text-sm">
+            <span className="min-w-0 flex-1"><span className="font-semibold">{e.subject}</span>
+              {e.lesson&&<span className="ml-1.5 text-[11px] font-bold px-2 py-0.5 rounded-full accent-soft accent-text">{e.lesson}</span>}
+              <span className="block text-[11px] text-muted">{new Date(e.at).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</span></span>
+            <span className="font-extrabold" style={{color:m.color}}>{e.score}/100</span>
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{background:m.color+'1E',color:m.color}}>{m.label}</span>
+          </div>)})}
+      </div>
+    </Card>}
+    {bk.length>0 && <Card className="p-5 mb-4">
+      <h3 className="font-bold mb-1">Par matière & leçon</h3>
+      <p className="text-xs text-muted mb-3">La progression de {child?.name.split(' ')[0]}, leçon par leçon.</p>
+      <LessonMap data={bk} compact/>
+    </Card>}
     {(sw.strong.length>0||sw.weak.length>0) && <Card className="p-5 mb-4">
       <h3 className="font-bold mb-1">Où en est {child?.name.split(' ')[0]} ?</h3>
       <p className="text-xs text-muted mb-3">Par leçon, d'après les évaluations des enseignants — pour l'aider là où ça compte.</p>

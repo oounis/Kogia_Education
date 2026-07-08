@@ -4,7 +4,8 @@ import { BUCKETS } from '../data.js'
 import { studentSummary, mentionFor, lessonBreakdown } from '../results.js'
 import { PageHead, StatCard, SectionCard, EmptyState, Avatar, Tabs, Chip, SearchInput, Table, Modal, STATUS } from '../components/ui.jsx'
 import GradeHistory from '../components/GradeHistory.jsx'
-import { ClipboardCheck, Gauge, Users, LifeBuoy, Trophy, TrendingUp, TrendingDown, Minus, ChevronRight, BarChart3, Search } from 'lucide-react'
+import LessonMap from '../components/LessonMap.jsx'
+import { ClipboardCheck, Gauge, Users, LifeBuoy, Trophy, TrendingUp, TrendingDown, Minus, ChevronRight, BarChart3, Search, BookMarked } from 'lucide-react'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 import { format, startOfDay, startOfWeek } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -69,6 +70,13 @@ export default function Results(){
   const classes = classId==='all' ? d.classes : d.classes.filter(c=>c.id===classId)
   const classAvgs=classes.map(c=>{ const list=data.students.filter(x=>x.s.classId===c.id)
     return { c, n:list.length, avg:list.length?Math.round(list.reduce((s,x)=>s+x.avg,0)/list.length):null } }).filter(x=>x.avg!=null)
+  const subjectAgg=(()=>{ const acc={}
+    data.evals.forEach(e=>{ const s=acc[e.subject]=acc[e.subject]||{subject:e.subject,scores:[],lessons:{}}
+      s.scores.push(e.avg); const key=e.lesson||'Général'; (s.lessons[key]=s.lessons[key]||[]).push(e.avg) })
+    return Object.values(acc).map(s=>({ subject:s.subject,
+      avg:Math.round(s.scores.reduce((a,x)=>a+x,0)/s.scores.length),
+      lessons:Object.entries(s.lessons).map(([lesson,arr])=>({lesson,count:arr.length,avg:Math.round(arr.reduce((a,x)=>a+x,0)/arr.length)})).sort((a,b)=>a.avg-b.avg),
+    })).sort((a,b)=>a.avg-b.avg) })()
   const query=q.trim().toLowerCase()
   const rows=ranked.filter(x=>!query||x.s.name.toLowerCase().includes(query))
 
@@ -129,6 +137,11 @@ export default function Results(){
         </SectionCard>
       </div>
 
+      <SectionCard icon={<BookMarked size={16}/>} tint="grape" title="Performance par matière & leçon"
+        sub={`${classId==='all'?"Toute l'école":d.classes.find(c=>c.id===classId)?.name} · moyenne de toutes les évaluations de la période — le cœur du pilotage pédagogique`} className="mb-5">
+        <LessonMap data={subjectAgg}/>
+      </SectionCard>
+
       {classAvgs.length>1 && (
         <SectionCard icon={<Users size={16}/>} tint="sky" title="Moyenne par classe" className="mb-5">
           <div className="space-y-3">
@@ -170,34 +183,19 @@ export default function Results(){
       {view&&<>
         <div className="flex items-center gap-3 mb-4"><Avatar name={view.name} seed={view.id} size={44}/>
           <div><div className="font-bold">{view.name}</div><div className="text-xs text-muted">{classById(view.classId)?.name} · {classById(view.classId)?.cycle}</div></div></div>
-        <LessonMap d={d} sid={view.id}/>
+        <StudentLessonMap d={d} sid={view.id}/>
         <GradeHistory studentId={view.id}/>
       </>}
     </Modal>
   </>)
 }
 
-function LessonMap({ d, sid }){
+function StudentLessonMap({ d, sid }){
   const bk=lessonBreakdown(d.evaluations.filter(e=>{const s=d.students.find(x=>x.id===sid);return s&&e.classId===s.classId}),sid)
   if(!bk.length) return null
   return (<div className="mb-5">
     <h3 className="text-sm font-bold uppercase tracking-wide accent-text mb-2">Par matière & leçon</h3>
-    <div className="grid sm:grid-cols-2 gap-2.5">
-      {bk.map(s=>{ const m=mentionFor(s.avg); return (
-        <div key={s.subject} className="rounded-xl border border-line p-3">
-          <div className="flex items-center justify-between mb-1.5">
-            <span className="font-bold text-sm">{s.subject}</span>
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{background:m.color+'1E',color:m.color}}>{s.avg}/100</span></div>
-          <div className="space-y-1">
-            {s.lessons.map(l=>{ const lm=mentionFor(l.avg); return (
-              <div key={l.lesson} className="flex items-center gap-2 text-xs">
-                <span className="w-24 truncate text-muted shrink-0">{l.lesson}</span>
-                <div className="flex-1 h-1.5 rounded-full bg-canvas overflow-hidden"><div className="h-full rounded-full" style={{width:`${l.avg}%`,background:lm.color}}/></div>
-                <span className="font-bold w-8 text-right" style={{color:lm.color}}>{l.avg}</span>
-              </div>)})}
-          </div>
-        </div>)})}
-    </div>
+    <LessonMap data={bk} compact/>
   </div>)
 }
 

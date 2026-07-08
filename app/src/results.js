@@ -87,8 +87,7 @@ export function lessonBreakdown(allEvals, sid){
 // Forces / à renforcer pour le portail parent
 export function strengthsWeaknesses(allEvals, sid, n=3){
   const all=lessonBreakdown(allEvals,sid).flatMap(s=>s.lessons.map(l=>({...l,subject:s.subject})))
-    .filter(l=>l.count>=2)
   const weak=all.filter(l=>l.avg<60).sort((a,b)=>a.avg-b.avg).slice(0,n)
-  const strong=all.filter(l=>l.avg>=75).sort((a,b)=>b.avg-a.avg).slice(0,n)
+  const strong=all.filter(l=>l.avg>=72).sort((a,b)=>b.avg-a.avg).slice(0,n)
   return {strong,weak}
 }

@@ -1,4 +1,4 @@
-const KEY="coreon_db_v17"
+const KEY="coreon_db_v18"
 const MONTHS=["Sep","Oct","Nov","Déc","Jan","Fév","Mar","Avr","Mai","Juin"]
 export const FEE_MONTHS=MONTHS
 // Tout le système tunisien
@@ -70,8 +70,8 @@ function seed(){
   const Bk2=["good","excellent","average","good"]
   const placements2={}; ["q1","q2","q3","q4","q5"].forEach((q,qi)=>{placements2[q]={}; c5.forEach((s,si)=>{placements2[q][s.id]=Bk2[(si+qi+1)%4]})})
   const evaluations=[
-    {id:"ev_seed2",at:Date.now()-1800000,classId:"c5a",className:"5ème A",subject:"Éveil scientifique",teacher:"Hela Morjane",placements:placements2,badges:{s2:"idea"},note:"Très bonne participation à l'expérience."},
-    {id:"ev_seed",at:Date.now()-90000000,classId:"c5a",className:"5ème A",subject:"Mathématiques",teacher:"Othman Ounis",placements,badges:{s1:"star",s3:"improved"},note:"Bonne séance, classe attentive."},
+    {id:"ev_seed2",at:Date.now()-1800000,classId:"c5a",className:"5ème A",subject:"Éveil scientifique",lesson:"Les plantes",teacher:"Hela Morjane",placements:placements2,badges:{s2:"idea"},note:"Très bonne participation à l'expérience."},
+    {id:"ev_seed",at:Date.now()-90000000,classId:"c5a",className:"5ème A",subject:"Mathématiques",lesson:"Les fractions",teacher:"Othman Ounis",placements,badges:{s1:"star",s3:"improved"},note:"Bonne séance, classe attentive."},
   ]
   // ── historique d'évaluations (~10 mois) pour alimenter le suivi Direction/Admin.
   // Déterministe (h32) : chaque élève a une "aptitude" stable → classements cohérents,
