@@ -9,6 +9,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'rec
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'
+import { isSummer, SummerFreeze } from '../components/Summer.jsx'
 
 const CYCLE={present:'absent',absent:'late',late:'present'}
 const COL={present:STATUS.ok,absent:STATUS.danger,late:STATUS.warn}
@@ -147,6 +148,10 @@ function StudentsInsights(){
 
 /* ── Enseignant / Surveillant : faire l'appel ───────────────────────────── */
 function MarkView(){
+  if(isSummer()) return (<>
+    <PageHead title="Appel / Présence" sub="Pas d'appel pendant les vacances d'été."/>
+    <SummerFreeze feature="L'appel du matin" detail="Les élèves sont en vacances — la feuille d'appel se rouvrira le jour de la rentrée."/>
+  </>)
   const cls=currentClass(new Date()); const today=new Date().toISOString().slice(0,10); const key=cls.cls.id+'_'+today
   const [marks,setMarks]=useState(()=> db().attendance[key] || Object.fromEntries(cls.students.map(s=>[s.id,'present'])))
   const [,setTick]=useState(0)

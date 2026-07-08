@@ -7,6 +7,7 @@ import { LogIn, LogOut, Clock, CalendarCheck, Plane, Plus, Hourglass, Timer } fr
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'
+import { isSummer, RENTREE } from '../components/Summer.jsx'
 
 /* ── Pointage : la badgeuse personnelle de chaque membre du personnel ────── */
 const LEAVE_TYPES={annuel:'Congé annuel',maladie:'Maladie',exceptionnel:'Exceptionnel',permission:'Permission (heures)'}
@@ -64,17 +65,21 @@ export default function Pointage(){
     <div className="grid lg:grid-cols-[380px_1fr] gap-4 mb-4">
       <Card className="p-6 text-center">
         <div className="floaty mx-auto w-fit mb-1"><Whale size={44} from="var(--accent)" to="var(--accent-2,var(--accent))"/></div>
-        {!clock && <>
+        {isSummer() ? <>
+          <div className="inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded-full" style={{background:'#FEF3C7',color:'#92400E'}}>VACANCES D'ÉTÉ</div>
+          <div className="text-lg font-extrabold mt-2">Badgeuse en pause</div>
+          <p className="text-sm text-muted mt-1">Le pointage reprend le <b>{RENTREE}</b>. Vos heures et votre historique restent consultables ci-contre — bel été !</p>
+        </> : !clock ? <>
           <div className="text-lg font-extrabold">Prêt pour la journée ?</div>
           <p className="text-sm text-muted mt-1 capitalize">{format(now,'EEEE d MMMM · HH:mm',{locale:fr})}</p>
           <Btn size="lg" className="mt-4 w-full" onClick={checkIn}><LogIn size={17}/> Pointer l'arrivée</Btn>
-          <p className="text-[11px] text-muted mt-2">Après {LATE}, l'arrivée est comptée en retard.</p></>}
-        {working && <>
+          <p className="text-[11px] text-muted mt-2">Après {LATE}, l'arrivée est comptée en retard.</p></> : null}
+        {!isSummer() && working && <>
           <div className="text-lg font-extrabold">Dans l'école depuis {clock.in}</div>
           <div className="text-3xl font-extrabold accent-text mt-1 tabular-nums">{fmtH(elapsed)}</div>
           <p className="text-xs text-muted">temps de travail aujourd'hui</p>
           <Btn size="lg" variant="soft" className="mt-4 w-full" onClick={checkOut}><LogOut size={17}/> Pointer la sortie</Btn></>}
-        {clock&&clock.out && <>
+        {!isSummer() && clock&&clock.out && <>
           <div className="text-lg font-extrabold">Journée terminée</div>
           <p className="text-sm text-muted mt-1">{clock.in} → {clock.out} · {fmtH(elapsed)}</p>
           <p className="text-xs text-muted mt-3">Merci pour aujourd'hui — à demain !</p></>}

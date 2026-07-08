@@ -10,6 +10,7 @@ import { studentSummary, mentionFor } from '../results.js'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'
+import { isSummer, SummerFreeze } from '../components/Summer.jsx'
 
 export default function Evaluate(){
   const sched=useMemo(()=>teacherSchedule(new Date()),[])
@@ -47,6 +48,14 @@ export default function Evaluate(){
     setSaved(graded.map(s=>{const sum=studentSummary(ev,s.id);return {name:s.name,...sum,mention:mentionFor(sum.score)}}))
     toast.success(`Évaluation enregistrée · ${graded.length} élèves notés · parents notifiés`); setStep(6)
   }
+
+  /* ---------- 0) MODE ÉTÉ : pas de classe, pas d'évaluation ---------- */
+  if(isSummer()) return (<>
+    <PageHead title="Évaluation rapide" sub="Le cœur de Kogia Edu — en pause estivale."/>
+    <SummerFreeze feature="L'évaluation en classe" detail="Il n'y a pas de séances à évaluer pendant les vacances : votre emploi du temps redémarrera automatiquement avec la nouvelle année scolaire.">
+      <Btn variant="soft" onClick={()=>{location.hash='#/app/students'}}>Revoir mes élèves</Btn>
+    </SummerFreeze>
+  </>)
 
   /* ---------- 1) SCHEDULE PICKER (entry screen) ---------- */
   if(!slot) return (<>

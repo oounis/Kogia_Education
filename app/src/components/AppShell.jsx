@@ -14,6 +14,7 @@ import { NAV } from '../nav.js'
 import { safeLink } from '../access.js'
 import MeteoCorner from './MeteoCorner.jsx'
 import ClockCorner from './ClockCorner.jsx'
+import { SummerChip } from './Summer.jsx'
 import CommandPalette from './CommandPalette.jsx'
 export default function AppShell({ children }){
   const u=current(); const loc=useLocation(); const nav=useNavigate(); const [open,setOpen]=useState(false)
@@ -45,7 +46,7 @@ export default function AppShell({ children }){
               <span className="text-[10px] font-bold border border-line rounded-md px-1.5 py-0.5 bg-white">Ctrl K</span>
             </button>
             <button onClick={()=>setPalette(true)} aria-label="Recherche globale" className="sm:hidden w-10 h-10 grid place-items-center rounded-xl text-muted hover:bg-canvas"><Search size={18}/></button>
-            <div className="ml-auto flex items-center gap-2"><ClockCorner/><MeteoCorner/><BellMenu user={u}/><UserMenu user={u} role={role} onLogout={()=>{logout();nav('/')}}/></div>
+            <div className="ml-auto flex items-center gap-2"><SummerChip/><ClockCorner/><MeteoCorner/><BellMenu user={u}/><UserMenu user={u} role={role} onLogout={()=>{logout();nav('/')}}/></div>
           </div>
         </header>
         <main className="px-4 lg:px-6 py-5 max-w-[1280px] mx-auto">{children}</main>
