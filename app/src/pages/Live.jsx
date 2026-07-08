@@ -67,14 +67,14 @@ export default function Live(){
               {pill.pulse&&<motion.span animate={{opacity:[1,.3,1]}} transition={{repeat:Infinity,duration:1.4}}><Radio size={12}/></motion.span>}{pill.txt}</span>
             <span className="text-sm font-bold text-muted hidden sm:inline">Journée de {first} · {day}</span>
           </div>
-          <span className="text-sm font-extrabold px-3 py-1 rounded-full" style={{background:area.color+'16',color:area.color}}>{st.title}</span>
+          <span className="text-sm font-extrabold px-3 py-1 rounded-full" style={{background:area.color+'16',color:area.color}}>{(liveNow||exploring)?st.title:phase==='after'?'Journée terminée':phase==='before'?"Avant l'école":'Journée type'}</span>
         </div>
         <RouteMap stops={[
           { kind:'entree', label:'Arrivée', time:fmt(open) },
           ...segs.map(s=>({ kind:s.kind==='free'?'class':s.kind, label:stopLabel(s), sub:s.cell?.room, time:fmt(s.start) })),
           { kind:'entree', label:'Sortie', time:fmt(close) },
         ]} curIndex={min<open?0:min>=close?segs.length+1:(()=>{const j=segs.findIndex(s=>min>=s.start&&min<s.end);return (j<0?segs.length-1:j)+1})()}
-          name={kid.name} seed={kid.id}/>
+          name={kid.name} seed={kid.id} showStudent={liveNow||exploring}/>
       </Card>
 
       <div className="space-y-5">

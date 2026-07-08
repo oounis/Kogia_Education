@@ -35,16 +35,16 @@ function RoadEdge({ sourceX, sourceY, targetX, targetY, data }){
 const edgeTypes = { road: RoadEdge }
 
 function StationNode({ data }){
-  const { color, Icon, iconColor, label, time, sub, state, name, seed } = data
+  const { color, Icon, iconColor, label, time, sub, state, name, seed, showStudent } = data
   const isDone=state==='done', isCur=state==='current', isFut=state==='future'
   const ring = isCur?`0 0 0 3.5px ${color}` : isDone?`0 0 0 3px ${color}` : '0 0 0 2px #E4E8F0'
   return (
     <div className="relative flex flex-col items-center" style={{width:132}}>
       <div className="text-[10px] font-extrabold mb-1" style={{color:'#AAB3C2',opacity:isCur?0:1}}>{time}</div>
       <div className="relative grid place-items-center">
-        {isCur && <span className="absolute w-20 h-20 rounded-full animate-ping" style={{background:color,opacity:.25}}/>}
+        {isCur && showStudent && <span className="absolute w-20 h-20 rounded-full animate-ping" style={{background:color,opacity:.25}}/>}
         {/* the pupil, marked at her current stop */}
-        {isCur && name && (
+        {isCur && showStudent && name && (
           <div className="absolute z-30 pointer-events-none" style={{left:'64px', bottom:'2px'}}>
             <Avatar name={name} seed={seed} size={34} ring="#fff" className="shadow-lg"/>
           </div>
@@ -70,14 +70,14 @@ function StationNode({ data }){
 }
 const nodeTypes = { station: StationNode }
 
-export default function RouteMapFlow({ stops, curIndex, done=0, remain, name='', seed }){
+export default function RouteMapFlow({ stops, curIndex, done=0, remain, name='', seed, showStudent=true }){
   const COLS=4, COLW=214, ROWH=182
   const curColor=COLOR[stops[curIndex]?.kind]||COLOR.class
   const P = useMemo(()=> stops.map((_,i)=>{ const row=Math.floor(i/COLS), inRow=i%COLS, col=row%2===0?inRow:(COLS-1-inRow); return {x:col*COLW, y:row*ROWH} }),[stops.length])
 
   const nodes = stops.map((s,i)=>{ const m=metaFor(s.kind,s.label); return { id:String(i), type:'station', position:P[i], draggable:false, selectable:false,
     data:{ ...s, color:COLOR[s.kind]||COLOR.class, Icon:m.Icon, iconColor:m.color,
-      state: i<curIndex?'done':i===curIndex?'current':'future', name, seed } } })
+      state: i<curIndex?'done':i===curIndex?'current':'future', name, seed, showStudent } } })
 
   const edges = stops.slice(0,-1).map((_,i)=>{ const a=P[i], b=P[i+1]
     let sh,th; if(a.y===b.y){ if(b.x>a.x){sh='r';th='l'} else {sh='l2';th='r2'} } else { sh='b'; th='t' }
