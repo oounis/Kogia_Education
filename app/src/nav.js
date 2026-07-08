@@ -2,7 +2,7 @@
 // the Ctrl+K command palette. Each entry is role-gated.
 import {
   LayoutDashboard, Users, GraduationCap, UserCog, ClipboardCheck, Wallet, CreditCard,
-  ShieldAlert, FileText, Megaphone, Building2, CalendarCheck, BookOpen, BookMarked,
+  ShieldAlert, FileText, Megaphone, Building2, CalendarCheck, BookOpen, BookMarked, BriefcaseBusiness,
   Bus, CalendarDays, MessageSquare, Award, CalendarClock, Radio, Settings, BarChart3
 } from 'lucide-react'
 
@@ -13,6 +13,7 @@ export const NAV=[
   { to:'/app/accounts', label:'Comptes', icon:UserCog, roles:['schooladmin'] },
   { to:'/app/students', label:'Élèves', icon:Users, roles:['schooladmin','admin','supervisor','teacher'] },
   { to:'/app/teachers', label:'Enseignants', icon:GraduationCap, roles:['schooladmin','admin'] },
+  { to:'/app/staff', label:'Personnel', icon:BriefcaseBusiness, roles:['schooladmin','admin'] },
   { to:'/app/evaluate', label:'Évaluer', icon:ClipboardCheck, roles:['teacher'] },
   { to:'/app/results', label:'Suivi élèves', icon:BarChart3, roles:['schooladmin','admin'] },
   { to:'/app/timetable', label:'Emploi du temps', icon:CalendarClock, roles:['schooladmin','admin','teacher','parent','supervisor'] },

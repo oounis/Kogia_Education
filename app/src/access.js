@@ -9,6 +9,7 @@ export const ROUTE_ROLES={
   '/app/accounts': ['schooladmin'],
   '/app/students': ['schooladmin','admin','supervisor','teacher'],
   '/app/teachers': ['schooladmin','admin'],
+  '/app/staff': ['schooladmin','admin'],
   '/app/evaluate': ['teacher'],
   '/app/timetable': ['schooladmin','admin','teacher','parent','supervisor'],
   '/app/attendance': ['schooladmin','teacher','admin','supervisor'],

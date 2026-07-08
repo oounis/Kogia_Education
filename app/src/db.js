@@ -1,4 +1,4 @@
-const KEY="coreon_db_v13"
+const KEY="coreon_db_v14"
 const MONTHS=["Sep","Oct","Nov","Déc","Jan","Fév","Mar","Avr","Mai","Juin"]
 export const FEE_MONTHS=MONTHS
 // Tout le système tunisien
@@ -167,7 +167,15 @@ function seed(){
     {id:"sc3",name:"Institut Ibn Khaldoun",city:"Sousse",plan:"Pro",price:149,status:"active",since:"2026-01-10",studentCount:385,director:"Salwa Masmoudi",email:"direction@ibnkhaldoun.tn"},
     {id:"sc4",name:"École Les Jasmins",city:"Ariana",plan:"Essentiel",price:79,status:"trial",since:"2026-06-20",studentCount:96,director:"Hatem Baccar",email:"contact@jasmins.tn"},
   ]
-  return {classes,students,teachers,users,payments,evaluations,incidents,requests,books,routes,homework,events,exams,messages,attendance,staffAttendance,notifications,timetables:genTimetables(classes),settings,schools}
+  // congés du personnel : demandes datées, approuvées par la Direction
+  const D=86400000, iso=o=>new Date(Date.now()+o*D).toISOString().slice(0,10)
+  const staffLeaves=[
+    {id:"lv1",staffId:"t2",type:"annuel",from:iso(-24),to:iso(-22),days:3,reason:"Congé annuel",status:"approved",at:Date.now()-26*D,by:"Lina Aderra"},
+    {id:"lv2",staffId:"u_super",type:"maladie",from:iso(-9),to:iso(-8),days:2,reason:"Grippe (certificat fourni)",status:"approved",at:Date.now()-10*D,by:"Lina Aderra"},
+    {id:"lv3",staffId:"t3",type:"annuel",from:iso(6),to:iso(10),days:4,reason:"Voyage familial",status:"pending",at:Date.now()-1*D,by:null},
+    {id:"lv4",staffId:"u_admin",type:"exceptionnel",from:iso(-40),to:iso(-40),days:1,reason:"Événement familial",status:"approved",at:Date.now()-42*D,by:"Lina Aderra"},
+  ]
+  return {classes,students,teachers,users,payments,evaluations,incidents,requests,books,routes,homework,events,exams,messages,attendance,staffAttendance,staffLeaves,notifications,timetables:genTimetables(classes),settings,schools}
 }
 export const DEFAULT_SETTINGS={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026', director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis', brand:'#6366F1', logoText:'AN', currency:'DT' }
 export const settings=()=>({...DEFAULT_SETTINGS, ...(db().settings||{})})
