@@ -7,12 +7,13 @@ const TINTS={brand:['#EEF2FF','#6366F1'],sky:['#E4F7FE','#0BA5D8'],butter:['#FFF
 export const STATUS={ ok:'#10B981', okSoft:'#E2FBF3', warn:'#E59A12', warnSoft:'#FFF4DD', danger:'#EF4444', dangerSoft:'#FFE8EC', info:'#0BA5D8', infoSoft:'#E4F7FE', neutral:'#8A93A6', neutralSoft:'#EEF1F6', live:'#FF3B5C' }
 
 export function Card({ className='', children }){ return <div className={`card ${className}`}>{children}</div> }
-export function StatCard({ label, value, sub, tint='brand', icon, to }){
+export function StatCard({ label, value, sub, tint='brand', icon, to, onClick }){
   const map={brand:['#EEF2FF','#6366F1'],sky:['#E4F7FE','#0BA5D8'],butter:['#FFF4DD','#E59A12'],mint:['#E2FBF3','#10B981'],coral:['#FFE8EC','#FF6B81'],grape:['#F1ECFE','#8B5CF6']}
   const [bg,fg]=map[tint]||map.brand
   const inner=<><span className="w-12 h-12 rounded-2xl grid place-items-center shrink-0" style={{background:bg,color:fg}}>{icon}</span>
     <div className="min-w-0"><div className="text-2xl font-extrabold leading-none">{value}</div><div className="text-xs text-muted mt-1 truncate">{label}{sub&&<span className="ml-1">· {sub}</span>}</div></div></>
   if(to) return <Link to={to} className="card p-4 flex items-center gap-3 hover:shadow-lg hover:-translate-y-0.5 transition">{inner}</Link>
+  if(onClick) return <button onClick={onClick} className="card p-4 flex items-center gap-3 hover:shadow-lg hover:-translate-y-0.5 transition text-left w-full">{inner}</button>
   return <div className="card p-4 flex items-center gap-3">{inner}</div>
 }
 export function Badge({ status }){

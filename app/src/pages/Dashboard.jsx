@@ -40,9 +40,9 @@ export default function Dashboard(){
     const hasDist=distData.some(x=>x.value>0)
     return (<><PageHead title={greet} sub="Votre journée d'enseignement en un coup d'œil."/>
       <div className="grid sm:grid-cols-3 gap-4 mb-5">
-        <StatCard label="Classe en cours" value={cls.cls.name} sub={cls.slot.subject} tint="mint" icon={<ClipboardCheck/>}/>
-        <StatCard label="Élèves" value={cls.students.length} tint="sky" icon={<Users/>}/>
-        <StatCard label="Mes demandes" value={d.requests.filter(r=>r.by===u.id).length} tint="butter" icon={<FileText/>}/>
+        <StatCard label="Classe en cours" value={cls.cls.name} sub={cls.slot.subject} tint="mint" icon={<ClipboardCheck/>} to="/app/evaluate"/>
+        <StatCard label="Élèves" value={cls.students.length} tint="sky" icon={<Users/>} to="/app/students"/>
+        <StatCard label="Mes demandes" value={d.requests.filter(r=>r.by===u.id).length} tint="butter" icon={<FileText/>} to="/app/requests"/>
       </div>
       <div className="grid lg:grid-cols-2 gap-4">
         <Card className="p-6 flex flex-col justify-between gap-4">
@@ -74,9 +74,9 @@ export default function Dashboard(){
     const sevData=[['Faible','low',STATUS.info],['Moyenne','medium',STATUS.warn],['Élevée','high',STATUS.danger]].map(([n,k,c])=>({name:n,value:d.incidents.filter(i=>i.severity===k).length,color:c}))
     return (<><PageHead title={greet} sub="Gardez l'école sûre et informée."/>
       <div className="grid sm:grid-cols-3 gap-4 mb-5">
-        <StatCard label="Incidents ouverts" value={open.length} tint="coral" icon={<ShieldAlert/>}/>
-        <StatCard label="Élèves" value={d.students.length} tint="sky" icon={<Users/>}/>
-        <StatCard label="Signalés par moi" value={d.incidents.length} tint="butter" icon={<ShieldAlert/>}/>
+        <StatCard label="Incidents ouverts" value={open.length} tint="coral" icon={<ShieldAlert/>} to="/app/incidents"/>
+        <StatCard label="Élèves" value={d.students.length} tint="sky" icon={<Users/>} to="/app/students"/>
+        <StatCard label="Signalés par moi" value={d.incidents.length} tint="butter" icon={<ShieldAlert/>} to="/app/incidents"/>
       </div>
       <div className="grid lg:grid-cols-2 gap-4">
         <Card className="p-5"><h3 className="font-bold mb-3">Incidents par gravité</h3>
@@ -85,12 +85,12 @@ export default function Dashboard(){
         <Card className="p-5"><h3 className="font-bold mb-3">Incidents récents</h3>
           <div className="space-y-2">
             {d.incidents.slice(0,4).map(i=>{ const s=i.studentId?studentById(i.studentId):null; return (
-              <div key={i.id} className="flex items-center gap-2 text-sm border-b border-line pb-2 last:border-0">
+              <Link to="/app/incidents" key={i.id} className="flex items-center gap-2 text-sm border-b border-line pb-2 last:border-0 hover:bg-canvas rounded-lg px-1 transition">
                 <span className="w-2 h-2 rounded-full shrink-0" style={{background:i.severity==='high'?STATUS.danger:i.severity==='medium'?STATUS.warn:STATUS.info}}/>
                 <span className="font-medium truncate flex-1">{i.title}</span>
                 {s&&<span className="text-muted text-xs">{s.name.split(' ')[0]}</span>}
                 <Badge status={i.status}/>
-              </div>) })}
+              </Link>) })}
             {d.incidents.length===0 && <EmptyState icon={<ShieldAlert size={22}/>} title="Aucun incident" sub="Tout est calme pour le moment."/>}
           </div>
         </Card>
@@ -276,10 +276,10 @@ function ParentDashboard({u,d,greet}){
       </div>
     </Link>}
     <div className="grid sm:grid-cols-4 gap-4 mb-5">
-      <StatCard label="Moyenne générale" value={b?.overall!=null?`${b.overall}/100`:'—'} sub={b?.mention.label} tint="mint" icon={<Star/>}/>
-      <StatCard label="Mois payés" value={`${paid}/${months.length}`} tint="sky" icon={<CreditCard/>}/>
-      <StatCard label="Présence" value={b?.attRate!=null?`${b.attRate}%`:'—'} tint="grape" icon={<CalendarCheck/>}/>
-      <StatCard label="Notifications" value={d.notifications.filter(n=>n.role==='parent'||n.to===u.id).length} tint="butter" icon={<Bell/>}/>
+      <StatCard label="Moyenne générale" value={b?.overall!=null?`${b.overall}/100`:'—'} sub={b?.mention.label} tint="mint" icon={<Star/>} onClick={()=>child&&setBulletin(child)}/>
+      <StatCard label="Mois payés" value={`${paid}/${months.length}`} tint="sky" icon={<CreditCard/>} to="/app/payments"/>
+      <StatCard label="Présence" value={b?.attRate!=null?`${b.attRate}%`:'—'} tint="grape" icon={<CalendarCheck/>} to="/app/live"/>
+      <StatCard label="Notifications" value={d.notifications.filter(n=>n.role==='parent'||n.to===u.id).length} tint="butter" icon={<Bell/>} to="/app/notifications"/>
     </div>
     <div className="grid lg:grid-cols-2 gap-4 mb-4">
       <Card className="p-5"><div className="flex items-center justify-between mb-3"><h3 className="font-bold">Évolution des notes</h3>{child&&<Btn variant="soft" onClick={()=>setBulletin(child)}><FileText size={15}/> Bulletin</Btn>}</div>
@@ -290,7 +290,7 @@ function ParentDashboard({u,d,greet}){
         </AreaChart></ResponsiveContainer></div>
         : <EmptyState icon={<TrendingUp size={22}/>} title="Aucune évaluation" sub="L'évolution des notes de votre enfant apparaîtra ici."/>}
       </Card>
-      <Card className="p-5"><h3 className="font-bold mb-3">Moyennes par matière</h3>
+      <Card className="p-5"><h3 className="font-bold mb-3 flex items-center justify-between">Moyennes par matière <button onClick={()=>child&&setBulletin(child)} className="text-xs font-semibold accent-text inline-flex items-center gap-1">Bulletin <ChevronRight size={13}/></button></h3>
         {b?.subjects.length? <div className="space-y-3">
           {b.subjects.map(s=>{ const m=mentionFor(s.avg); return (
             <div key={s.subject}><div className="flex justify-between text-sm mb-1"><span className="font-medium">{s.subject}</span><span className="font-bold" style={{color:m.color}}>{s.avg}/100</span></div>
@@ -303,17 +303,17 @@ function ParentDashboard({u,d,greet}){
         <span className="text-xs text-muted">{childEvals.length} au total</span></div>
       <div className="divide-y divide-line">
         {recentEvals.map(e=>{ const m=mentionFor(e.score); return (
-          <div key={e.id} className="flex items-center gap-3 py-2 text-sm">
+          <button key={e.id} onClick={()=>child&&setBulletin(child)} className="flex items-center gap-3 py-2 text-sm w-full text-left hover:bg-canvas rounded-lg px-1 transition">
             <span className="min-w-0 flex-1"><span className="font-semibold">{e.subject}</span>
               {e.lesson&&<span className="ml-1.5 text-[11px] font-bold px-2 py-0.5 rounded-full accent-soft accent-text">{e.lesson}</span>}
               <span className="block text-[11px] text-muted">{new Date(e.at).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</span></span>
             <span className="font-extrabold" style={{color:m.color}}>{e.score}/100</span>
             <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{background:m.color+'1E',color:m.color}}>{m.label}</span>
-          </div>)})}
+          </button>)})}
       </div>
     </Card>}
     {bk.length>0 && <Card className="p-5 mb-4">
-      <h3 className="font-bold mb-1">Par matière & leçon</h3>
+      <h3 className="font-bold mb-1 flex items-center justify-between">Par matière & leçon <button onClick={()=>child&&setBulletin(child)} className="text-xs font-semibold accent-text inline-flex items-center gap-1">Bulletin <ChevronRight size={13}/></button></h3>
       <p className="text-xs text-muted mb-3">La progression de {child?.name.split(' ')[0]}, leçon par leçon.</p>
       <LessonMap data={bk} compact/>
     </Card>}
