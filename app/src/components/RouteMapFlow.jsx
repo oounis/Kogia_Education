@@ -35,10 +35,10 @@ function RoadEdge({ sourceX, sourceY, targetX, targetY, data }){
 const edgeTypes = { road: RoadEdge }
 
 function StationNode({ data }){
-  const { color, Icon, iconColor, label, time, sub, state, name, seed, showStudent } = data
+  const { color, Icon, iconColor, label, time, sub, state, name, seed, showStudent, cursor } = data
   const isPlain=state==='plain'
   const isDone=state==='done', isCur=state==='current', isFut=state==='future'
-  const ring = isPlain?'0 0 0 2px #E4E8F0' : isCur?`0 0 0 3.5px ${color}` : isDone?`0 0 0 3px ${color}` : '0 0 0 2px #E4E8F0'
+  const ring = isPlain?(cursor?`0 0 0 3px ${iconColor}`:'0 0 0 2px #E4E8F0') : isCur?`0 0 0 3.5px ${color}` : isDone?`0 0 0 3px ${color}` : '0 0 0 2px #E4E8F0'
   return (
     <div className="relative flex flex-col items-center" style={{width:132}}>
       <div className="text-[10px] font-extrabold mb-1" style={{color:'#AAB3C2',opacity:isCur?0:1}}>{time}</div>
@@ -57,7 +57,7 @@ function StationNode({ data }){
           {isDone && !isPlain && <div className="absolute inset-0 rounded-full grid place-items-center" style={{background:color+'9E'}}><Check size={28} strokeWidth={3.6} className="text-white"/></div>}
         </div>
       </div>
-      <div className={`text-[11px] mt-1.5 text-center leading-tight ${isCur?'font-extrabold':'font-semibold'}`}
+      <div className={`text-[11px] mt-1.5 text-center leading-tight ${(isCur||(isPlain&&cursor))?'font-extrabold':'font-semibold'}`}
         style={{color:(isFut&&!isPlain)?'#B2BAC8':'#333B4C'}}>{label}</div>
       {sub && (!isFut||isPlain) && <div className="text-[9px]" style={{color:'#A6AFBE'}}>{sub}</div>}
       <Handle id="r" type="source" position={Position.Right} style={HC}/>
@@ -78,7 +78,7 @@ export default function RouteMapFlow({ stops, curIndex, done=0, remain, name='',
 
   const nodes = stops.map((s,i)=>{ const m=metaFor(s.kind,s.label); return { id:String(i), type:'station', position:P[i], draggable:false, selectable:false,
     data:{ ...s, color:COLOR[s.kind]||COLOR.class, Icon:m.Icon, iconColor:m.color,
-      state: plain?'plain':i<curIndex?'done':i===curIndex?'current':'future', name, seed, showStudent } } })
+      state: plain?'plain':i<curIndex?'done':i===curIndex?'current':'future', cursor: plain&&i===curIndex, name, seed, showStudent } } })
 
   const edges = stops.slice(0,-1).map((_,i)=>{ const a=P[i], b=P[i+1]
     let sh,th; if(a.y===b.y){ if(b.x>a.x){sh='r';th='l'} else {sh='l2';th='r2'} } else { sh='b'; th='t' }
