@@ -11,13 +11,28 @@
   --color-mint: #2BD9A8;         --color-mint-soft: #E2FBF3;
   --color-coral: #FF6B81;        --color-coral-soft: #FFE8EC;
   --color-grape: #A78BFA;        --color-grape-soft: #F1ECFE;
+  --color-success: #10B981;  --color-success-soft: #E2FBF3;
+  --color-warn: #E59A12;      --color-warn-soft: #FFF4DD;
+  --color-danger: #EF4444;    --color-danger-soft: #FFE8EC;
+  --color-info: #0BA5D8;      --color-info-soft: #E4F7FE;
   --font-sans: "Nunito Variable", "Inter Variable", system-ui, sans-serif;
+  /* premium, soft, layered elevation (Linear/Stripe style) */
+  --shadow-xs: 0 1px 2px rgba(16,24,40,.05);
+  --shadow-sm: 0 1px 3px rgba(16,24,40,.06), 0 1px 2px rgba(16,24,40,.04);
+  --shadow-md: 0 6px 16px rgba(16,24,40,.07), 0 2px 5px rgba(16,24,40,.04);
+  --shadow-lg: 0 14px 32px rgba(16,24,40,.10), 0 5px 10px rgba(16,24,40,.05);
 }
 /* denser base so more content fits the page (rem-based Tailwind scales down) */
 html{scroll-behavior:smooth;font-size:14px}
 body{font-family:var(--font-sans);color:var(--color-ink);background:var(--color-canvas);-webkit-font-smoothing:antialiased;letter-spacing:-0.006em}
 h1,h2,h3,h4{letter-spacing:-0.022em}
-.card{background:#fff;border:1px solid var(--color-line);border-radius:1rem}
+.card{background:#fff;border:1px solid var(--color-line);border-radius:1rem;box-shadow:var(--shadow-xs)}
+/* one consistent, accessible focus ring for every interactive element */
+:where(button,a,input,select,textarea,[tabindex]):focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent,#6C5CE7) 32%,transparent)}
+/* premium loading skeleton */
+@keyframes shimmer{100%{background-position:-200% 0}}
+.skeleton{background:linear-gradient(90deg,#EEF0F5 25%,#F6F7FB 37%,#EEF0F5 63%);background-size:200% 100%;animation:shimmer 1.4s ease infinite;border-radius:.6rem}
+@media (prefers-reduced-motion:reduce){.skeleton{animation:none}}
 .accent-bg{background:var(--accent)} .accent-text{color:var(--accent)} .accent-soft{background:var(--accent-soft)}
 .accent-ring:focus{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent)}
 .drop-hot{outline:2px dashed var(--accent);outline-offset:2px;background:var(--accent-soft)}

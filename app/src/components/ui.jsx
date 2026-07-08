@@ -1,6 +1,8 @@
 import { Dialog } from '@headlessui/react'
-import { X } from 'lucide-react'
+import { X, Search } from 'lucide-react'
 import { Link } from 'react-router-dom'
+
+const TINTS={brand:['#EEEBFF','#6C5CE7'],sky:['#E4F7FE','#0BA5D8'],butter:['#FFF4DD','#E59A12'],mint:['#E2FBF3','#10B981'],coral:['#FFE8EC','#FF6B81'],grape:['#F1ECFE','#8B5CF6'],slate:['#EEF1F6','#64748B']}
 
 export function Card({ className='', children }){ return <div className={`card ${className}`}>{children}</div> }
 export function StatCard({ label, value, sub, tint='brand', icon, to }){
@@ -16,14 +18,16 @@ export function Badge({ status }){
   const [bg,fg,label]=m[status]||['#EEF1F6','#8A93A6',status]
   return <span className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{background:bg,color:fg}}>{label}</span>
 }
-export function Avatar({ name, initials, color='#94A3B8', size=36 }){
+export function Avatar({ name, initials, src, color='#94A3B8', size=36, bg='#EEF0F6', className='' }){
+  if(src) return <span className={`rounded-full overflow-hidden grid place-items-center shrink-0 ${className}`} style={{width:size,height:size,background:bg}}><img src={src} alt={name||''} className="w-full h-full object-contain"/></span>
   const i=initials||(name?name.split(' ').map(w=>w[0]).slice(0,2).join(''):'?')
-  return <span className="rounded-full grid place-items-center text-white font-bold shrink-0" style={{width:size,height:size,fontSize:size*0.36,background:color}}>{i}</span>
+  return <span className={`rounded-full grid place-items-center text-white font-bold shrink-0 ${className}`} style={{width:size,height:size,fontSize:size*0.36,background:color}}>{i}</span>
 }
-export function Btn({ children, variant='primary', className='', ...p }){
-  const base="inline-flex items-center justify-center gap-1.5 rounded-xl font-semibold text-sm px-4 py-2.5 transition disabled:opacity-50"
-  const v=variant==='primary'?"text-white accent-bg hover:opacity-90":variant==='soft'?"accent-soft accent-text":variant==='danger'?"bg-white border border-line text-coral hover:bg-coral-soft":"bg-white border border-line hover:bg-canvas"
-  return <button className={`${base} ${v} ${className}`} {...p}>{children}</button>
+export function Btn({ children, variant='primary', size='md', className='', ...p }){
+  const base="inline-flex items-center justify-center gap-1.5 rounded-xl font-semibold transition disabled:opacity-50 disabled:pointer-events-none"
+  const s=size==='sm'?"text-[13px] px-3 py-2":size==='lg'?"text-sm px-5 py-3":"text-sm px-4 py-2.5"
+  const v=variant==='primary'?"text-white accent-bg shadow-sm hover:opacity-90 active:scale-[.98]":variant==='soft'?"accent-soft accent-text hover:brightness-95":variant==='danger'?"bg-white border border-line text-coral hover:bg-coral-soft":variant==='ghost'?"text-muted hover:text-ink hover:bg-canvas":"bg-white border border-line hover:bg-canvas active:scale-[.98]"
+  return <button className={`${base} ${s} ${v} ${className}`} {...p}>{children}</button>
 }
 export function Field({ label, children, hint }){ return <label className="block"><span className="text-xs font-semibold text-muted">{label}</span><div className="mt-1">{children}</div>{hint&&<span className="text-[10px] text-muted">{hint}</span>}</label> }
 export function Input(p){ return <input {...p} className={`w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm accent-ring ${p.className||''}`}/> }
@@ -55,6 +59,67 @@ export function Table({ head, children }){
 }
 export function PageHead({ title, sub, action }){
   return <div className="flex items-end justify-between gap-3 mb-5 flex-wrap"><div><h1 className="text-2xl font-extrabold">{title}</h1>{sub&&<p className="text-muted mt-0.5">{sub}</p>}</div>{action}</div>
+}
+// ── Colored rounded icon container (stat cards, list rows, section headers) ──
+export function IconTile({ icon, tint='brand', size=44, radius='rounded-2xl', className='' }){
+  const [bg,fg]=TINTS[tint]||TINTS.brand
+  return <span className={`${radius} grid place-items-center shrink-0 ${className}`} style={{width:size,height:size,background:bg,color:fg}}>{icon}</span>
+}
+// ── Card with a standard header (icon + title/sub + action) and padded body ──
+export function SectionCard({ title, sub, action, icon, tint='brand', children, className='', bodyClass='p-5', headless=false }){
+  return <div className={`card overflow-hidden ${className}`}>
+    {!headless && (title||action) && <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-line">
+      <div className="flex items-center gap-2.5 min-w-0">
+        {icon && <IconTile icon={icon} tint={tint} size={34} radius="rounded-xl"/>}
+        <div className="min-w-0"><h3 className="font-bold text-[15px] truncate">{title}</h3>{sub&&<p className="text-xs text-muted truncate">{sub}</p>}</div>
+      </div>
+      {action}
+    </div>}
+    {children!=null && <div className={bodyClass}>{children}</div>}
+  </div>
+}
+// ── Consistent empty state with optional CTA ──
+export function EmptyState({ icon, title, sub, action, className='' }){
+  return <div className={`flex flex-col items-center text-center py-14 px-6 ${className}`}>
+    {icon && <div className="w-14 h-14 rounded-2xl grid place-items-center mb-3.5 accent-soft accent-text">{icon}</div>}
+    <div className="font-bold text-ink">{title}</div>
+    {sub && <p className="text-sm text-muted mt-1 max-w-sm">{sub}</p>}
+    {action && <div className="mt-4">{action}</div>}
+  </div>
+}
+// ── Loading skeletons ──
+export function Skeleton({ className='', w, h }){ return <div className={`skeleton ${className}`} style={{width:w,height:h}}/> }
+export function SkeletonList({ rows=4 }){ return <div className="space-y-2.5">{Array.from({length:rows}).map((_,i)=><div key={i} className="card p-4 flex items-center gap-3"><Skeleton w={40} h={40} className="rounded-xl"/><div className="flex-1 space-y-2"><Skeleton h={12} className="w-1/3"/><Skeleton h={10} className="w-1/2"/></div></div>)}</div> }
+// ── Search input with leading icon ──
+export function SearchInput({ value, onChange, placeholder='Rechercher…', className='' }){
+  return <div className={`relative ${className}`}>
+    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none"/>
+    <input value={value} onChange={onChange} aria-label={placeholder}
+      className="w-full rounded-xl border border-line bg-white pl-9 pr-3 py-2.5 text-sm"/>
+  </div>
+}
+// ── Toolbar row for search + filters + actions ──
+export function Toolbar({ children, className='' }){ return <div className={`flex items-center gap-2 flex-wrap mb-4 ${className}`}>{children}</div> }
+// ── Segmented tabs ──
+export function Tabs({ tabs, value, onChange, className='' }){
+  return <div className={`inline-flex items-center gap-1 p-1 rounded-xl bg-canvas border border-line ${className}`} role="tablist">
+    {tabs.map(t=>{ const on=t.value===value
+      return <button key={t.value} role="tab" aria-selected={on} onClick={()=>onChange(t.value)}
+        className={`px-3 py-1.5 rounded-lg text-[13px] font-semibold transition ${on?'bg-white shadow-sm text-ink':'text-muted hover:text-ink'}`}>{t.label}{t.count!=null&&<span className={`ml-1.5 ${on?'accent-text':'text-muted'}`}>{t.count}</span>}</button>
+    })}
+  </div>
+}
+// ── Filter pill ──
+export function Chip({ children, active, onClick, className='' }){
+  return <button onClick={onClick} className={`px-3 py-1.5 rounded-full text-xs font-bold border transition ${active?'accent-bg text-white border-transparent':'bg-white border-line text-muted hover:text-ink'} ${className}`}>{children}</button>
+}
+// ── Avatar + name/meta block, standardized everywhere a person is shown ──
+export function UserCard({ src, name, meta, color='#94A3B8', size=44, bg, action, className='' }){
+  return <div className={`flex items-center gap-3 min-w-0 ${className}`}>
+    <Avatar src={src} name={name} color={color} bg={bg} size={size}/>
+    <div className="min-w-0 flex-1"><div className="font-bold truncate leading-tight">{name}</div>{meta&&<div className="text-xs text-muted truncate">{meta}</div>}</div>
+    {action}
+  </div>
 }
 export function Mark({ size=34 }){
   return (<svg viewBox="0 0 68 72" width={size} height={size} aria-hidden="true">
