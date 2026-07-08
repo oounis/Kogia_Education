@@ -64,7 +64,7 @@ export default function Live(){
           </div>
           <span className="text-sm font-extrabold px-3 py-1 rounded-full" style={{background:area.color+'16',color:area.color}}>{st.title}</span>
         </div>
-        <RouteMap stops={stops} curIndex={curIndex} done={mapDone} remain={remain} name={first} live={liveNow}/>
+        <RouteMap stops={stops} curIndex={curIndex} done={mapDone} remain={remain} name={first} avatar={resolveStudentAvatar(kid)} live={liveNow}/>
       </Card>
 
       <div className="space-y-5">
