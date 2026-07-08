@@ -9,8 +9,11 @@ const h = s => { let x=0; for(const c of String(s)) x=(x*31+c.charCodeAt(0))>>>0
 const PASTEL = ['#ECEAFB','#E3F6FD','#FFF3DA','#E1FAF1','#FFE7EC','#EFE9FC','#E8F0FF','#FCEEE2','#EAF7E4']
 export const avatarBg = seed => PASTEL[h(seed) % PASTEL.length]
 
-// ── gender-based defaults (from the pupil illustrations the user provided) ──
-export function studentAvatar(gender, id){ return kidImg(gender==='Fille' ? 'sgirl' : 'sboy') }
+// ── default pupil avatars: spread the provided illustrations across the class
+// so a roster feels alive (all standing poses, so they read well on the live map too) ──
+const FIG_F = ['sgirl','s-paint', ...Array.from({length:14},(_,i)=>`g${i+1}`)]
+const FIG_M = ['sboy','s-sport','s-science', ...Array.from({length:13},(_,i)=>`b${i+1}`)]
+export function studentAvatar(gender, id){ const pool = gender==='Fille'?FIG_F:FIG_M; return kidImg(pool[h(id)%pool.length]) }
 export function teacherAvatar(t){
   const s=(t.subject||'').toLowerCase()
   if(s.includes('sport')||s.includes('éduc') ) return people('sport-coach')
