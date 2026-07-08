@@ -9,8 +9,8 @@ const h = s => { let x=0; for(const c of String(s)) x=(x*31+c.charCodeAt(0))>>>0
 const PASTEL = ['#ECEAFB','#E3F6FD','#FFF3DA','#E1FAF1','#FFE7EC','#EFE9FC','#E8F0FF','#FCEEE2','#EAF7E4']
 export const avatarBg = seed => PASTEL[h(seed) % PASTEL.length]
 
-// ── gender-based defaults (used until the user picks one) ──
-export function studentAvatar(gender, id){ const set = gender==='Fille' ? 'g' : 'b'; return kidImg(set + (h(id)%8 + 1)) }
+// ── gender-based defaults (from the pupil illustrations the user provided) ──
+export function studentAvatar(gender, id){ return kidImg(gender==='Fille' ? 'sgirl' : 'sboy') }
 export function teacherAvatar(t){
   const s=(t.subject||'').toLowerCase()
   if(s.includes('sport')||s.includes('éduc') ) return people('sport-coach')
@@ -27,8 +27,8 @@ export function roleAvatar(role, gender){
 }
 
 // ── the pool users can pick from ──
-const GIRLS = [...Array.from({length:14},(_,i)=>`g${i+1}`), 'sgirl','s-music','s-paint']
-const BOYS  = [...Array.from({length:13},(_,i)=>`b${i+1}`), 'sboy','s-read','s-computer','s-science','s-sport']
+const GIRLS = ['sgirl','s-paint','s-music', ...Array.from({length:14},(_,i)=>`g${i+1}`)]
+const BOYS  = ['sboy','s-read','s-computer','s-science','s-sport', ...Array.from({length:13},(_,i)=>`b${i+1}`)]
 const KGROUP = ['s-group']
 const ROLES = ['principal','vice-principal','director','counselor','secretary','supervisor','admin',
   'teacher-m2','teacher-f','teacher-f2','science-teacher','tech-teacher','music-teacher','art-teacher','sport-coach','sped','teacher-fr','teacher-exam','nursery',

@@ -25,7 +25,7 @@ function slugFor(kind, label){
   return 'arabe'
 }
 const H = { opacity:0, width:1, height:1, minWidth:0, minHeight:0, border:0 }
-const HC = { ...H, top:49 } // align L/R handles to the badge centre
+const HC = { ...H, top:54 } // align L/R handles to the badge centre
 
 // ── a clean path segment ──
 function RoadEdge({ sourceX, sourceY, targetX, targetY, data }){
@@ -49,20 +49,20 @@ function StationNode({ data }){
   const isDone=state==='done', isCur=state==='current', isFut=state==='future'
   const ring = isCur?`0 0 0 3.5px ${color}` : isDone?`0 0 0 3px ${color}` : '0 0 0 2px #E4E8F0'
   return (
-    <div className="relative flex flex-col items-center" style={{width:118}}>
+    <div className="relative flex flex-col items-center" style={{width:132}}>
       <div className="text-[10px] font-extrabold mb-1" style={{color:'#AAB3C2',opacity:isCur?0:1}}>{time}</div>
       <div className="relative grid place-items-center">
-        {isCur && <span className="absolute w-16 h-16 rounded-full animate-ping" style={{background:color,opacity:.25}}/>}
+        {isCur && <span className="absolute w-20 h-20 rounded-full animate-ping" style={{background:color,opacity:.25}}/>}
         {/* the student, standing beside her current stop */}
         {isCur && avatar && (
-          <div className="absolute flex flex-col items-center z-30 pointer-events-none" style={{left:'50px', bottom:'-4px'}}>
-            <img src={avatar} alt="" className="w-[62px] h-[62px] object-contain" style={{filter:'drop-shadow(0 5px 4px rgba(20,25,40,.32))'}}/>
-            <span className="w-8 h-[7px] rounded-full -mt-1.5" style={{background:'rgba(20,25,40,.18)',filter:'blur(2px)'}}/>
+          <div className="absolute flex flex-col items-center z-30 pointer-events-none" style={{left:'66px', bottom:'-6px'}}>
+            <img src={avatar} alt="" className="w-[66px] h-[66px] object-contain" style={{filter:'drop-shadow(0 5px 4px rgba(20,25,40,.32))'}}/>
+            <span className="w-9 h-[7px] rounded-full -mt-1.5" style={{background:'rgba(20,25,40,.18)',filter:'blur(2px)'}}/>
           </div>
         )}
-        <div className="w-16 h-16 rounded-full overflow-hidden bg-white relative grid place-items-center" style={{boxShadow:`${ring}, 0 5px 13px rgba(30,36,51,.14)`}}>
-          <img src={img} alt="" className="w-full h-full object-contain p-1" style={{filter:isFut?'grayscale(.55) opacity(.7)':'none'}}/>
-          {isDone && <div className="absolute inset-0 grid place-items-center" style={{background:color+'9E'}}><Check size={22} strokeWidth={3.6} className="text-white"/></div>}
+        <div className="w-20 h-20 rounded-full overflow-hidden bg-white relative grid place-items-center" style={{boxShadow:`${ring}, 0 6px 15px rgba(30,36,51,.16)`}}>
+          <img src={img} alt="" className="w-full h-full object-cover scale-105" style={{filter:isFut?'grayscale(.55) opacity(.72)':'none'}}/>
+          {isDone && <div className="absolute inset-0 grid place-items-center" style={{background:color+'9E'}}><Check size={28} strokeWidth={3.6} className="text-white"/></div>}
         </div>
       </div>
       <div className={`text-[11px] mt-1.5 text-center leading-tight ${isCur?'font-extrabold':'font-semibold'}`}
@@ -80,7 +80,7 @@ function StationNode({ data }){
 const nodeTypes = { station: StationNode }
 
 export default function RouteMapFlow({ stops, curIndex, done=0, remain, name='', avatar }){
-  const COLS=4, COLW=205, ROWH=168
+  const COLS=4, COLW=214, ROWH=182
   const curColor=COLOR[stops[curIndex]?.kind]||COLOR.class
   const P = useMemo(()=> stops.map((_,i)=>{ const row=Math.floor(i/COLS), inRow=i%COLS, col=row%2===0?inRow:(COLS-1-inRow); return {x:col*COLW, y:row*ROWH} }),[stops.length])
 
