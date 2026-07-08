@@ -15,8 +15,21 @@ export default function Finance(){
     const parent=d.users.find(u=>u.id===s.parentId)
     if(parent) notify({to:parent.id,kind:'payment',title:'Rappel de paiement',body:`${unpaid.length} mois impayé(s) pour ${s.name} : ${unpaid.join(', ')}`})
     toast.success(parent?`Rappel envoyé au parent de ${s.name}`:'Aucun parent lié') }
+  // relance groupée : tous les élèves avec au moins un mois en retard, en un clic
+  const lateStudents=d.students.filter(s=>(d.payments[s.id]||[]).some(p=>p.status==='overdue'))
+  const remindAll=()=>{
+    let sent=0, noParent=0
+    lateStudents.forEach(s=>{
+      const parent=d.users.find(u=>u.id===s.parentId)
+      const months=d.payments[s.id].filter(p=>p.status==='overdue').map(p=>p.month)
+      if(parent){ notify({to:parent.id,kind:'payment',actor:'Administration',title:'Rappel de paiement',body:`Mois en retard pour ${s.name} : ${months.join(', ')}. Merci de régulariser auprès de l'administration.`,link:'/app/payments'}); sent++ }
+      else noParent++
+    })
+    toast.success(`${sent} parent(s) relancé(s)${noParent?` · ${noParent} élève(s) sans compte parent lié`:''}`)
+  }
   return (<>
-    <PageHead title="Frais & Finances" sub="Touchez un mois pour le marquer payé. Relancez les parents en un clic."/>
+    <PageHead title="Frais & Finances" sub="Touchez un mois pour le marquer payé. Relancez les parents en un clic."
+      action={<Btn onClick={remindAll} disabled={lateStudents.length===0}><BellRing size={15}/> Relancer tous les retards ({lateStudents.length})</Btn>}/>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
       <StatCard label="Payés" value={counts.paid} tint="mint" icon={<Wallet/>}/>
       <StatCard label="En attente" value={counts.pending} tint="butter" icon={<Wallet/>}/>

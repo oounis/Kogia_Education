@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, AreaChart, Area, RadialBarChart, RadialBar } from 'recharts'
-import { Users, GraduationCap, Wallet, ShieldAlert, ClipboardCheck, CreditCard, Star, ArrowRight, Bell, FileText, TrendingUp, CalendarCheck, Radio, Stethoscope } from 'lucide-react'
+import { Users, GraduationCap, Wallet, ShieldAlert, ClipboardCheck, CreditCard, Star, ArrowRight, Bell, FileText, TrendingUp, CalendarCheck, Radio, Stethoscope, Sunrise, UserX, CalendarDays, ChevronRight } from 'lucide-react'
 import { current } from '../auth.js'
 import { db, FEE_MONTHS, studentById, classById } from '../db.js'
 import { StatCard, Card, PageHead, Badge, Avatar, Btn, IconTile, EmptyState, STATUS } from '../components/ui.jsx'
@@ -100,12 +100,45 @@ export default function Dashboard(){
   const pie=[['Payés',STATUS.ok],['En attente',STATUS.warn],['En retard',STATUS.danger],['Impayés',STATUS.neutral]].map(([n,c],i)=>({name:n,value:Object.values(fc)[i],color:c}))
   const totalFees=pie.reduce((s,p)=>s+p.value,0); const collected=fc.paid
   const collectRate=totalFees?Math.round((collected/totalFees)*100):0
-  // présence mensuelle dérivée des paiements (proxy stable de démo) + variation douce
-  const attend=FEE_MONTHS.slice(0,7).map((m,i)=>({m,present:18+((i*5)%6),absent:1+((i*3)%4)}))
+  // présence réelle : agrégation des appels enregistrés (14 derniers jours d'école)
+  const attDays={}
+  for(const key in (d.attendance||{})){ const iso=key.slice(key.indexOf('_')+1)
+    const day=attDays[iso]=attDays[iso]||{present:0,absent:0,late:0}
+    Object.values(d.attendance[key]).forEach(v=>{ day[v]!=null&&day[v]++ }) }
+  const attDates=Object.keys(attDays).sort()
+  const attend=attDates.slice(-14).map(iso=>({m:new Date(iso).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'}),present:attDays[iso].present,absent:attDays[iso].absent+attDays[iso].late}))
+  // « Ce matin » : l'essentiel de la journée pour la direction
+  const latestAtt=attDates[attDates.length-1]
+  const absToday=latestAtt?attDays[latestAtt].absent:0, lateToday=latestAtt?attDays[latestAtt].late:0
+  const todayIso=new Date().toISOString().slice(0,10)
+  const eventsToday=d.events.filter(e=>e.date===todayIso)
+  const openInc=d.incidents.filter(i=>i.status==='open').length
+  const pendReq=d.requests.filter(r=>r.status==='pending').length
   // effectif par cycle
   const cycleData=['Primaire','Collège','Lycée'].map((cy,i)=>({name:cy,value:d.students.filter(s=>{const c=d.classes.find(x=>x.id===s.classId);return c?.cycle===cy}).length,color:['#6C5CE7','#36C5F0',STATUS.warn][i]})).filter(x=>x.value>0)
   const radial=[{name:'Recouvrement',value:collectRate,fill:STATUS.ok}]
   return (<><PageHead title={greet} sub="Vue d'ensemble de l'école."/>
+    {/* Ce matin — l'essentiel en 30 secondes */}
+    <Card className="p-4 mb-5">
+      <div className="flex items-center gap-4 flex-wrap">
+        <div className="flex items-center gap-2.5 shrink-0">
+          <IconTile icon={<Sunrise size={19}/>} tint="butter" size={42}/>
+          <div><div className="font-extrabold leading-tight">Ce matin</div>
+            <div className="text-xs text-muted capitalize">{new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</div></div>
+        </div>
+        <div className="h-9 w-px bg-line hidden md:block"/>
+        <div className="flex items-center gap-2 flex-wrap flex-1">
+          <BriefChip to="/app/attendance" icon={<UserX size={14}/>} color={absToday?STATUS.danger:STATUS.ok}
+            label={absToday?`${absToday} absent${absToday>1?'s':''}${lateToday?` · ${lateToday} retard${lateToday>1?'s':''}`:''}`:'Aucun absent'}/>
+          <BriefChip to="/app/incidents" icon={<ShieldAlert size={14}/>} color={openInc?STATUS.warn:STATUS.ok}
+            label={openInc?`${openInc} incident${openInc>1?'s':''} ouvert${openInc>1?'s':''}`:'Aucun incident'}/>
+          <BriefChip to="/app/requests" icon={<FileText size={14}/>} color={pendReq?STATUS.info:STATUS.ok}
+            label={pendReq?`${pendReq} demande${pendReq>1?'s':''} à traiter`:'Demandes à jour'}/>
+          <BriefChip to="/app/events" icon={<CalendarDays size={14}/>} color={eventsToday.length?'#6C5CE7':STATUS.neutral}
+            label={eventsToday.length?`Aujourd'hui : ${eventsToday[0].title}${eventsToday.length>1?` +${eventsToday.length-1}`:''}`:"Aucun événement aujourd'hui"}/>
+        </div>
+      </div>
+    </Card>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
       <StatCard label="Élèves" value={d.students.length} tint="grape" icon={<Users/>} to="/app/students"/>
       <StatCard label="Enseignants" value={d.teachers.length} tint="butter" icon={<GraduationCap/>} to="/app/teachers"/>
@@ -153,6 +186,11 @@ export default function Dashboard(){
         return (<tr key={ev.id}><td className="px-4 py-3 text-muted whitespace-nowrap">{new Date(ev.at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})}</td><td className="px-4 py-3 font-medium">{ev.className||cls?.name}</td><td className="px-4 py-3">{ev.subject}</td><td className="px-4 py-3 text-muted">{ev.teacher}</td><td className="px-4 py-3 text-center">{scores.length}</td><td className="px-4 py-3 text-center font-bold" style={{color:m.color}}>{avg!=null?`${avg}/100`:'—'}</td></tr>) })}</tbody></table></div>
        : <EmptyState icon={<ClipboardCheck size={22}/>} title="Aucune évaluation enregistrée" sub="Les évaluations des enseignants apparaîtront ici."/>}
     </Card></>)
+}
+
+function BriefChip({ to, icon, color, label }){
+  return <Link to={to} className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-full border border-line bg-white hover:shadow-sm transition"
+    style={{color}}>{icon}{label}<ChevronRight size={12} className="opacity-60"/></Link>
 }
 
 function ParentDashboard({u,d,greet}){

@@ -1,4 +1,4 @@
-const KEY="coreon_db_v10"
+const KEY="coreon_db_v11"
 const MONTHS=["Sep","Oct","Nov","Déc","Jan","Fév","Mar","Avr","Mai","Juin"]
 export const FEE_MONTHS=MONTHS
 // Tout le système tunisien
@@ -129,11 +129,27 @@ function seed(){
   users.forEach((u,i)=>{u.cin=u.cin||String(10000000+i*1111111).slice(0,8);u.governorate=u.governorate||GV[i%GV.length];u.position=u.position||POS[u.role];u.attachments=u.attachments||[]})
   teachers.forEach((t,i)=>{t.cin=t.cin||String(11000000+i*1234567).slice(0,8);t.governorate=t.governorate||GV[i%GV.length];t.position=t.position||t.designation||"Professeur";t.attachments=t.attachments||[{name:"CIN_recto.pdf",type:"Copie CIN"},{name:"Diplome.pdf",type:"Diplôme(s)"}]})
   students.forEach((st,i)=>{st.cin=st.cin||("ACTE-"+(20150100+i));st.governorate=st.governorate||GV[i%GV.length];st.attachments=st.attachments||(i<2?[{name:"extrait_naissance.pdf",type:"Extrait de naissance"}]:[])})
-  // relevés de présence de démo (deux jours) pour la 5ème A — historique non vide
-  const dstr=off=>new Date(Date.now()-off*86400000).toISOString().slice(0,10)
-  const att1={}; c5.forEach((s,i)=>att1[s.id]= i===3?'absent': i===6?'late':'present')
-  const att2={}; c5.forEach((s,i)=>att2[s.id]= i===5?'late':'present')
-  const attendance={["c5a_"+dstr(1)]:att1,["c5a_"+dstr(2)]:att2}
+  // ── 6 semaines d'appels (jours ouvrés, toutes classes) pour les insights de
+  // présence. Même graine d'"aptitude" que les évaluations : les élèves en
+  // difficulté s'absentent plus → la détection d'absentéisme a du sens. ──
+  const attendance={}
+  {
+    const Ra=s=>h32('kogia:'+s+':edu-2026-seed')/4294967295
+    for(let dd=0; dd<45; dd++){
+      const date=new Date(Date.now()-dd*86400000)
+      const wd=date.getDay(); if(wd===0||wd===6) continue
+      const iso=date.toISOString().slice(0,10)
+      classes.forEach(cl=>{
+        const rec={}
+        students.filter(s=>s.classId===cl.id).forEach(s=>{
+          const ability=Ra('ab'+s.id), r=Ra('att'+s.id+iso)
+          const pAbs=0.02+(1-ability)*0.13
+          rec[s.id]= r<pAbs?'absent': r<pAbs+0.05?'late':'present'
+        })
+        attendance[cl.id+'_'+iso]=rec
+      })
+    }
+  }
   const settings={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026',
     director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis',
     brand:'#6C5CE7', logoText:'AN', currency:'DT' }

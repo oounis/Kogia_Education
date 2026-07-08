@@ -6,42 +6,20 @@ import { current, logout } from '../auth.js'
 import { inboxFor, unreadFor, markRead, markAllRead } from '../notify.js'
 import { NotifRow } from './NotifItem.jsx'
 import { Mark, Avatar, STATUS } from './ui.jsx'
-import {
-  LayoutDashboard, Users, GraduationCap, UserCog, ClipboardCheck, Wallet, CreditCard,
-  ShieldAlert, FileText, Megaphone, Building2, Bell, Search, LogOut, ChevronDown, Menu as MenuIcon,
-  CalendarCheck, BookOpen, BookMarked, Bus, CalendarDays, MessageSquare, Award, CheckCheck, CalendarClock, Radio, Settings, Sparkles, BarChart3
-} from 'lucide-react'
-import { settings, db, classById } from '../db.js'
+import { Bell, Search, LogOut, ChevronDown, Menu as MenuIcon, CheckCheck } from 'lucide-react'
+import { settings, db } from '../db.js'
+import { NAV } from '../nav.js'
 import { safeLink } from '../access.js'
 import MeteoCorner from './MeteoCorner.jsx'
-const NAV=[
-  { to:'/app', label:'Tableau de bord', icon:LayoutDashboard, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
-  { to:'/app/live', label:'Suivi en direct', icon:Radio, roles:['parent'] },
-  { to:'/app/schools', label:'Écoles', icon:Building2, roles:['owner'] },
-  { to:'/app/accounts', label:'Comptes', icon:UserCog, roles:['schooladmin'] },
-  { to:'/app/students', label:'Élèves', icon:Users, roles:['schooladmin','admin','supervisor','teacher'] },
-  { to:'/app/teachers', label:'Enseignants', icon:GraduationCap, roles:['schooladmin','admin'] },
-  { to:'/app/evaluate', label:'Évaluer', icon:ClipboardCheck, roles:['teacher'] },
-  { to:'/app/results', label:'Suivi élèves', icon:BarChart3, roles:['schooladmin','admin'] },
-  { to:'/app/timetable', label:'Emploi du temps', icon:CalendarClock, roles:['schooladmin','admin','teacher','parent','supervisor'] },
-  { to:'/app/attendance', label:'Présence', icon:CalendarCheck, roles:['schooladmin','teacher','admin','supervisor'] },
-  { to:'/app/homework', label:'Devoirs', icon:BookOpen, roles:['teacher','admin','parent'] },
-  { to:'/app/exams', label:'Examens', icon:Award, roles:['schooladmin','admin','teacher','parent'] },
-  { to:'/app/finance', label:'Frais & Finances', icon:Wallet, roles:['schooladmin','admin'] },
-  { to:'/app/payments', label:'Mes paiements', icon:CreditCard, roles:['parent'] },
-  { to:'/app/library', label:'Bibliothèque', icon:BookMarked, roles:['schooladmin','admin','teacher'] },
-  { to:'/app/transport', label:'Transport', icon:Bus, roles:['schooladmin','admin','parent'] },
-  { to:'/app/events', label:'Événements', icon:CalendarDays, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
-  { to:'/app/incidents', label:'Incidents', icon:ShieldAlert, roles:['supervisor','admin','schooladmin'] },
-  { to:'/app/requests', label:'Demandes', icon:FileText, roles:['teacher','admin','schooladmin'] },
-  { to:'/app/messages', label:'Messages', icon:MessageSquare, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
-  { to:'/app/notices', label:'Annonces', icon:Megaphone, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
-  { to:'/app/cartes', label:'Cartes à imprimer', icon:Sparkles, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },
-  { to:'/app/settings', label:'Paramètres', icon:Settings, roles:['owner','schooladmin'] },
-]
+import CommandPalette from './CommandPalette.jsx'
 export default function AppShell({ children }){
   const u=current(); const loc=useLocation(); const nav=useNavigate(); const [open,setOpen]=useState(false)
+  const [palette,setPalette]=useState(false)
   useEffect(()=>{ if(u) applyAccent(u.role) },[u])
+  useEffect(()=>{
+    const f=e=>{ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); setPalette(p=>!p) } }
+    window.addEventListener('keydown',f); return ()=>window.removeEventListener('keydown',f)
+  },[])
   if(!u){ nav('/'); return null }
   const items=NAV.filter(n=>n.roles.includes(u.role)); const role=ROLE[u.role]
   return (
@@ -58,36 +36,19 @@ export default function AppShell({ children }){
         <header className="sticky top-0 z-30 bg-white/90 backdrop-blur border-b border-line">
           <div className="flex items-center gap-3 px-4 lg:px-6 py-3">
             <button className="lg:hidden w-10 h-10 grid place-items-center rounded-xl text-muted hover:bg-canvas" aria-label="Ouvrir le menu" aria-expanded={open} onClick={()=>setOpen(!open)}><MenuIcon size={20}/></button>
-            <GlobalSearch user={u}/>
+            <button onClick={()=>setPalette(true)} aria-label="Recherche globale (Ctrl+K)"
+              className="hidden sm:flex items-center gap-2 bg-canvas rounded-xl px-3 py-2 w-72 text-sm text-muted hover:bg-line/60 transition text-left">
+              <Search size={16}/><span className="flex-1">Rechercher…</span>
+              <span className="text-[10px] font-bold border border-line rounded-md px-1.5 py-0.5 bg-white">Ctrl K</span>
+            </button>
+            <button onClick={()=>setPalette(true)} aria-label="Recherche globale" className="sm:hidden w-10 h-10 grid place-items-center rounded-xl text-muted hover:bg-canvas"><Search size={18}/></button>
             <div className="ml-auto flex items-center gap-2"><MeteoCorner/><BellMenu user={u}/><UserMenu user={u} role={role} onLogout={()=>{logout();nav('/')}}/></div>
           </div>
         </header>
         <main className="px-4 lg:px-6 py-5 max-w-[1280px] mx-auto">{children}</main>
       </div>
       {open&&<div className="fixed inset-0 bg-ink/20 z-30 lg:hidden" onClick={()=>setOpen(false)}/>}
-    </div>
-  )
-}
-function GlobalSearch({ user }){
-  const nav=useNavigate(); const [q,setQ]=useState(''); const [open,setOpen]=useState(false)
-  const d=db(); const query=q.trim().toLowerCase()
-  const canStudents=['owner','schooladmin','admin','supervisor','teacher'].includes(user.role)
-  const canTeachers=['owner','schooladmin','admin'].includes(user.role)
-  const students= query&&canStudents? d.students.filter(s=>s.name.toLowerCase().includes(query)).slice(0,6):[]
-  const teachers= query&&canTeachers? d.teachers.filter(t=>t.name.toLowerCase().includes(query)).slice(0,3):[]
-  const has=students.length||teachers.length
-  const go=(to,state)=>{ setQ(''); setOpen(false); nav(to,{state}) }
-  return (
-    <div className="relative hidden sm:block">
-      <div className="flex items-center gap-2 bg-canvas rounded-xl px-3 py-2 w-72"><Search size={16} className="text-muted"/>
-        <input value={q} onChange={e=>{setQ(e.target.value);setOpen(true)}} onFocus={()=>setOpen(true)} onBlur={()=>setTimeout(()=>setOpen(false),160)} placeholder="Rechercher un élève, un enseignant…" aria-label="Rechercher un élève ou un enseignant" className="bg-transparent text-sm outline-none w-full"/></div>
-      {open&&query&&(<div className="absolute left-0 mt-2 w-80 card p-2 shadow-2xl z-50 max-h-[70vh] overflow-y-auto scroll-thin">
-        {!has&&<div className="px-3 py-6 text-center text-sm text-muted">Aucun résultat pour « {q} »</div>}
-        {students.length>0&&<div className="text-[10px] font-bold uppercase text-muted px-2 py-1">Élèves</div>}
-        {students.map(s=><button key={s.id} onMouseDown={()=>go('/app/students',{openStudent:s.id})} className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-canvas text-left"><Avatar name={s.name} seed={s.id} size={32}/><div className="min-w-0"><div className="text-sm font-medium truncate">{s.name}</div><div className="text-[11px] text-muted">{classById(s.classId)?.name||''}</div></div></button>)}
-        {teachers.length>0&&<div className="text-[10px] font-bold uppercase text-muted px-2 py-1 mt-1">Enseignants</div>}
-        {teachers.map(t=><button key={t.id} onMouseDown={()=>go('/app/teachers',{openTeacher:t.id})} className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-canvas text-left"><Avatar name={t.name} seed={t.id} size={32}/><div className="min-w-0"><div className="text-sm font-medium truncate">{t.name}</div><div className="text-[11px] text-muted">{t.subject}</div></div></button>)}
-      </div>)}
+      <CommandPalette open={palette} onClose={()=>setPalette(false)} user={u}/>
     </div>
   )
 }
