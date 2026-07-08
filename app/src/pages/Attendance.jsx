@@ -2,9 +2,10 @@ import { useState, useMemo } from 'react'
 import { current } from '../auth.js'
 import { db, mutate, studentById, classById } from '../db.js'
 import { notify } from '../notify.js'
-import { PageHead, Card, StatCard, SectionCard, Avatar, Btn, Badge, EmptyState, STATUS } from '../components/ui.jsx'
+import { PageHead, Card, StatCard, SectionCard, Avatar, Btn, Badge, EmptyState, Tabs, STATUS } from '../components/ui.jsx'
 import { currentClass } from '../data.js'
-import { Check, CalendarCheck, UserX, Clock, AlertTriangle, BellRing, TrendingUp, Users } from 'lucide-react'
+import { Check, CalendarCheck, UserX, Clock, AlertTriangle, BellRing, TrendingUp, Users, BriefcaseBusiness, Plane, Save } from 'lucide-react'
+import { ROLE } from '../theme.js'
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
@@ -20,8 +21,68 @@ export default function Attendance(){
   return <MarkView/>
 }
 
-/* ── Direction / Administration : vue école ─────────────────────────────── */
+/* ── Direction / Administration : vue école (élèves + personnel) ────────── */
 function SchoolView(){
+  const [tab,setTab]=useState('eleves')
+  return (<>
+    <PageHead title="Présence — vue école" sub="Élèves et personnel de l'école, suivis au même endroit."
+      action={<Tabs tabs={[{value:'eleves',label:'Élèves'},{value:'staff',label:'Personnel'}]} value={tab} onChange={setTab}/>}/>
+    {tab==='eleves' ? <StudentsInsights/> : <StaffView/>}
+  </>)
+}
+
+/* ── Présence du personnel : l'appel des employés, géré par la Direction ── */
+const ST_STAFF={present:['Présent',STATUS.ok],late:['Retard',STATUS.warn],absent:['Absent',STATUS.danger],conge:['Congé','#8B5CF6']}
+const NEXT_ST={present:'late',late:'absent',absent:'conge',conge:'present'}
+function StaffView(){
+  const d=db(); const [,force]=useState(0)
+  const today=new Date().toISOString().slice(0,10)
+  const staff=[
+    ...d.teachers.map(t=>({id:t.id,name:t.name,sub:`${t.designation||'Enseignant'} · ${t.subject||''}`})),
+    ...d.users.filter(u=>['admin','supervisor'].includes(u.role)).map(u=>({id:u.id,name:u.name,sub:u.position||ROLE[u.role].label})),
+  ]
+  const sa=d.staffAttendance||{}
+  const [marks,setMarks]=useState(()=> ({...(sa[today] || Object.fromEntries(staff.map(x=>[x.id,'present'])))}))
+  const counts=Object.values(marks).reduce((a,v)=>{a[v]=(a[v]||0)+1;return a},{present:0,late:0,absent:0,conge:0})
+  // 30 derniers jours par personne
+  const cutoff=new Date(Date.now()-30*86400000).toISOString().slice(0,10)
+  const hist={}
+  for(const iso in sa){ if(iso<cutoff) continue
+    for(const [id,st] of Object.entries(sa[iso])){ const h=hist[id]=hist[id]||{present:0,late:0,absent:0,conge:0,total:0}; if(h[st]!=null)h[st]++; h.total++ } }
+  const save=()=>{
+    mutate(db=>{ db.staffAttendance=db.staffAttendance||{}; db.staffAttendance[today]={...marks} })
+    toast.success('Présence du personnel enregistrée'); force(x=>x+1)
+  }
+  const dayLabel=format(new Date(today),'EEEE d MMMM',{locale:fr})
+  return (<>
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+      <StatCard tint="mint"   icon={<BriefcaseBusiness size={20}/>} value={counts.present} label="Présents" sub={dayLabel}/>
+      <StatCard tint="butter" icon={<Clock size={20}/>}             value={counts.late}    label="Retards"/>
+      <StatCard tint="coral"  icon={<UserX size={20}/>}             value={counts.absent}  label="Absents"/>
+      <StatCard tint="grape"  icon={<Plane size={20}/>}             value={counts.conge}   label="En congé"/>
+    </div>
+    <SectionCard icon={<BriefcaseBusiness size={16}/>} tint="brand" title={`Appel du personnel · ${dayLabel}`}
+      sub="Touchez un statut pour le changer : présent → retard → absent → congé"
+      action={<Btn onClick={save}><Save size={15}/> Enregistrer</Btn>} bodyClass="p-3">
+      <div className="grid sm:grid-cols-2 gap-2">
+        {staff.map(x=>{ const st=marks[x.id]||'present'; const [lbl,col]=ST_STAFF[st]; const h=hist[x.id]
+          return (
+          <div key={x.id} className="flex items-center gap-3 p-2.5 rounded-xl border border-line hover:bg-canvas">
+            <Avatar name={x.name} seed={x.id} size={36}/>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold truncate leading-tight">{x.name}</span>
+              <span className="block text-[11px] text-muted truncate">{x.sub}{h?` · 30 j : ${h.absent} abs · ${h.late} ret · ${h.conge} congés`:''}</span>
+            </span>
+            <button onClick={()=>{setMarks(m=>({...m,[x.id]:NEXT_ST[st]}))}}
+              className="text-[11px] font-bold px-3 py-1.5 rounded-full transition"
+              style={{background:col+'1E',color:col}}>{lbl}</button>
+          </div>) })}
+      </div>
+    </SectionCard>
+  </>)
+}
+
+function StudentsInsights(){
   const d=db(); const [,force]=useState(0)
   const A=useMemo(()=>{
     const days={} // iso → {present,absent,late, absents:[{sid,classId,status}]}
@@ -57,8 +118,7 @@ function SchoolView(){
     return {days,latest,chronic,perClass,trend}
   },[d])
 
-  if(!A.latest) return (<><PageHead title="Présence — vue école" sub="Le suivi de présence de toute l'école."/>
-    <Card><EmptyState icon={<CalendarCheck size={26}/>} title="Aucun appel enregistré" sub="Les appels des enseignants alimenteront cette vue."/></Card></>)
+  if(!A.latest) return <Card><EmptyState icon={<CalendarCheck size={26}/>} title="Aucun appel enregistré" sub="Les appels des enseignants alimenteront cette vue."/></Card>
 
   const today=A.days[A.latest]
   const total=today.present+today.absent+today.late
@@ -73,7 +133,6 @@ function SchoolView(){
   }
 
   return (<>
-    <PageHead title="Présence — vue école" sub={`Dernier appel : ${dayLabel}. Détection automatique des absences répétées.`}/>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
       <StatCard tint="mint"  icon={<CalendarCheck size={20}/>} value={`${rate}%`} label="Taux de présence" sub={dayLabel}/>
       <StatCard tint="coral" icon={<UserX size={20}/>}         value={today.absent} label="Absents"/>

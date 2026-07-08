@@ -1,4 +1,4 @@
-const KEY="coreon_db_v12"
+const KEY="coreon_db_v13"
 const MONTHS=["Sep","Oct","Nov","Déc","Jan","Fév","Mar","Avr","Mai","Juin"]
 export const FEE_MONTHS=MONTHS
 // Tout le système tunisien
@@ -133,8 +133,10 @@ function seed(){
   // présence. Même graine d'"aptitude" que les évaluations : les élèves en
   // difficulté s'absentent plus → la détection d'absentéisme a du sens. ──
   const attendance={}
+  const staffAttendance={}   // présence du personnel (enseignants + administration)
   {
     const Ra=s=>h32('kogia:'+s+':edu-2026-seed')/4294967295
+    const staffIds=[...teachers.map(t=>t.id),'u_admin','u_super']
     for(let dd=0; dd<45; dd++){
       const date=new Date(Date.now()-dd*86400000)
       const wd=date.getDay(); if(wd===0||wd===6) continue
@@ -148,6 +150,10 @@ function seed(){
         })
         attendance[cl.id+'_'+iso]=rec
       })
+      const srec={}
+      staffIds.forEach(id=>{ const r=Ra('staff'+id+iso)
+        srec[id]= r<0.03?'absent': r<0.065?'late': r<0.09?'conge':'present' })
+      staffAttendance[iso]=srec
     }
   }
   const settings={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026',
@@ -161,7 +167,7 @@ function seed(){
     {id:"sc3",name:"Institut Ibn Khaldoun",city:"Sousse",plan:"Pro",price:149,status:"active",since:"2026-01-10",studentCount:385,director:"Salwa Masmoudi",email:"direction@ibnkhaldoun.tn"},
     {id:"sc4",name:"École Les Jasmins",city:"Ariana",plan:"Essentiel",price:79,status:"trial",since:"2026-06-20",studentCount:96,director:"Hatem Baccar",email:"contact@jasmins.tn"},
   ]
-  return {classes,students,teachers,users,payments,evaluations,incidents,requests,books,routes,homework,events,exams,messages,attendance,notifications,timetables:genTimetables(classes),settings,schools}
+  return {classes,students,teachers,users,payments,evaluations,incidents,requests,books,routes,homework,events,exams,messages,attendance,staffAttendance,notifications,timetables:genTimetables(classes),settings,schools}
 }
 export const DEFAULT_SETTINGS={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026', director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis', brand:'#6366F1', logoText:'AN', currency:'DT' }
 export const settings=()=>({...DEFAULT_SETTINGS, ...(db().settings||{})})
