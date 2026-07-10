@@ -8,6 +8,8 @@ import { Radio, Clock, MapPin, Moon, Sun, CalendarCheck, ClipboardCheck } from '
 import { AREAS, fmt, daySegments, statusAt, schoolPhase } from '../livestatus.js'
 import { studentSummary, mentionFor } from '../results.js'
 import RouteMap from '../components/RouteMapFlow.jsx'
+import { isoOf, now as appNow, isDemoLive } from '../clock.js'
+import { rentreeLabel, DemoLiveButton } from '../components/Summer.jsx'
 
 const stopLabel=s=> s.kind==='class'?(s.cell?.subject||'Étude') : s.kind==='cour'?'Récré' : s.kind==='cantine'?'Déjeuner' : 'Étude'
 
@@ -19,8 +21,8 @@ export default function Live(){
   const cls=kid?classById(kid.classId):null
 
   // ── temps scolaire réel : le suivi vit aux heures de l'école, pas après ──
-  const now=new Date(); const wd=now.getDay(); const realWeekday=wd>=1&&wd<=5
-  const dayIdx=realWeekday?wd-1:0
+  const now=appNow(); const wd=now.getDay(); const realWeekday=isDemoLive()||(wd>=1&&wd<=5)
+  const dayIdx=(wd>=1&&wd<=5)?wd-1:0
   const nowMin=now.getHours()*60+now.getMinutes()
   const phase = schoolPhase(now)
   const defMin = phase==='live'?nowMin : phase==='after'?900 : phase==='before'?480 : 630   // vacances/week-end → aperçu 10:30
@@ -29,7 +31,7 @@ export default function Live(){
   const exploring = !liveNow && min!==defMin
   const simulated = exploring && (phase==='vacances'||phase==='weekend'||phase==='before')   // journée type, pas la réalité
   const replay = exploring && phase==='after'                                               // revoir la vraie journée
-  useEffect(()=>{ if(!liveNow) return; const t=setInterval(()=>{const n=new Date();setMin(n.getHours()*60+n.getMinutes())},20000); return ()=>clearInterval(t) },[liveNow])
+  useEffect(()=>{ if(!liveNow) return; const t=setInterval(()=>{const n=appNow();setMin(n.getHours()*60+n.getMinutes())},20000); return ()=>clearInterval(t) },[liveNow])
 
   const sick=useMemo(()=>d.incidents.some(i=>i.studentId===kid?.id&&i.type==='Santé'&&i.status==='open'&&(Date.now()-i.at)<86400000),[d,kid])
   const st=useMemo(()=>kid?statusAt(kid.classId,dayIdx,min,sick&&phase==='live'):null,[kid,dayIdx,min,sick,phase])
@@ -43,9 +45,9 @@ export default function Live(){
   const day=realWeekday?DAYS[dayIdx]:'Lundi (journée type)'
 
   // ── récap de la journée (une fois l'école finie) ──
-  const todayIso=now.toISOString().slice(0,10)
+  const todayIso=isoOf(now)
   const att=(d.attendance?.[kid.classId+'_'+todayIso]||{})[kid.id]||null
-  const evToday=d.evaluations.filter(e=>e.classId===kid.classId&&new Date(e.at).toISOString().slice(0,10)===todayIso)
+  const evToday=d.evaluations.filter(e=>e.classId===kid.classId&&isoOf(new Date(e.at))===todayIso)
     .map(e=>({id:e.id,subject:e.subject,lesson:e.lesson,score:studentSummary(e,kid.id).score})).filter(x=>x.score!=null)
   const lessons=segs.filter(s=>s.kind==='class').length
 
@@ -138,7 +140,7 @@ export default function Live(){
 
           {phase==='vacances' && <div className="mt-4 rounded-2xl p-4" style={{background:'#F59E0B14'}}>
             <div className="flex items-center gap-2 text-sm font-bold" style={{color:'#B45309'}}><Sun size={15}/> Vacances d'été</div>
-            <div className="text-sm text-muted mt-1">L'école reprend le <b>lundi 15 septembre</b>. Le suivi en direct redémarrera automatiquement à la rentrée — bel été à {first} !</div>
+            <div className="text-sm text-muted mt-1">L'école reprend le <b>{rentreeLabel()}</b>. Le suivi en direct redémarrera automatiquement à la rentrée — bel été à {first} !</div>
           </div>}
         </Card>
 

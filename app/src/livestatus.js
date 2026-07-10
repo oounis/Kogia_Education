@@ -1,6 +1,7 @@
 // Shared "where is the child right now" logic — used by Suivi en direct (Live.jsx)
 // and the parent dashboard live widget.
 import { PERIODS, timetableFor } from './data.js'
+import { isDemoLive, now as appNow, SCHOOL_OPEN, SCHOOL_CLOSE } from './clock.js'
 
 export const room = n => `${import.meta.env.BASE_URL}rooms/${n}.jpg`
 export const AREAS = {
@@ -37,18 +38,23 @@ export function statusAt(classId, dayIdx, min, sick){
   return {place:'class',title:'Étude',sub:'Salle de classe',seg}
 }
 // Année scolaire tunisienne : vacances d'été du 1er juillet au 14 septembre.
-export function schoolPhase(now=new Date()){
+// Le mode démo (?live=1) court-circuite vacances et week-end : l'application se
+// comporte comme un jour de classe, pour pouvoir montrer le produit hors période.
+export function schoolPhase(now=appNow()){
+  if(isDemoLive()) return 'live'
   const m=now.getMonth() // 0-based : juin=5, juillet=6, août=7, septembre=8
   const summer = m===6 || m===7 || (m===8 && now.getDate()<15)
   if(summer) return 'vacances'
   const wd=now.getDay(); if(wd===0||wd===6) return 'weekend'
   const min=now.getHours()*60+now.getMinutes()
-  return min<480 ? 'before' : min>900 ? 'after' : 'live'
+  // 15:00 pile = journée terminée, cohérent avec statusAt() (min>=close).
+  return min<SCHOOL_OPEN ? 'before' : min>=SCHOOL_CLOSE ? 'after' : 'live'
 }
 // current-time helpers
 export function nowState(){
-  const now=new Date(); const wd=now.getDay(); const realWeekday=wd>=1&&wd<=5
-  const dayIdx=realWeekday?wd-1:0; const nowMin=now.getHours()*60+now.getMinutes()
-  const inSchool=realWeekday&&nowMin>=480&&nowMin<=900
+  const now=appNow(); const wd=now.getDay(); const demo=isDemoLive()
+  const realWeekday=demo || (wd>=1&&wd<=5)
+  const dayIdx=(wd>=1&&wd<=5)?wd-1:0; const nowMin=now.getHours()*60+now.getMinutes()
+  const inSchool=realWeekday&&nowMin>=SCHOOL_OPEN&&nowMin<SCHOOL_CLOSE
   return { realWeekday, dayIdx, nowMin, inSchool }
 }

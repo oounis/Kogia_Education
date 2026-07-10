@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Menu } from '@headlessui/react'
-import { fetchWeather } from '../meteo.js'
+import { fetchWeather, coordsOf } from '../meteo.js'
 import { settings } from '../db.js'
 import WeatherIcon from './WeatherIcon.jsx'
 import { Wind, Droplets, ChevronDown } from 'lucide-react'
@@ -10,13 +10,16 @@ const GRAD={clear:['#FFE7A0','#FDB44B'],partly:['#DCEBFF','#9FC0F0'],cloudy:['#E
 const INK={clear:'#7A5A12',default:'#334155'}
 
 export default function MeteoCorner(){
-  // cache localStorage : la météo survit aux coupures réseau (on montre la dernière connue)
-  const [w,setW]=useState(()=>{ try{ return JSON.parse(localStorage.getItem('kogia_meteo')||'null')?.w||null }catch{ return null } })
+  const city=settings().city
+  // cache localStorage, CLÉ PAR VILLE : sinon une école de Sfax affichait la météo
+  // de Tunis restée en cache. La météo survit aussi aux coupures réseau.
+  const cacheKey='coreon_meteo_'+city
+  const [w,setW]=useState(()=>{ try{ return JSON.parse(localStorage.getItem(cacheKey)||'null')?.w||null }catch{ return null } })
   useEffect(()=>{ let alive=true
-    const load=()=>fetchWeather().then(x=>{ if(!alive)return; setW(x); try{localStorage.setItem('kogia_meteo',JSON.stringify({w:x,at:Date.now()}))}catch{} })
+    const load=()=>fetchWeather(...coordsOf(city)).then(x=>{ if(!alive)return; setW(x); try{localStorage.setItem(cacheKey,JSON.stringify({w:x,at:Date.now()}))}catch{} })
       .catch(()=>{ if(alive) setTimeout(load,120000) })   // hors-ligne → on réessaie dans 2 min
     load(); const t=setInterval(load,600000)
-    return ()=>{alive=false;clearInterval(t)} },[])
+    return ()=>{alive=false;clearInterval(t)} },[city,cacheKey])
   if(!w) return <div className="hidden md:flex items-center gap-2 text-xs text-muted px-3 py-2 rounded-2xl bg-canvas animate-pulse">Météo…</div>
   const [c1,c2]=GRAD[w.mode]||GRAD.cloudy; const ink=w.mode==='clear'?INK.clear:INK.default
   return (

@@ -4,7 +4,7 @@ import { ROLE } from '../theme.js'
 import { notify } from '../notify.js'
 import { PageHead, Card, StatCard, SectionCard, Avatar, Btn, Modal, Field, Input, Select, Textarea, Tabs, EmptyState, SearchInput, STATUS } from '../components/ui.jsx'
 import { BriefcaseBusiness, Clock, UserX, Plane, Save, Download, ChevronLeft, ChevronRight, Check, X, Plus, TrendingUp, AlertTriangle, CalendarRange } from 'lucide-react'
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
+import { SoftArea } from '../components/charts.jsx'
 import { format, addMonths, startOfMonth, endOfMonth, eachDayOfInterval, isWeekend } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'
@@ -14,7 +14,7 @@ const ST={present:['Présent',STATUS.ok],late:['Retard',STATUS.warn],absent:['Ab
 const NEXT={present:'late',late:'absent',absent:'conge',conge:'present'}
 const LEAVE_TYPES={annuel:'Congé annuel',maladie:'Maladie',exceptionnel:'Exceptionnel',permission:'Permission (heures)'}
 const QUOTA=30 // jours de congé annuel / an
-const isoOf=d=>d.toISOString().slice(0,10)
+import { isoOf } from '../clock.js'
 
 function staffList(d){
   return [
@@ -215,7 +215,7 @@ function LeavesTab({ d, staff, refresh }){
               <Avatar name={nameOf(lv.staffId)} seed={lv.staffId} size={38}/>
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-semibold">{nameOf(lv.staffId)} · {LEAVE_TYPES[lv.type]}</span>
-                <span className="block text-xs text-muted">{lv.type==='permission'?`${lv.from} · ${lv.hours} h`:`${lv.from} → ${lv.to} · ${lv.days} j ouvrés`}{lv.reason?` · « ${lv.reason} »`:''}</span>
+                <span className="block text-xs text-muted">{lv.type==='permission'?`${lv.from}${lv.hours?` · ${lv.hours} h`:''}`:`${lv.from} → ${lv.to} · ${lv.days} j ouvrés`}{lv.reason?` · « ${lv.reason} »`:''}</span>
               </span>
               <Btn size="sm" onClick={()=>decide(lv,'approved')}><Check size={14}/> Approuver</Btn>
               <Btn size="sm" variant="danger" onClick={()=>decide(lv,'rejected')}><X size={14}/></Btn>
@@ -285,15 +285,7 @@ function AnalyseTab({ d, staff }){
   return (<>
     <div className="grid lg:grid-cols-[1fr_360px] gap-4">
       <SectionCard icon={<TrendingUp size={16}/>} tint="mint" title="Taux de présence du personnel" sub="20 derniers jours pointés">
-        <div className="h-56"><ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={A.trend} margin={{top:6,right:6,left:-16,bottom:0}}>
-            <defs><linearGradient id="gStaff" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={STATUS.ok} stopOpacity={.3}/><stop offset="100%" stopColor={STATUS.ok} stopOpacity={0}/></linearGradient></defs>
-            <XAxis dataKey="name" tick={{fontSize:10,fill:'#8A93A6'}} axisLine={false} tickLine={false} interval="preserveStartEnd"/>
-            <YAxis domain={[60,100]} tick={{fontSize:11,fill:'#8A93A6'}} axisLine={false} tickLine={false} unit="%"/>
-            <Tooltip contentStyle={{borderRadius:12,border:'1px solid #EDEFF5',fontSize:12}} formatter={v=>[`${v}%`,'Présence']}/>
-            <Area type="monotone" dataKey="taux" stroke={STATUS.ok} strokeWidth={2.5} fill="url(#gStaff)"/>
-          </AreaChart>
-        </ResponsiveContainer></div>
+        <SoftArea data={A.trend} dataKey="taux" color={STATUS.ok} id="gStaff" unit="%" domain={[60,100]} height={224}/>
       </SectionCard>
       <SectionCard icon={<AlertTriangle size={16}/>} tint="coral" title="À surveiller" sub="3 absences ou plus sur 30 jours" bodyClass="p-3">
         {alerts.length===0 ? <EmptyState title="Aucune alerte" sub="Toute l'équipe est assidue ce mois-ci."/>

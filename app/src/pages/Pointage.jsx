@@ -7,12 +7,12 @@ import { LogIn, LogOut, Clock, CalendarCheck, Plane, Plus, Hourglass, Timer } fr
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'
-import { isSummer, RENTREE } from '../components/Summer.jsx'
+import { isSummer, rentreeLabel } from '../components/Summer.jsx'
 
 /* ── Pointage : la badgeuse personnelle de chaque membre du personnel ────── */
 const LEAVE_TYPES={annuel:'Congé annuel',maladie:'Maladie',exceptionnel:'Exceptionnel',permission:'Permission (heures)'}
 const QUOTA=30, LATE='08:05'
-const isoOf=d=>d.toISOString().slice(0,10)
+import { isoOf, now as appNow } from '../clock.js'
 const hm=d=>format(d,'HH:mm')
 const toMin=t=>{ const [h,m]=String(t).split(':').map(Number); return h*60+m }
 const fmtH=min=>`${Math.floor(min/60)} h ${String(min%60).padStart(2,'0')}`
@@ -20,16 +20,19 @@ const fmtH=min=>`${Math.floor(min/60)} h ${String(min%60).padStart(2,'0')}`
 export default function Pointage(){
   const u=current(); const d=db()
   const id=u.teacherId||u.id
-  const [,force]=useState(0); const refresh=()=>force(x=>x+1)
-  const [now,setNow]=useState(()=>new Date())
-  useEffect(()=>{ const t=setInterval(()=>setNow(new Date()),30000); return ()=>clearInterval(t) },[])
+  const [,force]=useState(0)
+  const [now,setNow]=useState(()=>appNow())
+  // rafraîchit aussi l'horloge : sans cela, le compteur restait figé jusqu'à 30 s
+  // après le pointage et pouvait afficher « 0 h 00 » alors qu'on venait d'arriver.
+  const refresh=()=>{ setNow(appNow()); force(x=>x+1) }
+  useEffect(()=>{ const t=setInterval(()=>setNow(appNow()),30000); return ()=>clearInterval(t) },[])
   const today=isoOf(now)
   const clock=(d.staffClock||{})[today]?.[id]||null
   const working = clock&&clock.in&&!clock.out
-  const elapsed = working ? toMin(hm(now))-toMin(clock.in) : (clock&&clock.out ? toMin(clock.out)-toMin(clock.in) : 0)
+  const elapsed = working ? Math.max(0, toMin(hm(now))-toMin(clock.in)) : (clock&&clock.out ? Math.max(0, toMin(clock.out)-toMin(clock.in)) : 0)
 
   const checkIn=()=>{
-    const t=hm(new Date())
+    const t=hm(appNow())
     mutate(db=>{ db.staffClock=db.staffClock||{}; db.staffClock[today]=db.staffClock[today]||{}
       db.staffClock[today][id]={in:t,out:null}
       db.staffAttendance=db.staffAttendance||{}; db.staffAttendance[today]=db.staffAttendance[today]||{}
@@ -38,7 +41,7 @@ export default function Pointage(){
     refresh()
   }
   const checkOut=()=>{
-    const t=hm(new Date())
+    const t=hm(appNow())
     mutate(db=>{ const c=db.staffClock?.[today]?.[id]; if(c) c.out=t })
     toast.success(`Sortie pointée à ${t} — à demain !`); refresh()
   }
@@ -68,7 +71,7 @@ export default function Pointage(){
         {isSummer() ? <>
           <div className="inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded-full" style={{background:'#FEF3C7',color:'#92400E'}}>VACANCES D'ÉTÉ</div>
           <div className="text-lg font-extrabold mt-2">Badgeuse en pause</div>
-          <p className="text-sm text-muted mt-1">Le pointage reprend le <b>{RENTREE}</b>. Vos heures et votre historique restent consultables ci-contre — bel été !</p>
+          <p className="text-sm text-muted mt-1">Le pointage reprend le <b>{rentreeLabel()}</b>. Vos heures et votre historique restent consultables ci-contre — bel été !</p>
         </> : !clock ? <>
           <div className="text-lg font-extrabold">Prêt pour la journée ?</div>
           <p className="text-sm text-muted mt-1 capitalize">{format(now,'EEEE d MMMM · HH:mm',{locale:fr})}</p>

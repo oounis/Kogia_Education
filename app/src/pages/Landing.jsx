@@ -39,7 +39,7 @@ const PRICING = [
 ]
 const FAQ = [
   ['Est-ce adapté au système tunisien ?','Oui — conçu pour l\'école primaire tunisienne : les 6 niveaux (1ère → 6ème année) et les matières officielles sont intégrés. Interface en français, prête pour l’arabe.'],
-  ['Faut-il installer quelque chose ?','Non. Kogia Edu fonctionne dans le navigateur, sur ordinateur, tablette et mobile. Rien à installer.'],
+  ['Faut-il installer quelque chose ?','Non. Coreon Edu fonctionne dans le navigateur, sur ordinateur, tablette et mobile. Rien à installer.'],
   ['Nos données sont-elles en sécurité ?','Accès par rôle strict (chaque portail ne voit que ce qui le concerne), sessions protégées et export contrôlé de vos données.'],
   ['Combien de temps pour démarrer ?','Une journée. On importe vos classes et élèves, on crée les comptes, et vos enseignants évaluent dès le lendemain.'],
 ]
@@ -52,7 +52,7 @@ export default function Landing(){
       {/* NAV */}
       <header className="sticky top-0 z-40 backdrop-blur bg-white/85 border-b border-line">
         <div className="mx-auto max-w-[1120px] px-5 h-16 flex items-center justify-between">
-          <a href="#top" className="flex items-center gap-2"><Mark size={30}/><span className="font-extrabold lowercase tracking-tight">kogia <span className="text-sm font-normal" style={{color:A}}>edu</span></span></a>
+          <a href="#top" className="flex items-center gap-2"><Mark size={30}/><span className="font-extrabold lowercase tracking-tight">coreon <span className="text-sm font-normal" style={{color:A}}>edu</span></span></a>
           <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-muted">
             <a href="#modules" className="hover:text-ink">Fonctionnalités</a>
             <a href="#portails" className="hover:text-ink">Portails</a>
@@ -223,7 +223,7 @@ export default function Landing(){
       <section className="mx-auto max-w-[1120px] px-5 pb-16">
         <motion.div {...up} className="rounded-3xl p-10 md:p-14 text-center text-white relative overflow-hidden" style={{background:'linear-gradient(135deg,#6366F1,#36C5F0)'}}>
           <h2 className="text-3xl md:text-4xl font-extrabold">Prêt à moderniser votre école ?</h2>
-          <p className="mt-3 text-white/85 max-w-[52ch] mx-auto">Testez Kogia Edu gratuitement — choisissez un rôle et découvrez la plateforme en un clic.</p>
+          <p className="mt-3 text-white/85 max-w-[52ch] mx-auto">Testez Coreon Edu gratuitement — choisissez un rôle et découvrez la plateforme en un clic.</p>
           <button onClick={()=>nav('/login')} className={`${BTN_LG} mt-7 bg-white shadow-sm hover:opacity-90`} style={{color:A}}>Démarrer la démo <ArrowRight size={18}/></button>
         </motion.div>
       </section>
@@ -231,7 +231,7 @@ export default function Landing(){
       {/* FOOTER */}
       <footer className="border-t border-line">
         <div className="mx-auto max-w-[1120px] px-5 py-10 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted">
-          <div className="flex items-center gap-2"><Mark size={26}/><span className="font-extrabold lowercase text-ink">kogia <span className="font-normal" style={{color:A}}>edu</span></span></div>
+          <div className="flex items-center gap-2"><Mark size={26}/><span className="font-extrabold lowercase text-ink">coreon <span className="font-normal" style={{color:A}}>edu</span></span></div>
           <div className="flex items-center gap-5"><a href="#modules" className="hover:text-ink">Fonctionnalités</a><a href="#tarifs" className="hover:text-ink">Tarifs</a><span className="flex items-center gap-1.5"><Mail size={14}/> contact@kogia.tn</span></div>
           <div>© 2026 Kogia Group · Tunisie</div>
         </div>

@@ -53,7 +53,12 @@ export function bulletinFor(db, sid){
     subject, count:arr.length,
     avg:Math.round(arr.reduce((s,x)=>s+x,0)/arr.length),
   })).sort((a,b)=>b.avg-a.avg)
-  const overall = subjects.length? Math.round(subjects.reduce((s,x)=>s+x.avg,0)/subjects.length) : null
+  // Moyenne générale = moyenne de TOUTES les évaluations, pondérée par leur nombre.
+  // (Avant : moyenne des moyennes par matière — une matière évaluée une seule fois
+  //  pesait autant qu'une matière évaluée dix fois, et l'écran Résultats affichait
+  //  donc une moyenne différente de celle du bulletin pour le même élève.)
+  const totalCount = subjects.reduce((s,x)=>s+x.count,0)
+  const overall = totalCount? Math.round(subjects.reduce((s,x)=>s+x.avg*x.count,0)/totalCount) : null
   const badges = sessions.map(s=>s.badge).filter(Boolean)
   // présence — parcourt db.attendance (clés classId_date)
   const att={present:0,absent:0,late:0}

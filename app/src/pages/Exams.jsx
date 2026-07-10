@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { current } from '../auth.js'
 import { db, mutate, uid } from '../db.js'
-import { notify } from '../notify.js'
+import { notify, classIdsOfParent } from '../notify.js'
 import { PageHead, Table, Btn, Modal, Field, Input, Select, IconTile, EmptyState, SectionCard } from '../components/ui.jsx'
 import { GraduationCap, Plus } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -12,10 +12,18 @@ export default function Exams(){
   const [f,setF]=useState({class:d.classes[0]?.name||'5ème A',subject:'Mathématiques',date:'',total:100})
   const add=()=>{ if(!f.date){toast.error('Choisissez une date');return}
     mutate(db=>{db.exams.unshift({...f,id:uid('x'),total:Number(f.total)||100})})
-    notify({role:'parent',kind:'notice',title:'Nouvel examen programmé',body:`${f.subject} · ${f.class} le ${f.date}`,link:'/app/exams'})
+    // l'examen ne concerne qu'une classe : seuls ses parents sont notifiés
+    const examClassId=d.classes.find(c=>c.name===f.class)?.id||null
+    notify({role:'parent',classId:examClassId,kind:'notice',title:'Nouvel examen programmé',body:`${f.subject} · ${f.class} le ${f.date}`,link:'/app/exams'})
     notify({role:'teacher',kind:'info',title:'Examen ajouté au calendrier',body:`${f.subject} · ${f.class} le ${f.date}`,link:'/app/exams'})
     toast.success('Examen programmé · parents notifiés'); setOpen(false); force(x=>x+1) }
-  const sorted=[...d.exams].sort((a,b)=>(a.date||'').localeCompare(b.date||''))
+  // un parent ne voit que les examens des classes de ses enfants (les examens sont
+  // stockés avec le NOM de la classe, on repasse par l'id pour comparer)
+  const myClassNames=u.role==='parent'
+    ? classIdsOfParent(u).map(cid=>d.classes.find(c=>c.id===cid)?.name).filter(Boolean)
+    : null
+  const visible=myClassNames? d.exams.filter(x=>myClassNames.includes(x.class)) : d.exams
+  const sorted=[...visible].sort((a,b)=>(a.date||'').localeCompare(b.date||''))
   return (<>
     <PageHead title="Examens" sub="Calendrier des prochains examens" action={canEdit&&<Btn onClick={()=>setOpen(true)}><Plus size={16}/> Programmer un examen</Btn>}/>
     {sorted.length===0 ? <SectionCard headless bodyClass=""><EmptyState icon={<GraduationCap size={26}/>} title="Aucun examen programmé" sub="Les prochains examens apparaîtront ici une fois planifiés."/></SectionCard>

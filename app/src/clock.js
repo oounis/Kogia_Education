@@ -1,0 +1,64 @@
+// Horloge de l'application + « mode démo ».
+//
+// Deux problèmes réglés ici :
+//  1. Le gel estival (1er juillet → 14 septembre) rend Évaluer / Appel / Badgeuse /
+//     Suivi en direct indémontrables pendant toute la saison de vente. Le mode démo
+//     force l'application à se comporter comme un jour de classe ordinaire.
+//  2. Les clés de date étaient construites avec toISOString() (UTC) alors que les
+//     heures affichées sont locales : entre 00 h et 01 h en Tunisie (UTC+1) tout
+//     était enregistré la veille. isoOf() est local.
+
+const DEMO_KEY = 'coreon_demo_live'
+const SCHOOL_OPEN = 8 * 60          // 08:00
+const SCHOOL_CLOSE = 15 * 60        // 15:00
+const DEMO_PINNED_MIN = 10 * 60 + 30 // 10:30 — milieu de matinée, une séance en cours
+
+// ?live=1 active le mode démo (et le mémorise), ?live=0 le coupe.
+// Marche avec HashRouter : on regarde search ET hash.
+function fromUrl() {
+  if (typeof window === 'undefined') return null
+  const s = window.location.search + window.location.hash
+  if (/[?&]live=1/.test(s)) return true
+  if (/[?&]live=0/.test(s)) return false
+  return null
+}
+
+export function isDemoLive() {
+  const forced = fromUrl()
+  if (forced !== null) {
+    try { localStorage.setItem(DEMO_KEY, forced ? '1' : '0') } catch { /* quota / private mode */ }
+    return forced
+  }
+  try { return localStorage.getItem(DEMO_KEY) === '1' } catch { return false }
+}
+
+export function setDemoLive(on) {
+  try { localStorage.setItem(DEMO_KEY, on ? '1' : '0') } catch { /* ignore */ }
+}
+
+// L'heure vue par l'application. En mode démo, on garde la date réelle (les
+// enregistrements restent datés correctement) mais on ramène l'heure dans les
+// horaires scolaires si on est en dehors.
+export function now() {
+  const real = new Date()
+  if (!isDemoLive()) return real
+  const min = real.getHours() * 60 + real.getMinutes()
+  if (min >= SCHOOL_OPEN && min < SCHOOL_CLOSE) return real
+  const d = new Date(real)
+  d.setHours(Math.floor(DEMO_PINNED_MIN / 60), DEMO_PINNED_MIN % 60, 0, 0)
+  return d
+}
+
+// Lundi=0 … Vendredi=4. Le week-end retombe sur lundi (grille de référence).
+export function dayIndex(d = now()) {
+  const wd = d.getDay()
+  return wd >= 1 && wd <= 5 ? wd - 1 : 0
+}
+
+export const isWeekend = (d = now()) => { const wd = d.getDay(); return wd === 0 || wd === 6 }
+
+// Date locale au format YYYY-MM-DD (jamais toISOString(), qui est en UTC).
+export const isoOf = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+export const todayIso = () => isoOf(now())
+
+export { SCHOOL_OPEN, SCHOOL_CLOSE }

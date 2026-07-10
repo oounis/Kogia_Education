@@ -1,7 +1,7 @@
 import { db } from '../db.js'
 import { current } from '../auth.js'
 import { PageHead, StatCard, SectionCard, EmptyState, Btn, Avatar } from '../components/ui.jsx'
-import { Bus, Phone, Clock, Users, Route, School } from 'lucide-react'
+import { Bus, Phone, Clock, Users, Route, School, MapPin } from 'lucide-react'
 
 // Simulated live position of a bus along its run (mock data → deterministic by clock).
 function liveState(){
@@ -56,7 +56,12 @@ function RouteCard({ r, mine }){
         </div>
         <div className="flex items-center gap-2">
           <div className="text-right"><div className="text-[11px] text-muted flex items-center gap-1 justify-end"><Clock size={11}/> {dir==='out'?'Dépose':'Arrivée'} à {nextStop}</div><div className="text-sm font-extrabold accent-text">≈ {eta} min</div></div>
-          <Btn variant="soft" size="sm" aria-label={`Appeler ${r.driver}`}><Phone size={14}/> Appeler</Btn>
+          {/* le bouton n'avait aucun handler : il ouvre maintenant vraiment le téléphone */}
+          {r.phone
+            ? <a href={`tel:${r.phone}`} aria-label={`Appeler ${r.driver} au ${r.phone}`}
+                className="inline-flex items-center justify-center gap-1.5 rounded-xl font-semibold transition text-xs px-3 py-2 bg-canvas border border-line hover:bg-white active:scale-[.98]">
+                <Phone size={14}/> Appeler</a>
+            : <Btn variant="soft" size="sm" disabled title="Aucun numéro enregistré pour ce chauffeur"><Phone size={14}/> Appeler</Btn>}
         </div>
       </div>
       <Journey seq={seq} prog={prog} live={live}/>
@@ -70,13 +75,17 @@ export default function Transport(){
   const mineId = u?.role==='parent' && routes.length ? routes[(u.childIds?.[0]?.charCodeAt(1)||0)%routes.length].id : null
   const ordered = mineId ? [...routes].sort((a,b)=> (a.id===mineId?-1:b.id===mineId?1:0)) : routes
   const totalKids=routes.reduce((s,r)=>s+r.students,0)
+  // « Bus en service » répétait le nombre de circuits, et la ponctualité était
+  // écrite en dur (98 %). On n'affiche plus que des chiffres réellement mesurés.
+  const buses=new Set(routes.map(r=>r.bus)).size
+  const stops=routes.reduce((s,r)=>s+(r.stops?.length||0),0)
   return (<>
     <PageHead title="Transport scolaire" sub={u?.role==='parent'?'Suivez le bus de votre enfant en temps réel.':'Flotte, circuits et suivi en direct.'}/>
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
       <StatCard tint="brand"  icon={<Route size={20}/>}  value={routes.length} label="Circuits"/>
-      <StatCard tint="butter" icon={<Bus size={20}/>}    value={routes.length} label="Bus en service"/>
+      <StatCard tint="butter" icon={<Bus size={20}/>}    value={buses}         label="Bus en service"/>
       <StatCard tint="sky"    icon={<Users size={20}/>}  value={totalKids}     label="Élèves transportés"/>
-      <StatCard tint="mint"   icon={<Clock size={20}/>}  value="98%"           label="Ponctualité" sub="30 j"/>
+      <StatCard tint="mint"   icon={<MapPin size={20}/>} value={stops}         label="Arrêts desservis"/>
     </div>
     {routes.length===0
       ? <SectionCard headless><EmptyState icon={<Bus size={26}/>} title="Aucun circuit de transport" sub="Ajoutez un circuit pour commencer à suivre les bus et informer les parents."/></SectionCard>

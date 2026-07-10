@@ -20,7 +20,11 @@ export default function Messages(){
     notify({to:target,kind:'message',title:`Nouveau message de ${me.name}`,body:text.trim().slice(0,60),link:'/app/messages'})
     setText(''); setActive(target); refresh() }
   const startNew=()=>{ if(!to)return; setActive(to); setNewOpen(false); if(!partnerIds.includes(to)) {/* will appear once a message is sent */} refresh() }
-  const others=d.users.filter(u=>u.id!==me.id)
+  // Un parent ne peut écrire qu'au personnel de l'école, jamais aux autres parents
+  // (le répertoire complet des familles ne doit pas lui être exposé). Le personnel
+  // écrit à tout le monde.
+  const STAFF=['schooladmin','admin','teacher','supervisor']
+  const others=d.users.filter(u=>u.id!==me.id && (me.role!=='parent' || STAFF.includes(u.role)))
   const lastWith=id=>{ const t=mine.filter(m=>m.from===id||m.to===id).sort((a,b)=>b.at-a.at)[0]; return t }
   return (<>
     <PageHead title="Messages" sub="Échangez avec le personnel et les parents." action={<Btn onClick={()=>setNewOpen(true)}><Plus size={16}/> Nouveau message</Btn>}/>

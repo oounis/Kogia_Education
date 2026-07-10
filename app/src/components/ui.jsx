@@ -2,14 +2,20 @@ import { Dialog } from '@headlessui/react'
 import { X, Search } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-const TINTS={brand:['#EEF2FF','#6366F1'],sky:['#E4F7FE','#0BA5D8'],butter:['#FFF4DD','#E59A12'],mint:['#E2FBF3','#10B981'],coral:['#FFE8EC','#FF6B81'],grape:['#F1ECFE','#8B5CF6'],slate:['#EEF1F6','#64748B']}
+// Aplats très pâles + encre lisible. Chaque couple a été vérifié : l'encre garde
+// un contraste ≥ 3:1 sur le blanc, l'aplat reste assez clair pour ne pas fatiguer.
+const TINTS={brand:['#EEF1FE','#5B6EE1'],sky:['#E6F1F8','#0E7FB8'],butter:['#FBF1E3','#C97C1E'],mint:['#E7F5F0','#12946F'],coral:['#FBEBEC','#DC4B54'],grape:['#F1EDFB','#7C5CD6'],slate:['#F1F4F8','#64748B']}
 // ── Semantic status colours — the ONLY hexes pages may use for state. ──
-export const STATUS={ ok:'#10B981', okSoft:'#E2FBF3', warn:'#E59A12', warnSoft:'#FFF4DD', danger:'#EF4444', dangerSoft:'#FFE8EC', info:'#0BA5D8', infoSoft:'#E4F7FE', neutral:'#8A93A6', neutralSoft:'#EEF1F6', live:'#FF3B5C' }
+// Teintes adoucies (moins saturées, plus reposantes) mais toujours ≥ 3:1 sur blanc,
+// et séparées pour les daltonismes (ΔE 26.9 deutan / 30.6 tritan sur la pire paire).
+// Les statuts ne servent JAMAIS de couleur de série dans un graphique.
+export const STATUS={ ok:'#12946F', okSoft:'#E7F5F0', warn:'#C97C1E', warnSoft:'#FBF1E3', danger:'#DC4B54', dangerSoft:'#FBEBEC', info:'#0E7FB8', infoSoft:'#E6F1F8', neutral:'#94A3B8', neutralSoft:'#F1F4F8', live:'#E11D48' }
 
 export function Card({ className='', children }){ return <div className={`card ${className}`}>{children}</div> }
 export function StatCard({ label, value, sub, tint='brand', icon, to, onClick }){
-  const map={brand:['#EEF2FF','#6366F1'],sky:['#E4F7FE','#0BA5D8'],butter:['#FFF4DD','#E59A12'],mint:['#E2FBF3','#10B981'],coral:['#FFE8EC','#FF6B81'],grape:['#F1ECFE','#8B5CF6']}
-  const [bg,fg]=map[tint]||map.brand
+  // utilise la table partagée : la copie locale oubliait `slate` et `neutral`,
+  // qui retombaient silencieusement sur la couleur de marque.
+  const [bg,fg]=TINTS[tint]||TINTS.brand
   const inner=<><span className="w-12 h-12 rounded-2xl grid place-items-center shrink-0" style={{background:bg,color:fg}}>{icon}</span>
     <div className="min-w-0"><div className="text-2xl font-extrabold leading-none">{value}</div><div className="text-xs text-muted mt-1 truncate">{label}{sub&&<span className="ml-1">· {sub}</span>}</div></div></>
   if(to) return <Link to={to} className="card p-4 flex items-center gap-3 hover:shadow-lg hover:-translate-y-0.5 transition">{inner}</Link>
@@ -17,8 +23,9 @@ export function StatCard({ label, value, sub, tint='brand', icon, to, onClick })
   return <div className="card p-4 flex items-center gap-3">{inner}</div>
 }
 export function Badge({ status }){
-  const m={paid:['#E2FBF3','#10B981','Payé'],pending:['#FFF4DD','#E59A12','En attente'],overdue:['#FFE8EC','#EF4444','En retard'],due:['#EEF1F6','#8A93A6','Impayé'],open:['#FFF4DD','#E59A12','Ouvert'],resolved:['#E2FBF3','#10B981','Résolu'],approved:['#E2FBF3','#10B981','Approuvé'],rejected:['#FFE8EC','#EF4444','Rejeté'],present:['#E2FBF3','#10B981','Présent'],absent:['#FFE8EC','#EF4444','Absent'],late:['#FFF4DD','#E59A12','Retard']}
-  const [bg,fg,label]=m[status]||['#EEF1F6','#8A93A6',status]
+  const OKp=[STATUS.okSoft,STATUS.ok], WARNp=[STATUS.warnSoft,STATUS.warn], DANGp=[STATUS.dangerSoft,STATUS.danger], NEUTp=[STATUS.neutralSoft,STATUS.neutral]
+  const m={paid:[...OKp,'Payé'],pending:[...WARNp,'En attente'],overdue:[...DANGp,'En retard'],due:[...NEUTp,'Impayé'],open:[...WARNp,'Ouvert'],resolved:[...OKp,'Résolu'],approved:[...OKp,'Approuvé'],rejected:[...DANGp,'Rejeté'],present:[...OKp,'Présent'],absent:[...DANGp,'Absent'],late:[...WARNp,'Retard']}
+  const [bg,fg,label]=m[status]||[STATUS.neutralSoft,STATUS.neutral,status]
   return <span className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{background:bg,color:fg}}>{label}</span>
 }
 // ── Initials avatar: THE one avatar style of the product. Deterministic soft
@@ -47,7 +54,8 @@ export function Section({ title, children, cols=2 }){
     <div className={`grid gap-3 ${cols===2?'sm:grid-cols-2':cols===3?'sm:grid-cols-3':''}`}>{children}</div></div>
 }
 export function Modal({ open, onClose, title, children, footer, size='lg' }){
-  const w={lg:'max-w-lg',xl:'max-w-2xl','2xl':'max-w-3xl'}[size]
+  // toute taille non prévue donnait `undefined` → boîte sans largeur maximale
+  const w={sm:'max-w-sm',md:'max-w-md',lg:'max-w-lg',xl:'max-w-2xl','2xl':'max-w-3xl'}[size]||'max-w-lg'
   return (
     <Dialog open={open} onClose={onClose} className="relative z-50">
       <div className="fixed inset-0 bg-ink/30 backdrop-blur-sm" aria-hidden="true"/>

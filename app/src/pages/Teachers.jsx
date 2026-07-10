@@ -15,6 +15,8 @@ export default function Teachers(){
   const d=db(); const loc=useLocation()
   useEffect(()=>{ const id=loc.state?.openTeacher; if(id){ const t=d.teachers.find(x=>x.id===id); if(t) setView(t) } },[loc.state])
   const add=()=>{ if(!f.name.trim())return toast.error('Le nom est requis')
+    // le champ annonce « CIN (8 chiffres) » : on le vérifie vraiment (validCIN était importé sans être utilisé)
+    if(f.cin && !validCIN(f.cin)) return toast.error('Le CIN doit comporter exactement 8 chiffres')
     mutate(db=>{db.teachers.push({...f,id:uid('t'),classes:[],experience:Number(f.experience)||0,salary:Number(f.salary)||0})})
     toast.success('Enseignant ajouté'); setOpen(false); setF(BLANK); force(x=>x+1) }
   const query=q.trim().toLowerCase()

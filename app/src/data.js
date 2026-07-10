@@ -1,10 +1,13 @@
 import { db, studentsOfClass } from './db.js'
+import { now as appNow, isWeekend, isDemoLive } from './clock.js'
 import { Star, ThumbsUp, Minus, TriangleAlert, TrendingUp, Handshake, Lightbulb, Target } from 'lucide-react'
+// Niveaux : la couleur n'est jamais le seul indice — chaque niveau porte une icône
+// et son libellé (indispensable, la séparation tritan de cette échelle est au plancher).
 export const BUCKETS=[
-  {key:"excellent",label:"Excellent",color:"#10B981",soft:"#E2FBF3",Icon:Star},
-  {key:"good",label:"Bien",color:"#0BA5D8",soft:"#E4F7FE",Icon:ThumbsUp},
-  {key:"average",label:"Moyen",color:"#E59A12",soft:"#FFF4DD",Icon:Minus},
-  {key:"weak",label:"Insuffisant",color:"#EF4444",soft:"#FFE8EC",Icon:TriangleAlert},
+  {key:"excellent",label:"Excellent",color:"#12946F",soft:"#E7F5F0",Icon:Star},
+  {key:"good",label:"Bien",color:"#0E7FB8",soft:"#E6F1F8",Icon:ThumbsUp},
+  {key:"average",label:"Moyen",color:"#C97C1E",soft:"#FBF1E3",Icon:Minus},
+  {key:"weak",label:"Insuffisant",color:"#DC4B54",soft:"#FBEBEC",Icon:TriangleAlert},
 ]
 export const QUESTIONS=[
   {id:"q1",text:"Participation en classe aujourd'hui"},
@@ -17,14 +20,34 @@ export const BADGES=[
   {key:"star",label:"Élève du jour",Icon:Star},{key:"improved",label:"Plus grand progrès",Icon:TrendingUp},
   {key:"team",label:"Esprit d'équipe",Icon:Handshake},{key:"idea",label:"Bonne idée",Icon:Lightbulb},{key:"focus",label:"Très concentré",Icon:Target},
 ]
+// Les séances de l'enseignant, identiques du lundi au vendredi.
+// (Auparavant chaque ligne portait `day:1` mais personne ne lisait ce champ :
+//  l'emploi du temps du lundi s'affichait même le dimanche.)
 export const SCHEDULE=[
-  {day:1,start:"08:00",end:"10:00",classId:"c5a",subject:"Mathématiques",room:"Salle 12"},
-  {day:1,start:"10:15",end:"12:00",classId:"c6a",subject:"Mathématiques",room:"Salle 12"},
-  {day:1,start:"13:00",end:"14:00",classId:"c9a",subject:"Mathématiques",room:"Salle 8"},
-  {day:1,start:"14:15",end:"15:45",classId:"l2s",subject:"Mathématiques",room:"Salle 21"},
+  {start:"08:00",end:"10:00",classId:"c5a",subject:"Mathématiques",room:"Salle 12"},
+  {start:"10:15",end:"12:00",classId:"c6a",subject:"Mathématiques",room:"Salle 12"},
+  {start:"13:00",end:"14:00",classId:"c9a",subject:"Mathématiques",room:"Salle 8"},
+  {start:"14:15",end:"15:45",classId:"l2s",subject:"Mathématiques",room:"Salle 21"},
 ]
-export function currentClass(now){const hhmm=now.toTimeString().slice(0,5);const slot=SCHEDULE.find(s=>hhmm>=s.start&&hhmm<=s.end)||SCHEDULE[0];const cls=db().classes.find(c=>c.id===slot.classId);return{slot,isLive:hhmm>=slot.start&&hhmm<=slot.end,cls,students:studentsOfClass(slot.classId)}}
-export function teacherSchedule(now=new Date()){const hhmm=now.toTimeString().slice(0,5);return SCHEDULE.map(s=>{const cls=db().classes.find(c=>c.id===s.classId)||{};return{...s,cls,students:studentsOfClass(s.classId),isLive:hhmm>=s.start&&hhmm<=s.end}})}
+const hydrate = s => ({...s, cls: db().classes.find(c=>c.id===s.classId)||{}, students: studentsOfClass(s.classId)})
+
+// Jour de classe ? (week-end exclu, sauf en mode démo)
+export const isSchoolDay = (d=appNow()) => isDemoLive() || !isWeekend(d)
+
+// La séance en cours, ou null s'il n'y en a pas (hors horaires, week-end).
+// Ne retombe plus silencieusement sur SCHEDULE[0] : l'appelant doit choisir.
+export function currentClass(now=appNow()){
+  if(!isSchoolDay(now)) return null
+  const hhmm=now.toTimeString().slice(0,5)
+  const slot=SCHEDULE.find(s=>hhmm>=s.start&&hhmm<s.end)
+  if(!slot) return null
+  return {slot, isLive:true, ...hydrate(slot)}
+}
+export function classForSlot(slot){ return {slot, isLive:false, ...hydrate(slot)} }
+export function teacherSchedule(now=appNow()){
+  const school=isSchoolDay(now); const hhmm=now.toTimeString().slice(0,5)
+  return SCHEDULE.map(s=>({...s, ...hydrate(s), isLive: school && hhmm>=s.start && hhmm<s.end}))
+}
 
 // ─────────────── EMPLOI DU TEMPS (weekly timetable) ───────────────
 export const DAYS=['Lundi','Mardi','Mercredi','Jeudi','Vendredi']

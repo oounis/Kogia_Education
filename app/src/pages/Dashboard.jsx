@@ -1,16 +1,21 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, AreaChart, Area, RadialBarChart, RadialBar } from 'recharts'
+import { ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, AreaChart, Area } from 'recharts'
+import { SoftBars, SoftBarsH, Gauge, DistributionBar } from '../components/charts.jsx'
+import { SERIES, LEVELS, axis as chartAxis, grid as chartGrid, tooltip as chartTip } from '../charts.js'
 import { Users, GraduationCap, Wallet, ShieldAlert, ClipboardCheck, CreditCard, Star, ArrowRight, Bell, FileText, TrendingUp, CalendarCheck, Radio, Stethoscope, Sunrise, UserX, CalendarDays, ChevronRight, Building2 } from 'lucide-react'
 import { current } from '../auth.js'
 import { db, FEE_MONTHS, studentById, classById } from '../db.js'
 import { StatCard, Card, PageHead, Badge, Avatar, Btn, IconTile, EmptyState, STATUS } from '../components/ui.jsx'
-import { currentClass } from '../data.js'
+import { currentClass, classForSlot, SCHEDULE } from '../data.js'
 import { studentSummary, bulletinFor, mentionFor, strengthsWeaknesses, lessonBreakdown } from '../results.js'
 import LessonMap from '../components/LessonMap.jsx'
 import { statusAt, AREAS, fmt, nowState, schoolPhase } from '../livestatus.js'
 import { subjectMeta, PLACES } from '../subjects.jsx'
 import Bulletin from '../components/Bulletin.jsx'
+import { todayIso as todayIsoLocal } from '../clock.js'
+import { rentreeLabel, DemoLiveButton } from '../components/Summer.jsx'
+import { unreadFor } from '../notify.js'
 // place → shared icon system (subjects.jsx) — same visual family as the live map
 const placeMeta=live=>{
   if(live.place==='class') return live.seg?.cell? subjectMeta(live.seg.cell.subject) : PLACES.etude
@@ -24,38 +29,38 @@ const BTN_LG="inline-flex items-center justify-center gap-1.5 rounded-xl font-se
 const BTN_PRIMARY=`${BTN_LG} text-white accent-bg shadow-sm hover:opacity-90 active:scale-[.98]`
 const BTN_DEFAULT=`${BTN_LG} bg-white border border-line hover:bg-canvas active:scale-[.98]`
 
-const chartTip={contentStyle:{borderRadius:12,border:'1px solid #EDEFF5',fontSize:12,boxShadow:'0 8px 24px rgba(30,36,51,.08)'}}
 
 export default function Dashboard(){
   const u=current(); const d=db()
   const greet = `Bonjour, ${u.name.split(' ')[0]}`
 
   if(u.role==='teacher'){
-    const cls=currentClass(new Date())
+    // currentClass() renvoie null hors séance (soir, week-end) : on retombe alors sur
+    // la prochaine séance du planning plutôt que de planter ou de mentir « en cours ».
+    const cls=currentClass()||classForSlot(SCHEDULE[0])
     // répartition de la dernière évaluation de la classe
     const ev=d.evaluations.find(e=>e.classId===cls.cls.id)
-    const dist=[['Excellent',STATUS.ok],['Bien',STATUS.info],['Moyen',STATUS.warn],['Insuffisant',STATUS.danger]]
+    const dist=[['Excellent',LEVELS[0]],['Bien',LEVELS[1]],['Moyen',LEVELS[2]],['Insuffisant',LEVELS[3]]]
     const buckets=['excellent','good','average','weak']
     const distData=dist.map(([n,c],i)=>{ let v=0; if(ev) cls.students.forEach(s=>{ const sum=studentSummary(ev,s.id); if(sum.score!=null){ const k=sum.score>=85?0:sum.score>=60?1:sum.score>=40?2:3; if(k===i)v++ } }); return {name:n,value:v,color:c} })
     const hasDist=distData.some(x=>x.value>0)
     return (<><PageHead title={greet} sub="Votre journée d'enseignement en un coup d'œil."/>
       <div className="grid sm:grid-cols-3 gap-4 mb-5">
-        <StatCard label="Classe en cours" value={cls.cls.name} sub={cls.slot.subject} tint="mint" icon={<ClipboardCheck/>} to="/app/evaluate"/>
+        <StatCard label={cls.isLive?"Classe en cours":"Prochaine séance"} value={cls.cls.name} sub={cls.slot.subject} tint="mint" icon={<ClipboardCheck/>} to="/app/evaluate"/>
         <StatCard label="Élèves" value={cls.students.length} tint="sky" icon={<Users/>} to="/app/students"/>
         <StatCard label="Mes demandes" value={d.requests.filter(r=>r.by===u.id).length} tint="butter" icon={<FileText/>} to="/app/requests"/>
       </div>
       <div className="grid lg:grid-cols-2 gap-4">
         <Card className="p-6 flex flex-col justify-between gap-4">
-          <div><div className="text-xs font-bold uppercase accent-text">Cours en direct</div>
+          <div><div className="text-xs font-bold uppercase accent-text">{cls.isLive?'Cours en direct':'Prochain cours'}</div>
             <div className="text-xl font-extrabold">{cls.cls.name} · {cls.slot.subject}</div>
             <div className="text-muted text-sm">{cls.slot.start}–{cls.slot.end} · {cls.students.length} élèves {cls.isLive&&<span className="ml-1 text-xs font-bold text-white px-2 py-0.5 rounded-full" style={{background:STATUS.live}}>● EN COURS</span>}</div></div>
           <Link to="/app/evaluate" className={`${BTN_PRIMARY} w-full sm:w-auto`}>Évaluer la classe <ArrowRight size={17}/></Link>
         </Card>
         <Card className="p-5"><h3 className="font-bold mb-1">Niveau de la classe</h3>
           <p className="text-xs text-muted mb-3">Répartition de la dernière évaluation</p>
-          {hasDist? <>
-            <div className="h-44"><ResponsiveContainer width="100%" height="100%"><BarChart data={distData} layout="vertical" margin={{left:8}}><XAxis type="number" hide/><YAxis type="category" dataKey="name" tick={{fontSize:12,fill:'#8A93A6'}} width={78} axisLine={false} tickLine={false}/><Tooltip {...chartTip}/><Bar dataKey="value" radius={[0,6,6,0]}>{distData.map((p,i)=><Cell key={i} fill={p.color}/>)}</Bar></BarChart></ResponsiveContainer></div>
-          </> : <EmptyState icon={<ClipboardCheck size={22}/>} title="Aucune évaluation" sub="Évaluez cette classe pour voir la répartition des niveaux."/>}
+          {hasDist? <SoftBarsH data={distData} height={176}/>
+           : <EmptyState icon={<ClipboardCheck size={22}/>} title="Aucune évaluation" sub="Évaluez cette classe pour voir la répartition des niveaux."/>}
         </Card>
       </div>
       <Card className="p-5 mt-4"><div className="flex items-center justify-between mb-3"><h3 className="font-bold flex items-center gap-1.5"><ClipboardCheck size={16}/> Mes évaluations enregistrées</h3><span className="text-xs text-muted">{d.evaluations.length} au total</span></div>
@@ -80,7 +85,7 @@ export default function Dashboard(){
       </div>
       <div className="grid lg:grid-cols-2 gap-4">
         <Card className="p-5"><h3 className="font-bold mb-3">Incidents par gravité</h3>
-          <div className="h-44"><ResponsiveContainer width="100%" height="100%"><BarChart data={sevData}><XAxis dataKey="name" tick={{fontSize:11,fill:'#8A93A6'}} axisLine={false} tickLine={false}/><Tooltip {...chartTip}/><Bar dataKey="value" radius={[6,6,0,0]}>{sevData.map((p,i)=><Cell key={i} fill={p.color}/>)}</Bar></BarChart></ResponsiveContainer></div>
+          <SoftBars data={sevData} height={176} showValues/>
         </Card>
         <Card className="p-5"><h3 className="font-bold mb-3">Incidents récents</h3>
           <div className="space-y-2">
@@ -113,14 +118,14 @@ export default function Dashboard(){
   // « Ce matin » : l'essentiel de la journée pour la direction
   const latestAtt=attDates[attDates.length-1]
   const absToday=latestAtt?attDays[latestAtt].absent:0, lateToday=latestAtt?attDays[latestAtt].late:0
-  const todayIso=new Date().toISOString().slice(0,10)
+  const todayIso=todayIsoLocal()
   const eventsToday=d.events.filter(e=>e.date===todayIso)
   const openInc=d.incidents.filter(i=>i.status==='open').length
   const pendReq=d.requests.filter(r=>r.status==='pending').length
   // effectif par cycle
-  const GC=['#6366F1','#36C5F0','#8B5CF6','#2BD9A8','#FFA62B','#FF6B81']
-  const cycleData=d.classes.map((c,i)=>({name:c.name,value:d.students.filter(s=>s.classId===c.id).length,color:GC[i%GC.length]})).filter(x=>x.value>0)
-  const radial=[{name:'Recouvrement',value:collectRate,fill:STATUS.ok}]
+  // Effectif par classe : une seule grandeur (un nombre d'élèves), donc UNE seule
+  // couleur. Peindre chaque barre différemment laissait croire à quatre catégories.
+  const cycleData=d.classes.map(c=>({name:c.name,value:d.students.filter(s=>s.classId===c.id).length,color:SERIES[0]})).filter(x=>x.value>0)
   return (<><PageHead title={greet} sub="Vue d'ensemble de l'école."/>
     {/* Ce matin — l'essentiel en 30 secondes */}
     <Card className="p-4 mb-5">
@@ -150,33 +155,38 @@ export default function Dashboard(){
       <StatCard label="Demandes en attente" value={d.requests.filter(r=>r.status==='pending').length} tint="sky" icon={<FileText/>} to="/app/requests"/>
     </div>
     <div className="grid lg:grid-cols-3 gap-4 mb-4">
-      <Link to="/app/finance" className="card p-5 block hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-1 flex items-center justify-between">État des frais <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3><p className="text-xs text-muted mb-2">Tous mois confondus</p>
-        <div className="h-48 relative">
-          <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={pie} dataKey="value" nameKey="name" innerRadius={52} outerRadius={80} paddingAngle={2}>{pie.map((p,i)=><Cell key={i} fill={p.color}/>)}</Pie><Tooltip {...chartTip}/></PieChart></ResponsiveContainer>
-          <div className="absolute inset-0 grid place-items-center pointer-events-none"><div className="text-center"><div className="text-2xl font-extrabold">{collectRate}%</div><div className="text-[10px] text-muted">recouvrés</div></div></div>
-        </div>
-        <div className="flex flex-wrap gap-2.5 justify-center mt-1">{pie.map(p=><span key={p.name} className="text-[11px] flex items-center gap-1.5"><i className="w-2.5 h-2.5 rounded-full" style={{background:p.color}}/>{p.name} · {p.value}</span>)}</div>
+      {/* Cette carte montre la RÉPARTITION des mois ; la jauge du taux de recouvrement
+          vit sur sa propre carte plus bas — deux jauges affichant 40 % faisaient doublon. */}
+      <Link to="/app/finance" className="card p-5 block hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-1 flex items-center justify-between">État des frais <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3><p className="text-xs text-muted mb-5">Tous mois confondus</p>
+        {/* un camembert force à comparer des angles ; une barre empilée compare des longueurs */}
+        <div className="mb-1"><div className="text-3xl font-extrabold tabular-nums leading-none">{collected}<span className="text-base font-semibold text-muted"> / {totalFees} mois</span></div>
+          <div className="text-xs text-muted mt-1">réglés à ce jour</div></div>
+        <div className="mt-5"><DistributionBar items={pie}/></div>
       </Link>
       <Link to="/app/attendance" className="card p-5 lg:col-span-2 block hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-1 flex items-center justify-between">Présence hebdomadaire <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3><p className="text-xs text-muted mb-2">Présents vs absents</p>
-        <div className="h-52"><ResponsiveContainer width="100%" height="100%"><AreaChart data={attend} margin={{left:-20}}>
-          <defs><linearGradient id="gP" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#36C5F0" stopOpacity={.35}/><stop offset="100%" stopColor="#36C5F0" stopOpacity={0}/></linearGradient></defs>
-          <XAxis dataKey="m" tick={{fontSize:11,fill:'#8A93A6'}} axisLine={false} tickLine={false}/><YAxis tick={{fontSize:11,fill:'#8A93A6'}} axisLine={false} tickLine={false}/><Tooltip {...chartTip}/>
-          <Area type="monotone" dataKey="present" name="Présents" stroke="#36C5F0" strokeWidth={2.5} fill="url(#gP)"/>
-          <Area type="monotone" dataKey="absent" name="Absents" stroke={STATUS.danger} strokeWidth={2} fill="transparent"/>
+        <div className="h-52"><ResponsiveContainer width="100%" height="100%"><AreaChart data={attend} margin={{top:8,right:8,left:-4,bottom:0}}>
+          <defs><linearGradient id="gP" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={SERIES[0]} stopOpacity={.22}/><stop offset="100%" stopColor={SERIES[0]} stopOpacity={0}/></linearGradient></defs>
+          <CartesianGrid {...chartGrid}/>
+          <XAxis dataKey="m" {...chartAxis}/><YAxis {...chartAxis} width={42}/><Tooltip {...chartTip}/>
+          <Area type="monotone" dataKey="present" name="Présents" stroke={SERIES[0]} strokeWidth={2} fill="url(#gP)" dot={false} activeDot={{r:4,strokeWidth:2,stroke:'#fff'}}/>
+          <Area type="monotone" dataKey="absent" name="Absents" stroke={STATUS.danger} strokeWidth={2} fill="transparent" dot={false} activeDot={{r:4,strokeWidth:2,stroke:'#fff'}}/>
         </AreaChart></ResponsiveContainer></div>
+        <div className="flex gap-4 mt-2 justify-center">
+          <span className="inline-flex items-center gap-1.5 text-xs text-muted"><i className="w-2.5 h-2.5 rounded-full" style={{background:SERIES[0]}}/>Présents</span>
+          <span className="inline-flex items-center gap-1.5 text-xs text-muted"><i className="w-2.5 h-2.5 rounded-full" style={{background:STATUS.danger}}/>Absents</span>
+        </div>
       </Link>
     </div>
     <div className="grid lg:grid-cols-3 gap-4">
       {cycleData.length>0 && <Link to="/app/students" className="card p-5 block hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-3 flex items-center justify-between">Effectif par classe <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3>
-        <div className="h-44"><ResponsiveContainer width="100%" height="100%"><BarChart data={cycleData}><XAxis dataKey="name" tick={{fontSize:11,fill:'#8A93A6'}} axisLine={false} tickLine={false}/><Tooltip {...chartTip}/><Bar dataKey="value" radius={[6,6,0,0]}>{cycleData.map((p,i)=><Cell key={i} fill={p.color}/>)}</Bar></BarChart></ResponsiveContainer></div>
+        <SoftBars data={cycleData} height={176} showValues/>
       </Link>}
       <Link to="/app/finance" className="card p-5 block hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-3 flex items-center justify-between">Taux de recouvrement <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3>
-        <div className="h-44"><ResponsiveContainer width="100%" height="100%"><RadialBarChart innerRadius="65%" outerRadius="100%" data={radial} startAngle={90} endAngle={90-(collectRate*3.6)}><RadialBar background={{fill:'#EDEFF5'}} dataKey="value" cornerRadius={10}/></RadialBarChart></ResponsiveContainer></div>
-        <div className="text-center -mt-24 mb-12"><div className="text-3xl font-extrabold">{collectRate}%</div><div className="text-xs text-muted">{collected} / {totalFees} mois</div></div>
+        <div className="grid place-items-center h-44"><Gauge value={collectRate} color={STATUS.ok} label={`${collected} / ${totalFees} mois`} size={142}/></div>
       </Link>
       <Card className="p-5"><h3 className="font-bold mb-3">Prochains événements</h3>
         <div className="space-y-2.5">
-          {[...d.events].filter(e=>e.date>=new Date().toISOString().slice(0,10)).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4).map(e=>(<Link key={e.id} to="/app/events" className="flex items-center gap-3 text-sm group">
+          {[...d.events].filter(e=>e.date>=todayIsoLocal()).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,4).map(e=>(<Link key={e.id} to="/app/events" className="flex items-center gap-3 text-sm group">
             <IconTile icon={<CalendarCheck size={16}/>} tint="brand" size={40} radius="rounded-xl"/>
             <div className="min-w-0"><div className="font-medium truncate group-hover:accent-text">{e.title}</div><div className="text-xs text-muted">{e.date} · {e.type}</div></div>
           </Link>))}
@@ -213,9 +223,8 @@ function PlatformDashboard({ d, greet }){
       <StatCard label="En essai" value={trials.length} tint="butter" icon={<FileText/>}/>
     </div>
     <div className="grid lg:grid-cols-[340px_1fr] gap-4">
-      <Card className="p-5"><h3 className="font-bold mb-1">Répartition des abonnements</h3><p className="text-xs text-muted mb-2">Écoles actives et en essai</p>
-        <div className="h-44"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={planPie} dataKey="value" nameKey="name" innerRadius={45} outerRadius={70} paddingAngle={3}>{planPie.map((p,i)=><Cell key={i} fill={p.color}/>)}</Pie><Tooltip {...chartTip}/></PieChart></ResponsiveContainer></div>
-        <div className="space-y-1.5 mt-1">{planPie.map(p=><span key={p.name} className="flex items-center gap-1.5 text-xs"><i className="w-2.5 h-2.5 rounded-full" style={{background:p.color}}/><span className="text-muted">{p.name}</span><b className="ml-auto">{p.value}</b></span>)}</div>
+      <Card className="p-5"><h3 className="font-bold mb-1">Répartition des abonnements</h3><p className="text-xs text-muted mb-4">Écoles actives et en essai</p>
+        <SoftBarsH data={planPie} height={150} width={92}/>
       </Card>
       <Card className="p-5">
         <div className="flex items-center justify-between mb-3"><h3 className="font-bold">Écoles clientes</h3>
@@ -242,7 +251,11 @@ function BriefChip({ to, icon, color, label }){
 
 function ParentDashboard({u,d,greet}){
   const [bulletin,setBulletin]=useState(null)
-  const childId=u.childIds?.[0]; const child=childId?studentById(childId):null
+  // un parent de plusieurs enfants ne voyait que le premier : il peut désormais choisir
+  const kids=(u.childIds||[]).map(studentById).filter(Boolean)
+  const [pickedId,setPickedId]=useState(kids[0]?.id)
+  const child=kids.find(k=>k.id===pickedId)||kids[0]||null
+  const childId=child?.id
   const b=childId? bulletinFor(d,childId):null
   const months=(d.payments[childId]||[]); const paid=months.filter(m=>m.status==='paid').length
   const sessions=b?.sessions||[]
@@ -260,7 +273,9 @@ function ParentDashboard({u,d,greet}){
   const live=cls?statusAt(child.classId,ns.dayIdx,preview,false):null
   const larea=live?AREAS[live.place]:null
   const pm=live?placeMeta(live):null
-  return (<><PageHead title={greet} sub="Votre enfant, en un coup d'œil."/>
+  if(!child) return <Card><EmptyState icon={<Users size={26}/>} title="Aucun enfant associé" sub="Demandez à la direction de lier votre compte à votre enfant."/></Card>
+  return (<><PageHead title={greet} sub="Votre enfant, en un coup d'œil."
+      action={kids.length>1&&<select value={child.id} onChange={e=>setPickedId(e.target.value)} className="rounded-xl border border-line bg-white px-3 py-2 text-sm font-semibold">{kids.map(k=><option key={k.id} value={k.id}>{k.name}</option>)}</select>}/>
     {child&&live&&<Link to="/app/live" className="relative block rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition mb-5 group text-white" style={{background:`linear-gradient(120deg, ${larea.color} 0%, #10162B 100%)`}}>
       <div className="relative flex items-center gap-4 p-5 min-h-[124px]">
         <div className="min-w-0">
@@ -269,7 +284,7 @@ function ParentDashboard({u,d,greet}){
             <span className="opacity-80 uppercase tracking-wide">Suivi en direct</span>
           </div>
           <div className="text-2xl font-extrabold mt-1.5 leading-tight">{phase==='vacances'?"Vacances d'été":live.title}</div>
-          <div className="opacity-90 text-sm">{child.name.split(' ')[0]} · {phase==='vacances'?'Reprise le lundi 15 septembre':live.sub}</div>
+          <div className="opacity-90 text-sm">{child.name.split(' ')[0]} · {phase==='vacances'?`Reprise le ${rentreeLabel()}`:live.sub}</div>
           <div className="inline-flex items-center gap-1 text-xs font-bold mt-2 bg-white text-ink px-3 py-1.5 rounded-full group-hover:gap-2 transition-all">Voir le parcours de la journée <ArrowRight size={13}/></div>
         </div>
         <span className="ml-auto w-16 h-16 rounded-full grid place-items-center shrink-0 mr-2 group-hover:scale-110 transition" style={{background:pm.color+'16',color:pm.color}}><pm.Icon size={30}/></span>
@@ -279,14 +294,16 @@ function ParentDashboard({u,d,greet}){
       <StatCard label="Moyenne générale" value={b?.overall!=null?`${b.overall}/100`:'—'} sub={b?.mention.label} tint="mint" icon={<Star/>} onClick={()=>child&&setBulletin(child)}/>
       <StatCard label="Mois payés" value={`${paid}/${months.length}`} tint="sky" icon={<CreditCard/>} to="/app/payments"/>
       <StatCard label="Présence" value={b?.attRate!=null?`${b.attRate}%`:'—'} tint="grape" icon={<CalendarCheck/>} to="/app/live"/>
-      <StatCard label="Notifications" value={d.notifications.filter(n=>n.role==='parent'||n.to===u.id).length} tint="butter" icon={<Bell/>} to="/app/notifications"/>
+      {/* comptait toutes les notifications (lues comprises) et supposait le rôle parent */}
+      <StatCard label="Non lues" value={unreadFor(u)} tint="butter" icon={<Bell/>} to="/app/notifications"/>
     </div>
     <div className="grid lg:grid-cols-2 gap-4 mb-4">
       <Card className="p-5"><div className="flex items-center justify-between mb-3"><h3 className="font-bold">Évolution des notes</h3>{child&&<Btn variant="soft" onClick={()=>setBulletin(child)}><FileText size={15}/> Bulletin</Btn>}</div>
-        {trend.length>0? <div className="h-48"><ResponsiveContainer width="100%" height="100%"><AreaChart data={trend} margin={{left:-20}}>
-          <defs><linearGradient id="gScore" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={STATUS.ok} stopOpacity={.35}/><stop offset="100%" stopColor={STATUS.ok} stopOpacity={0}/></linearGradient></defs>
-          <XAxis dataKey="i" tick={{fontSize:11,fill:'#8A93A6'}} axisLine={false} tickLine={false}/><YAxis domain={[0,100]} tick={{fontSize:11,fill:'#8A93A6'}} axisLine={false} tickLine={false}/><Tooltip {...chartTip} formatter={(v,_n,p)=>[`${v}/100`,p.payload.subject]}/>
-          <Area type="monotone" dataKey="score" stroke={STATUS.ok} strokeWidth={2.5} fill="url(#gScore)"/>
+        {trend.length>0? <div className="h-48"><ResponsiveContainer width="100%" height="100%"><AreaChart data={trend} margin={{top:8,right:8,left:-4,bottom:0}}>
+          <defs><linearGradient id="gScore" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={SERIES[0]} stopOpacity={.22}/><stop offset="100%" stopColor={SERIES[0]} stopOpacity={0}/></linearGradient></defs>
+          <CartesianGrid {...chartGrid}/>
+          <XAxis dataKey="i" {...chartAxis}/><YAxis domain={[0,100]} {...chartAxis} width={42}/><Tooltip {...chartTip} formatter={(v,_n,p)=>[`${v}/100`,p.payload.subject]}/>
+          <Area type="monotone" dataKey="score" stroke={SERIES[0]} strokeWidth={2} fill="url(#gScore)" dot={false} activeDot={{r:4,strokeWidth:2,stroke:'#fff'}}/>
         </AreaChart></ResponsiveContainer></div>
         : <EmptyState icon={<TrendingUp size={22}/>} title="Aucune évaluation" sub="L'évolution des notes de votre enfant apparaîtra ici."/>}
       </Card>

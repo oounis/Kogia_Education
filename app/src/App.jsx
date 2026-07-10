@@ -30,9 +30,11 @@ import Settings from './pages/Settings.jsx'
 import Results from './pages/Results.jsx'
 import Staff from './pages/Staff.jsx'
 import Pointage from './pages/Pointage.jsx'
+import { ROUTE_ROLES } from './access.js'
 
 // ── Security: strict per-route authorization by role ──
-const ALL=['owner','schooladmin','admin','teacher','supervisor','parent']
+// La table des permissions vit dans access.js (source unique, refus par défaut) :
+// deux copies finissaient toujours par diverger.
 // Must be logged in AND (if roles set) hold an allowed role, else bounce to own
 // dashboard. Prevents e.g. a parent opening /app/finance by typing the URL.
 function Protected({ el, roles }){
@@ -44,7 +46,7 @@ function Protected({ el, roles }){
   }
   return <AppShell>{el}</AppShell>
 }
-const R=(el,roles)=> <Protected el={el} roles={roles}/>
+const R=(el,path)=> <Protected el={el} roles={ROUTE_ROLES[path]}/>
 
 export default function App(){
   return (
@@ -53,31 +55,31 @@ export default function App(){
       <Routes>
         <Route path="/" element={<Landing/>}/>
         <Route path="/login" element={<Login/>}/>
-        <Route path="/app" element={R(<Dashboard/>, ALL)}/>
-        <Route path="/app/schools" element={R(<Schools/>, ['owner'])}/>
-        <Route path="/app/settings" element={R(<Settings/>, ['schooladmin'])}/>
-        <Route path="/app/accounts" element={R(<Accounts/>, ['schooladmin'])}/>
-        <Route path="/app/students" element={R(<Students/>, ['schooladmin','admin','supervisor','teacher'])}/>
-        <Route path="/app/teachers" element={R(<Teachers/>, ['schooladmin','admin'])}/>
-        <Route path="/app/staff" element={R(<Staff/>, ['schooladmin','admin'])}/>
-        <Route path="/app/pointage" element={R(<Pointage/>, ['teacher','supervisor','admin'])}/>
-        <Route path="/app/evaluate" element={R(<Evaluate/>, ['teacher'])}/>
-        <Route path="/app/results" element={R(<Results/>, ['schooladmin','admin'])}/>
-        <Route path="/app/timetable" element={R(<Timetable/>, ['schooladmin','admin','teacher','parent','supervisor'])}/>
-        <Route path="/app/attendance" element={R(<Attendance/>, ['schooladmin','teacher','admin','supervisor'])}/>
-        <Route path="/app/homework" element={R(<Homework/>, ['teacher','admin','parent'])}/>
-        <Route path="/app/exams" element={R(<Exams/>, ['schooladmin','admin','teacher','parent'])}/>
-        <Route path="/app/finance" element={R(<Finance/>, ['schooladmin','admin'])}/>
-        <Route path="/app/payments" element={R(<Payments/>, ['parent'])}/>
-        <Route path="/app/live" element={R(<Live/>, ['parent'])}/>
-        <Route path="/app/library" element={R(<Library/>, ['schooladmin','admin','teacher'])}/>
-        <Route path="/app/transport" element={R(<Transport/>, ['schooladmin','admin','parent'])}/>
-        <Route path="/app/events" element={R(<Events/>, ['schooladmin','admin','teacher','supervisor','parent'])}/>
-        <Route path="/app/incidents" element={R(<Incidents/>, ['supervisor','admin','schooladmin'])}/>
-        <Route path="/app/requests" element={R(<Requests/>, ['teacher','admin','schooladmin'])}/>
-        <Route path="/app/messages" element={R(<Messages/>, ALL)}/>
-        <Route path="/app/notices" element={R(<Notices/>, ALL)}/>
-        <Route path="/app/notifications" element={R(<Notifications/>, ALL)}/>
+        <Route path="/app" element={R(<Dashboard/>, "/app")}/>
+        <Route path="/app/schools" element={R(<Schools/>, "/app/schools")}/>
+        <Route path="/app/settings" element={R(<Settings/>, "/app/settings")}/>
+        <Route path="/app/accounts" element={R(<Accounts/>, "/app/accounts")}/>
+        <Route path="/app/students" element={R(<Students/>, "/app/students")}/>
+        <Route path="/app/teachers" element={R(<Teachers/>, "/app/teachers")}/>
+        <Route path="/app/staff" element={R(<Staff/>, "/app/staff")}/>
+        <Route path="/app/pointage" element={R(<Pointage/>, "/app/pointage")}/>
+        <Route path="/app/evaluate" element={R(<Evaluate/>, "/app/evaluate")}/>
+        <Route path="/app/results" element={R(<Results/>, "/app/results")}/>
+        <Route path="/app/timetable" element={R(<Timetable/>, "/app/timetable")}/>
+        <Route path="/app/attendance" element={R(<Attendance/>, "/app/attendance")}/>
+        <Route path="/app/homework" element={R(<Homework/>, "/app/homework")}/>
+        <Route path="/app/exams" element={R(<Exams/>, "/app/exams")}/>
+        <Route path="/app/finance" element={R(<Finance/>, "/app/finance")}/>
+        <Route path="/app/payments" element={R(<Payments/>, "/app/payments")}/>
+        <Route path="/app/live" element={R(<Live/>, "/app/live")}/>
+        <Route path="/app/library" element={R(<Library/>, "/app/library")}/>
+        <Route path="/app/transport" element={R(<Transport/>, "/app/transport")}/>
+        <Route path="/app/events" element={R(<Events/>, "/app/events")}/>
+        <Route path="/app/incidents" element={R(<Incidents/>, "/app/incidents")}/>
+        <Route path="/app/requests" element={R(<Requests/>, "/app/requests")}/>
+        <Route path="/app/messages" element={R(<Messages/>, "/app/messages")}/>
+        <Route path="/app/notices" element={R(<Notices/>, "/app/notices")}/>
+        <Route path="/app/notifications" element={R(<Notifications/>, "/app/notifications")}/>
         <Route path="*" element={<Navigate to="/" replace/>}/>
       </Routes>
     </HashRouter>

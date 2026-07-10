@@ -118,7 +118,7 @@ export default function Bulletin({ student, onClose }){
               <div><div className="text-muted text-xs">Signature de la Direction</div><div className="h-12 border-b border-line"/></div>
               <div><div className="text-muted text-xs">Signature du Parent / Tuteur</div><div className="h-12 border-b border-line"/></div>
             </div>
-            <div className="text-[10px] text-muted text-center mt-6">Document généré par Kogia Edu — bulletin indicatif, sans valeur officielle dans cette démo.</div>
+            <div className="text-[10px] text-muted text-center mt-6">Document généré par Coreon Edu — bulletin indicatif, sans valeur officielle dans cette démo.</div>
           </div>
         </Dialog.Panel>
       </div>

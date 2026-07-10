@@ -13,7 +13,7 @@ export default function Login(){
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       <div className="hidden lg:flex flex-col justify-between p-12 text-white" style={{background:'linear-gradient(150deg,#6366F1,#8B5CF6)'}}>
-        <div className="flex items-center gap-2 font-extrabold text-lg"><span className="w-9 h-9 rounded-xl grid place-items-center bg-white/20" style={{padding:4}}><svg viewBox="0 0 132 96" width="30" height="22"><path fill="white" d="M12 54 C12 34 28 22 52 22 C74 22 88 32 91 46 C94 38 99 30 107 25 C105 32 104 38 105 43 C110 41 117 41 124 44 C117 48 111 50 106 50 C102 62 92 70 76 73 C58 76 34 74 22 68 C14 64 12 60 12 54 Z"/><circle cx="34" cy="45" r="4.2" fill="#312E81"/><path d="M42 12 q-1 -7 5 -9 M50 12 q4 -6 11 -6" stroke="white" stroke-width="3.4" fill="none" stroke-linecap="round" opacity=".85"/></svg></span> kogia edu</div>
+        <div className="flex items-center gap-2 font-extrabold text-lg"><span className="w-9 h-9 rounded-xl grid place-items-center bg-white/20" style={{padding:4}}><svg viewBox="0 0 132 96" width="30" height="22"><path fill="white" d="M12 54 C12 34 28 22 52 22 C74 22 88 32 91 46 C94 38 99 30 107 25 C105 32 104 38 105 43 C110 41 117 41 124 44 C117 48 111 50 106 50 C102 62 92 70 76 73 C58 76 34 74 22 68 C14 64 12 60 12 54 Z"/><circle cx="34" cy="45" r="4.2" fill="#312E81"/><path d="M42 12 q-1 -7 5 -9 M50 12 q4 -6 11 -6" stroke="white" stroke-width="3.4" fill="none" stroke-linecap="round" opacity=".85"/></svg></span> coreon edu</div>
         <div><div className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1 rounded-full bg-white/15 mb-4"><Zap size={13}/> La gestion scolaire, simplifiée</div>
           <h1 className="text-4xl font-extrabold leading-tight max-w-[16ch]">Gérez toute votre école depuis un seul endroit.</h1>
           <p className="mt-4 text-white/80 max-w-[42ch]">Évaluations, frais, présence, incidents, annonces et communication avec les parents — une seule plateforme.</p></div>
@@ -21,7 +21,7 @@ export default function Login(){
       </div>
       <div className="flex items-center justify-center p-8 bg-canvas">
         <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} className="w-full max-w-sm">
-          <div className="lg:hidden flex items-center gap-2 mb-6"><Mark size={30}/><span className="font-extrabold lowercase tracking-tight">kogia <span className="text-sm font-normal" style={{color:'#6366F1'}}>edu</span></span></div>
+          <div className="lg:hidden flex items-center gap-2 mb-6"><Mark size={30}/><span className="font-extrabold lowercase tracking-tight">coreon <span className="text-sm font-normal" style={{color:'#5B6EE1'}}>edu</span></span></div>
           <h2 className="text-2xl font-extrabold">Bon retour</h2>
           <p className="text-muted text-sm mb-6">Connectez-vous à votre portail.</p>
           <div className="space-y-3">

@@ -6,7 +6,7 @@ import { PageHead, Select, Field, Modal, Btn } from '../components/ui.jsx'
 import { subjectMeta } from '../subjects.jsx'
 import { Pencil, Trash2, Plus, Sun } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { isSummer, RENTREE } from '../components/Summer.jsx'
+import { isSummer, rentreeLabel } from '../components/Summer.jsx'
 
 const ROOMS=['Salle 12','Salle 8','Salle 21','Salle 5','Labo','Gymnase','Salle Info','Salle de musique']
 
@@ -51,7 +51,7 @@ export default function Timetable(){
         </div>
       }/>
 
-    {isSummer()&&<div className="flex items-center gap-2.5 rounded-2xl px-4 py-3 mb-3 text-sm font-semibold" style={{background:'linear-gradient(90deg,#FEF3C7,#FDE68A55)',color:'#92400E'}}><Sun size={16}/> Vacances d'été — voici l'emploi du temps type ; les cours reprennent le {RENTREE}.</div>}
+    {isSummer()&&<div className="flex items-center gap-2.5 rounded-2xl px-4 py-3 mb-3 text-sm font-semibold" style={{background:'linear-gradient(90deg,#FEF3C7,#FDE68A55)',color:'#92400E'}}><Sun size={16}/> Vacances d'été — voici l'emploi du temps type ; les cours reprennent le {rentreeLabel()}.</div>}
     <div className="card p-3 overflow-x-auto scroll-thin" style={{height:isSummer()?'max(440px, calc(100vh - 260px))':'max(480px, calc(100vh - 205px))'}}>
       <div className="h-full min-w-[680px] grid gap-1.5" style={{gridTemplateColumns:'56px repeat(5,1fr)', gridTemplateRows:'34px repeat(6,1fr)'}}>
         <div/>

@@ -12,6 +12,7 @@ export const ROUTE_ROLES={
   '/app/staff': ['schooladmin','admin'],
   '/app/pointage': ['teacher','supervisor','admin'],
   '/app/evaluate': ['teacher'],
+  '/app/results': ['schooladmin','admin'],
   '/app/timetable': ['schooladmin','admin','teacher','parent','supervisor'],
   '/app/attendance': ['schooladmin','teacher','admin','supervisor'],
   '/app/homework': ['teacher','admin','parent'],
@@ -29,11 +30,14 @@ export const ROUTE_ROLES={
   '/app/notifications': ALL,
 }
 // can this role open this path? (ignores query/hash)
+// Politique : REFUS par défaut. Une route absente de la table n'est ouverte à
+// personne — auparavant un chemin inconnu était autorisé à tous, ce qui est le
+// mauvais réglage par défaut pour un module d'autorisation.
 export function canAccess(role, path){
   if(!path) return false
   const base=path.split('?')[0].split('#')[0]
   const roles=ROUTE_ROLES[base]
-  return !roles || roles.includes(role)   // unknown paths default open
+  return Array.isArray(roles) && roles.includes(role)
 }
 // resolve a safe destination for a notification link given the recipient's role
 export function safeLink(role, link){

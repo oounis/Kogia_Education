@@ -3,6 +3,7 @@ import { db, mutate, uid, resetDb } from '../db.js'
 import { PageHead, Card, StatCard, SectionCard, Avatar, IconTile, Btn, Modal, Field, Input, Select, EmptyState, STATUS } from '../components/ui.jsx'
 import { Building2, Users, Wallet, Hourglass, KeyRound, Plus, Ban, Check, ShieldAlert, MapPin } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { todayIso } from '../clock.js'
 
 const PLAN_TINT={Pro:['#EEF2FF','#6366F1'],Essentiel:['#E4F7FE','#0BA5D8']}
 const ST={active:{label:'Active',bg:'#E2FBF3',fg:STATUS.ok},trial:{label:"Période d'essai",bg:'#FFF4DD',fg:STATUS.warn},suspended:{label:'Suspendue',bg:'#EEF1F6',fg:STATUS.neutral}}
@@ -13,7 +14,8 @@ export default function Schools(){
   const [,force]=useState(0); const d=db()
   const [open,setOpen]=useState(false); const [f,setF]=useState(BLANK); const [confirmReset,setConfirmReset]=useState(false)
   const schools=d.schools||[]
-  const count=s=>s.live?d.students.length:s.studentCount
+  // studentCount peut être absent/nul sur une école créée à la main → 0, pas NaN
+  const count=s=>s.live?d.students.length:(Number(s.studentCount)||0)
   const totalStudents=schools.filter(s=>s.status!=='suspended').reduce((n,s)=>n+count(s),0)
   const mrr=schools.filter(s=>s.status==='active').reduce((n,s)=>n+s.price,0)
   const trials=schools.filter(s=>s.status==='trial').length
@@ -22,7 +24,7 @@ export default function Schools(){
   const add=()=>{
     if(!f.name.trim()||!f.director.trim()||!f.email.trim()) return toast.error('Nom, directeur et e-mail requis')
     mutate(db=>{ db.schools.push({id:uid('sc'),name:f.name.trim(),city:f.city,plan:f.plan,price:f.plan==='Pro'?149:79,
-      status:'trial',since:new Date().toISOString().slice(0,10),studentCount:0,director:f.director.trim(),email:f.email.trim()}) })
+      status:'trial',since:todayIso(),studentCount:0,director:f.director.trim(),email:f.email.trim()}) })
     toast.success(`${f.name} ajoutée — compte Direction créé et identifiants envoyés à ${f.email}`)
     setOpen(false); setF(BLANK); force(x=>x+1)
   }
@@ -34,7 +36,7 @@ export default function Schools(){
   }
 
   return (<>
-    <PageHead title="Écoles clientes" sub="Les établissements abonnés à Kogia Edu — vous créez l'école et son compte Direction, l'école gère le reste."
+    <PageHead title="Écoles clientes" sub="Les établissements abonnés à Coreon Edu — vous créez l'école et son compte Direction, l'école gère le reste."
       action={<Btn onClick={()=>{setF(BLANK);setOpen(true)}}><Plus size={16}/> Ajouter une école</Btn>}/>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
       <StatCard label="Écoles clientes" value={schools.filter(s=>s.status!=='suspended').length} tint="brand" icon={<Building2/>}/>

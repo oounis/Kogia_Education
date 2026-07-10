@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { current } from '../auth.js'
-import { db, mutate, uid, classById, userById, CYCLES, studentsOfClass } from '../db.js'
+import { db, mutate, uid, classById, userById, CYCLES, studentsOfClass, setStudentParent } from '../db.js'
 import { PageHead, Avatar, Btn, Modal, Field, Input, Select, Section, SearchInput, EmptyState, Card } from '../components/ui.jsx'
 import { GOVERNORATES, DOC_TYPES, LEGAL } from '../tunisia.js'
 import Attach from '../components/Attach.jsx'
@@ -26,7 +26,8 @@ export default function Students(){
     let cid; mutate(db=>{ let cls=db.classes.find(c=>c.grade===f.grade && c.name.endsWith(' '+f.section))
       if(!cls){ cls={id:uid('c'),name:`${f.grade} ${f.section}`,grade:f.grade,cycle:cycleOf(f.grade)}; db.classes.push(cls) }
       cid=cls.id; const sid=uid('s')
-      db.students.push({...f,id:sid,name:f.name.trim(),initials:f.name.trim().split(' ').map(w=>w[0]).slice(0,2).join(''),classId:cid,parentId:f.parentId||null})
+      db.students.push({...f,id:sid,name:f.name.trim(),initials:f.name.trim().split(' ').map(w=>w[0]).slice(0,2).join(''),classId:cid,parentId:null})
+      setStudentParent(db,sid,f.parentId||null)   // écrit aussi user.childIds
       db.payments[sid]=["Sep","Oct","Nov","Déc","Jan","Fév","Mar","Avr","Mai","Juin"].map(m=>({month:m,status:'due'})) })
     toast.success('Élève inscrit'); setOpen(false); setF(BLANK); refresh() }
 

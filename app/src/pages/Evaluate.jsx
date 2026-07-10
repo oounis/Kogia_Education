@@ -1,57 +1,86 @@
-import { useState, useMemo } from 'react'
-import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core'
+import { useState, useMemo, useEffect } from 'react'
+import { DndContext, DragOverlay, PointerSensor, KeyboardSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core'
 import { Clock, ChevronRight, ChevronLeft, Check, Zap, RotateCcw, Users, MapPin, CalendarDays } from 'lucide-react'
-import { StudentChip, DropZone } from '../components/dnd.jsx'
+import { StudentChip, DropZone, dndAnnouncements } from '../components/dnd.jsx'
 import { PageHead, Btn, Avatar, Textarea, STATUS, Whale } from '../components/ui.jsx'
 import { teacherSchedule, QUESTIONS, BUCKETS, BADGES } from '../data.js'
 import { db, mutate, uid, studentById } from '../db.js'
+import { current } from '../auth.js'
 import { notify } from '../notify.js'
 import { studentSummary, mentionFor } from '../results.js'
+import { now } from '../clock.js'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'
 import { isSummer, SummerFreeze } from '../components/Summer.jsx'
 
+const DRAFT_KEY='coreon_eval_draft'
+const loadDraft=()=>{ try{ return JSON.parse(localStorage.getItem(DRAFT_KEY)||'null') }catch{ return null } }
+const clearDraft=()=>{ try{ localStorage.removeItem(DRAFT_KEY) }catch{ /* ignore */ } }
+
 export default function Evaluate(){
-  const sched=useMemo(()=>teacherSchedule(new Date()),[])
-  const [slot,setSlot]=useState(null)
-  const [step,setStep]=useState(0)
-  const [placements,setPlacements]=useState({})
-  const [badges,setBadges]=useState({})
-  const [note,setNote]=useState("")
-  const [lesson,setLesson]=useState("")
+  const me=current()
+  const sched=useMemo(()=>teacherSchedule(),[])
+  const draft=useMemo(loadDraft,[])
+  // Un brouillon retrouvé (rafraîchissement, onglet fermé) reprend là où on s'était arrêté.
+  const [slot,setSlot]=useState(()=> draft ? sched.find(s=>s.classId===draft.classId&&s.start===draft.start)||null : null)
+  const [step,setStep]=useState(draft?.step??0)
+  const [placements,setPlacements]=useState(draft?.placements??{})
+  const [badges,setBadges]=useState(draft?.badges??{})
+  const [note,setNote]=useState(draft?.note??"")
+  const [lesson,setLesson]=useState(draft?.lesson??"")
   const [active,setActive]=useState(null)
   const [saved,setSaved]=useState([])
-  const sensors=useSensors(useSensor(PointerSensor,{activationConstraint:{distance:5}}))
+  const [saving,setSaving]=useState(false)
+  // PointerSensor pour la souris/le doigt, KeyboardSensor pour le clavier : sans lui,
+  // la fonctionnalité phare était inutilisable sans souris (et pour un lecteur d'écran).
+  const sensors=useSensors(
+    useSensor(PointerSensor,{activationConstraint:{distance:5}}),
+    useSensor(KeyboardSensor),
+  )
 
   const cls = slot ? {slot, cls:slot.cls, students:slot.students, isLive:slot.isLive} : null
   const students = cls ? cls.students : []
   const q=QUESTIONS[step]; const place=placements[q?.id]||{}; const pool=students.filter(s=>!place[s.id])
   const classHistory=useMemo(()=> cls ? db().evaluations.filter(e=>e.classId===cls.cls.id) : [], [step,slot])
 
+  // Sauvegarde continue du brouillon : plus rien n'est perdu au rafraîchissement.
+  useEffect(()=>{
+    if(!slot || step>5){ return }
+    const empty=!Object.keys(placements).length&&!Object.keys(badges).length&&!note&&!lesson
+    if(empty) return
+    try{ localStorage.setItem(DRAFT_KEY,JSON.stringify({classId:slot.classId,start:slot.start,step,placements,badges,note,lesson})) }catch{ /* quota */ }
+  },[slot,step,placements,badges,note,lesson])
+
   function onDragEnd({active,over}){ setActive(null); if(!over)return; const sid=active.id
     setPlacements(prev=>{ const cur={...(prev[q.id]||{})}; if(over.id==='pool')delete cur[sid]; else cur[sid]=over.id; return {...prev,[q.id]:cur} }) }
   const autoFill=b=>setPlacements(prev=>{ const cur={...(prev[q.id]||{})}; pool.forEach(s=>cur[s.id]=b); return {...prev,[q.id]:cur} })
-  function reset(){ setStep(0);setPlacements({});setBadges({});setNote("");setLesson("");setSaved([]) }
+  function reset(){ setStep(0);setPlacements({});setBadges({});setNote("");setLesson("");setSaved([]);setActive(null);clearDraft() }
   function backToSchedule(){ setSlot(null); reset() }
 
   function submit(){
+    if(saving) return                                  // un double-clic créait deux évaluations
     const cleanPlacements={}
     for(const qid in placements){ const p=placements[qid]; if(p && Object.keys(p).length) cleanPlacements[qid]=p }
     const graded=students.filter(s=>studentSummary({placements:cleanPlacements},s.id).score!=null)
     if(graded.length===0){ toast.error("Placez au moins un élève sur une réponse avant d'enregistrer."); return }
-    const ev={ id:uid('ev'), at:Date.now(), classId:cls.cls.id, className:cls.cls.name, subject:cls.slot.subject, lesson:lesson.trim()||null, teacher:'Othman Ounis', placements:cleanPlacements, badges, note }
+    setSaving(true)
+    const teacher=me?.name||'Enseignant'
+    // On ne conserve que les badges des élèves réellement notés.
+    const cleanBadges=Object.fromEntries(Object.entries(badges).filter(([sid])=>graded.some(s=>s.id===sid)))
+    const ev={ id:uid('ev'), at:Date.now(), classId:cls.cls.id, className:cls.cls.name, subject:cls.slot.subject, lesson:lesson.trim()||null, teacher, placements:cleanPlacements, badges:cleanBadges, note }
     mutate(db=>{ db.evaluations.unshift(ev) })
     students.forEach(s=>{ if(s.parentId){ const sum=studentSummary(ev,s.id); if(sum.score!=null) notify({to:s.parentId,kind:'evaluation',title:`Nouvelle évaluation pour ${s.name.split(' ')[0]}`,body:`${cls.slot.subject} : ${sum.score}/100${sum.badge?` · ${sum.badge.label}`:''}`,link:'/app'}) } })
-    notify({role:'admin',kind:'evaluation',actor:'Othman Ounis',title:`Évaluation enregistrée — ${cls.cls.name}`,body:`${cls.slot.subject} · ${graded.length} élèves notés`,link:'/app/students'})
-    notify({role:'schooladmin',kind:'evaluation',actor:'Othman Ounis',title:`Évaluation enregistrée — ${cls.cls.name}`,body:`${cls.slot.subject} · ${graded.length} élèves notés`,link:'/app/students'})
+    notify({role:'admin',kind:'evaluation',actor:teacher,title:`Évaluation enregistrée — ${cls.cls.name}`,body:`${cls.slot.subject} · ${graded.length} élèves notés`,link:'/app/students'})
+    notify({role:'schooladmin',kind:'evaluation',actor:teacher,title:`Évaluation enregistrée — ${cls.cls.name}`,body:`${cls.slot.subject} · ${graded.length} élèves notés`,link:'/app/students'})
     setSaved(graded.map(s=>{const sum=studentSummary(ev,s.id);return {name:s.name,...sum,mention:mentionFor(sum.score)}}))
-    toast.success(`Évaluation enregistrée · ${graded.length} élèves notés · parents notifiés`); setStep(6)
+    clearDraft()
+    toast.success(`Évaluation enregistrée · ${graded.length} élèves notés · parents notifiés`); setStep(6); setSaving(false)
   }
 
   /* ---------- 0) MODE ÉTÉ : pas de classe, pas d'évaluation ---------- */
   if(isSummer()) return (<>
-    <PageHead title="Évaluation rapide" sub="Le cœur de Kogia Edu — en pause estivale."/>
+    <PageHead title="Évaluation rapide" sub="Le cœur de Coreon Edu — en pause estivale."/>
     <SummerFreeze feature="L'évaluation en classe" detail="Il n'y a pas de séances à évaluer pendant les vacances : votre emploi du temps redémarrera automatiquement avec la nouvelle année scolaire.">
       <Btn variant="soft" onClick={()=>{location.hash='#/app/students'}}>Revoir mes élèves</Btn>
     </SummerFreeze>
@@ -60,7 +89,7 @@ export default function Evaluate(){
   /* ---------- 1) SCHEDULE PICKER (entry screen) ---------- */
   if(!slot) return (<>
     <PageHead title="Mon emploi du temps" sub="Choisissez la classe à évaluer — la séance en cours est mise en avant. Les élèves se chargent automatiquement."/>
-    <div className="flex items-center gap-2 text-sm text-muted mb-4"><CalendarDays size={16} className="accent-text"/> {format(new Date(),'EEEE d MMMM yyyy',{locale:fr})}</div>
+    <div className="flex items-center gap-2 text-sm text-muted mb-4"><CalendarDays size={16} className="accent-text"/> {format(now(),'EEEE d MMMM yyyy',{locale:fr})}</div>
     <div className="grid sm:grid-cols-2 gap-4">
       {sched.map((s,i)=>(
         <button key={i} onClick={()=>{reset();setSlot(s)}} className="card p-5 text-left hover:shadow-lg transition relative" style={s.isLive?{boxShadow:'0 0 0 2px var(--accent)'}:{}}>
@@ -132,21 +161,22 @@ export default function Evaluate(){
     <div className="flex items-center gap-1.5 mb-4">{QUESTIONS.map((_,i)=><div key={i} className="h-1.5 flex-1 rounded-full" style={{background:i<=step?'var(--accent)':STATUS.neutralSoft}}/>)}<div className="h-1.5 flex-1 rounded-full" style={{background:step>=5?'var(--accent)':STATUS.neutralSoft}}/></div>
 
     {step<5 ? (
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={({active})=>setActive(active.data.current.student)} onDragEnd={onDragEnd}>
+      <DndContext sensors={sensors} accessibility={{announcements:dndAnnouncements(BUCKETS)}} collisionDetection={closestCenter} onDragStart={({active})=>setActive(active.data.current.student)} onDragEnd={onDragEnd} onDragCancel={()=>setActive(null)}>
         <div className="flex items-center justify-between mb-3">
           <div><div className="text-xs font-bold uppercase accent-text">Question {step+1} sur 5</div><h2 className="text-xl font-bold">{q.text}</h2></div>
           <div className="text-sm text-muted">{Object.keys(place).length}/{students.length} placés</div>
         </div>
-        <DropZone id="pool" className="card border-dashed p-3 mb-4 min-h-[64px]">
+        <p className="sr-only">Glissez chaque élève vers une réponse. Au clavier : tabulez jusqu'à un élève, appuyez sur espace pour le saisir, utilisez les flèches pour choisir une réponse, puis espace pour le déposer.</p>
+        <DropZone id="pool" label="Élèves à placer" className="card border-dashed p-3 mb-4 min-h-[64px]">
           <div className="flex flex-wrap gap-2">{pool.length? pool.map(s=><StudentChip key={s.id} student={s}/>) : <span className="text-sm text-muted px-2 py-1 inline-flex items-center gap-1"><Check size={14}/> Tous placés</span>}</div>
           {pool.length>0&&<div className="flex gap-2 mt-2 flex-wrap"><span className="text-xs text-muted py-1">Rapide :</span>{BUCKETS.map(b=><button key={b.key} onClick={()=>autoFill(b.key)} className="text-xs px-2 py-1 rounded-full border border-line hover:bg-canvas">tous → {b.label}</button>)}</div>}
         </DropZone>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {BUCKETS.map(b=>{ const inB=students.filter(s=>place[s.id]===b.key); return (
-            <DropZone key={b.key} id={b.key} className="card p-3 min-h-[150px]">
+            <DropZone key={b.key} id={b.key} label={`${b.label} — ${inB.length} élève(s)`} className="card p-3 min-h-[150px]">
               <div className="flex items-center justify-between mb-2"><span className="text-sm font-bold flex items-center gap-1.5" style={{color:b.color}}><b.Icon size={15}/><span>{b.label}</span></span>
                 <span className="text-xs font-bold w-6 h-6 grid place-items-center rounded-full text-white" style={{background:b.color}}>{inB.length}</span></div>
-              <div className="flex flex-wrap gap-2">{inB.map(s=><StudentChip key={s.id} student={s}/>)}</div>
+              <div className="flex flex-wrap gap-2">{inB.map(s=><StudentChip key={s.id} student={s} bucketLabel={b.label}/>)}</div>
             </DropZone>) })}
         </div>
         <div className="flex items-center justify-between mt-6">
@@ -162,7 +192,7 @@ export default function Evaluate(){
         <p className="text-muted text-sm mb-4">Facultatif — touchez un élève, puis un badge.</p>
         <BadgePicker students={students} badges={badges} setBadges={setBadges}/>
         <Textarea value={note} onChange={e=>setNote(e.target.value)} placeholder="Note facultative pour les parents / l'administration…" className="mt-4 h-24"/>
-        <div className="flex items-center justify-between mt-6"><Btn variant="ghost" onClick={()=>setStep(4)}><ChevronLeft size={16}/> Retour</Btn><Btn onClick={submit}><Zap size={17}/> Enregistrer & partager</Btn></div>
+        <div className="flex items-center justify-between mt-6"><Btn variant="ghost" onClick={()=>setStep(4)}><ChevronLeft size={16}/> Retour</Btn><Btn onClick={submit} disabled={saving}><Zap size={17}/> {saving?'Enregistrement…':'Enregistrer & partager'}</Btn></div>
       </div>
     )}
   </>)

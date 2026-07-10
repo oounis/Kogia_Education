@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
+import { now as appNow } from '../clock.js'
 import { fr } from 'date-fns/locale'
 
 // Horloge du tableau de bord — le pendant temporel de la météo :
 // heure en direct (les secondes battent), jour et date, teintées par le portail.
 export default function ClockCorner(){
-  const [now,setNow]=useState(()=>new Date())
-  useEffect(()=>{ const t=setInterval(()=>setNow(new Date()),1000); return ()=>clearInterval(t) },[])
+  const [now,setNow]=useState(()=>appNow())
+  useEffect(()=>{ const t=setInterval(()=>setNow(appNow()),1000); return ()=>clearInterval(t) },[])
   const hm=format(now,'HH:mm'), ss=format(now,'ss')
   return (
     <div className="hidden md:flex items-center gap-2.5 pl-3 pr-3.5 py-1.5 rounded-2xl select-none"

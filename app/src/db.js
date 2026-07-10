@@ -1,8 +1,12 @@
-const KEY="coreon_db_v18"
+// Clé STABLE : la version du schéma est stockée dans la base elle-même (`_v`) et
+// les évolutions passent par migrate(). Voir db() plus bas.
+const KEY="coreon_db"
+const SCHEMA=19
+const LEGACY_KEYS=Array.from({length:18},(_,i)=>`coreon_db_v${18-i}`)
 const MONTHS=["Sep","Oct","Nov","Déc","Jan","Fév","Mar","Avr","Mai","Juin"]
 export const FEE_MONTHS=MONTHS
 // Tout le système tunisien
-// Kogia Edu est spécialisé ÉCOLE PRIMAIRE : 6 niveaux, un seul cycle.
+// Coreon Edu est spécialisé ÉCOLE PRIMAIRE : 6 niveaux, un seul cycle.
 export const CYCLES=[
   {cycle:"Primaire",grades:["1ère année","2ème année","3ème année","4ème année","5ème année","6ème année"]},
 ]
@@ -114,17 +118,19 @@ function seed(){
   ]
   const requests=[{id:"req1",at:Date.now()-3600000,by:"t1",byName:"Othman Ounis",type:"Attestation de salaire",fields:{addressedTo:"Banque BIAT",purpose:"demande de crédit",copies:2},chain:["admin","schooladmin"],currentLevel:0,approvals:[],status:"pending"}]
   const books=[{id:"b1",title:"Mathématiques 5ème",author:"R. Khaldi",copies:6,available:4,category:"Mathématiques"},{id:"b2",title:"Éveil scientifique 5",author:"M. Saïd",copies:5,available:5,category:"Sciences"},{id:"b3",title:"Lectures Françaises",author:"L. Bruni",copies:4,available:2,category:"Français"},{id:"b4",title:"القراءة العربية",author:"أحمد",copies:8,available:7,category:"Arabe"},{id:"b5",title:"Atlas Géographique",author:"Collectif",copies:3,available:3,category:"Géographie"}]
-  const routes=[{id:"r1",name:"Circuit A · Nord",driver:"Sami",bus:"TUN-1023",stops:["La Marsa","Carthage","Sidi Bou Saïd"],students:6},{id:"r2",name:"Circuit B · Sud",driver:"Foued",bus:"TUN-2087",stops:["Radès","Ezzahra","Hammam Lif"],students:4}]
+  const routes=[{id:"r1",name:"Circuit A · Nord",driver:"Sami",phone:"+21698123456",bus:"TUN-1023",stops:["La Marsa","Carthage","Sidi Bou Saïd"],students:6},{id:"r2",name:"Circuit B · Sud",driver:"Foued",phone:"+21698654321",bus:"TUN-2087",stops:["Radès","Ezzahra","Hammam Lif"],students:4}]
   const homework=[{id:"hw1",at:Date.now()-7200000,by:"t1",classId:"c5a",subject:"Mathématiques",title:"Exercices 3.1 à 3.4",due:"2026-06-28",details:"Résoudre tous les problèmes."},{id:"hw2",at:Date.now()-90000000,by:"t2",classId:"c5a",subject:"Éveil scientifique",title:"Schéma de la cellule",due:"2026-06-27",details:"Dessiner + légender."}]
   const events=[{id:"e1",date:"2026-06-29",title:"Réunion parents–enseignants",type:"Réunion",desc:"Tous les niveaux, 09:00–12:00."},{id:"e2",date:"2026-07-02",title:"Fête de fin d'année",type:"Événement",desc:"Spectacle des élèves."},{id:"e3",date:"2026-07-05",title:"Début des examens",type:"Examen",desc:"Voir le calendrier."},{id:"e4",date:"2026-07-12",title:"Sortie pédagogique — Musée du Bardo",type:"Événement",desc:"6ème année."}]
-  const exams=[{id:"x1",class:"5ème A",subject:"Mathématiques",date:"2026-07-05",total:100},{id:"x2",class:"5ème A",subject:"Éveil scientifique",date:"2026-07-07",total:100},{id:"x3",class:"6ème A",subject:"Mathématiques",date:"2026-07-06",total:100},{id:"x4",class:"9ème A",subject:"Français",date:"2026-07-08",total:100}]
-  const messages=[{id:"m1",from:"u_sadmin",to:"p1",text:"Bienvenue sur Kogia Edu ! N'hésitez pas si vous avez besoin.",at:Date.now()-5400000,read:true},{id:"m2",from:"p1",to:"u_sadmin",text:"Merci ! Une question sur le calendrier des frais.",at:Date.now()-5000000,read:true}]
-  const N=(to,role,kind,actor,title,body,link,mins,read=false)=>({id:"n"+mins+kind,to,role,kind,actor,title,body,link,at:Date.now()-mins*60000,read})
+  const exams=[{id:"x1",class:"5ème A",subject:"Mathématiques",date:"2026-07-05",total:100},{id:"x2",class:"5ème A",subject:"Éveil scientifique",date:"2026-07-07",total:100},{id:"x3",class:"6ème A",subject:"Mathématiques",date:"2026-07-06",total:100},{id:"x4",class:"3ème A",subject:"Français",date:"2026-07-08",total:100}]
+  const messages=[{id:"m1",from:"u_sadmin",to:"p1",text:"Bienvenue sur Coreon Edu ! N'hésitez pas si vous avez besoin.",at:Date.now()-5400000,read:true},{id:"m2",from:"p1",to:"u_sadmin",text:"Merci ! Une question sur le calendrier des frais.",at:Date.now()-5000000,read:true}]
+  // classId : restreint une notification de rôle à une classe (cf. notify.js)
+  const N=(to,role,kind,actor,title,body,link,mins,read=false,classId=null)=>({id:"n"+mins+kind,to,role,classId,kind,actor,title,body,link,at:Date.now()-mins*60000,read})
   const notifications=[
     N("u_admin",null,"request","Othman Ounis","a demandé une attestation de salaire","Attestation de salaire · en attente","/app/requests",55),
     N(null,"admin","incident","Dali Brahmi","a signalé un incident","Élève malade (Karim) · Santé","/app/incidents",90),
-    N(null,"parent","evaluation","Othman Ounis","a publié une évaluation","Mathématiques · 5ème A","/app",60),
-    N(null,"parent","payment","Administration","rappel de paiement","2 mois impayés","/app/payments",120),
+    N(null,"parent","evaluation","Othman Ounis","a publié une évaluation","Mathématiques · 5ème A","/app",60,false,"c5a"),
+    // un rappel d'impayé ne se diffuse pas à toutes les familles : il vise un parent
+    N("p1",null,"payment","Administration","rappel de paiement","2 mois impayés","/app/payments",120),
     N(null,"admin","info","Othman Ounis","a fait l'appel — 5ème A","9 présents · 1 absent","/app/attendance",30),
     N(null,"parent","notice","Direction","nouvelle annonce","Réunion parents–enseignants le 29/06","/app/notices",200,true),
     N("u_sadmin",null,"message","Karim Ben Salah","vous a envoyé un message","Une question sur le calendrier des frais","/app/messages",240,true),
@@ -203,15 +209,92 @@ function seed(){
 export const DEFAULT_SETTINGS={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026', director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis', brand:'#6366F1', logoText:'AN', currency:'DT' }
 export const settings=()=>({...DEFAULT_SETTINGS, ...(db().settings||{})})
 export function saveSettings(patch){ return mutate(d=>{ d.settings={...DEFAULT_SETTINGS, ...(d.settings||{}), ...patch} }) }
-export function db(){let d=null;try{d=JSON.parse(localStorage.getItem(KEY))}catch{};if(!d){d=seed();localStorage.setItem(KEY,JSON.stringify(d))}
-  if(!d.timetables){ d.timetables=genTimetables(d.classes); localStorage.setItem(KEY,JSON.stringify(d)) }  // backfill older dbs
-  if(!d.settings){ d.settings={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026', director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis', brand:'#6366F1', logoText:'AN', currency:'DT' }; localStorage.setItem(KEY,JSON.stringify(d)) }
-  return d}
+// ── Chargement + MIGRATION ──────────────────────────────────────────────────
+// La clé de stockage ne contient plus le numéro de version : elle était incrémentée
+// à chaque évolution du schéma (coreon_db_v17 → v18 …), ce qui abandonnait la base
+// précédente et RÉINSTALLAIT les données de démonstration par-dessus les vraies
+// données de l'école. La version vit désormais DANS la base (`_v`) et on migre.
+const COLLECTIONS={classes:[],students:[],teachers:[],users:[],evaluations:[],incidents:[],requests:[],books:[],routes:[],homework:[],events:[],exams:[],messages:[],notifications:[],staffLeaves:[],schools:[],payments:{},attendance:{},staffAttendance:{},staffClock:{},timetables:{}}
+
+function migrate(d){
+  const from=d._v||0
+  for(const [k,def] of Object.entries(COLLECTIONS)) if(d[k]==null) d[k]=Array.isArray(def)?[]:{}
+  if(!Object.keys(d.timetables).length) d.timetables=genTimetables(d.classes)
+  if(!d.settings) d.settings={...DEFAULT_SETTINGS}
+
+  if(from<19){
+    // les notifications de rôle peuvent désormais cibler une classe (cf. notify.js)
+    d.notifications.forEach(n=>{ if(n.classId===undefined) n.classId=null })
+    // répare la dissymétrie historique student.parentId ↔ user.childIds
+    d.users.filter(u=>u.role==='parent').forEach(p=>{ p.childIds=(p.childIds||[]).filter(id=>d.students.some(s=>s.id===id)) })
+    d.students.forEach(s=>{
+      if(!s.parentId) return
+      const p=d.users.find(u=>u.id===s.parentId)
+      if(!p){ s.parentId=null; return }
+      p.childIds=p.childIds||[]
+      if(!p.childIds.includes(s.id)) p.childIds.push(s.id)
+    })
+    d.users.filter(u=>u.role==='parent').forEach(p=>{
+      p.childIds.forEach(id=>{ const s=d.students.find(x=>x.id===id); if(s&&!s.parentId) s.parentId=p.id })
+    })
+  }
+  d._v=SCHEMA
+  return d
+}
+
+function load(){
+  try{ const raw=localStorage.getItem(KEY); if(raw) return JSON.parse(raw) }catch{ /* corrompu */ }
+  // reprise d'une base écrite par une version antérieure (clé versionnée)
+  for(const legacy of LEGACY_KEYS){
+    try{ const raw=localStorage.getItem(legacy); if(raw){ const d=JSON.parse(raw); localStorage.removeItem(legacy); return d } }catch{ /* ignore */ }
+  }
+  return null
+}
+
+export function db(){
+  let d=load()
+  const fresh=!d
+  if(fresh) d=seed()
+  const before=d._v
+  d=migrate(d)
+  if(fresh||before!==d._v) save(d)
+  return d
+}
 export function setTimetableCell(classId,pi,di,cell){ return mutate(d=>{ d.timetables=d.timetables||{}; d.timetables[classId]=d.timetables[classId]||Array.from({length:6},()=>Array(5).fill(null)); d.timetables[classId][pi]=d.timetables[classId][pi]||Array(5).fill(null); d.timetables[classId][pi][di]=cell }) }
 export function save(d){localStorage.setItem(KEY,JSON.stringify(d))}
 export function mutate(fn){const d=db();fn(d);save(d);return d}
 export function resetDb(){localStorage.removeItem(KEY)}
 export const uid=(p="id")=>p+"_"+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3)
+
+// ── lien parent ↔ enfant ────────────────────────────────────────────────────
+// Il existe des deux côtés : `student.parentId` ET `user.childIds`. La page Élèves
+// n'écrivait que le premier, la page Comptes que le second, alors que l'application
+// lit les deux : selon l'écran ayant créé le lien, le parent ne recevait aucune
+// notification, ou bien ne voyait ni ses paiements ni le suivi en direct.
+// Ces fonctions écrivent toujours les DEUX côtés.
+function attach(d, s, parentId){
+  if(s.parentId && s.parentId!==parentId){
+    const old=d.users.find(u=>u.id===s.parentId)
+    if(old) old.childIds=(old.childIds||[]).filter(id=>id!==s.id)
+  }
+  s.parentId=parentId||null
+  if(parentId){
+    const p=d.users.find(u=>u.id===parentId)
+    if(p){ p.childIds=p.childIds||[]; if(!p.childIds.includes(s.id)) p.childIds.push(s.id) }
+  }
+}
+export function setStudentParent(d, studentId, parentId){
+  const s=d.students.find(x=>x.id===studentId); if(s) attach(d,s,parentId)
+}
+export function setParentChildren(d, parentId, childIds=[]){
+  const p=d.users.find(u=>u.id===parentId); if(!p) return
+  ;(p.childIds||[]).filter(id=>!childIds.includes(id)).forEach(id=>{
+    const s=d.students.find(x=>x.id===id); if(s && s.parentId===parentId) s.parentId=null
+  })
+  p.childIds=[]
+  childIds.forEach(id=>{ const s=d.students.find(x=>x.id===id); if(s) attach(d,s,parentId) })
+}
+
 export const studentById=id=>db().students.find(s=>s.id===id)
 export const classById=id=>db().classes.find(c=>c.id===id)
 export const studentsOfClass=cid=>db().students.filter(s=>s.classId===cid)

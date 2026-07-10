@@ -1,6 +1,5 @@
 import { db } from '../db.js'
 import { evaluationHistory, mentionFor } from '../results.js'
-import { bucketOf } from '../results.js'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { ClipboardList, CalendarCheck } from 'lucide-react'

@@ -6,7 +6,8 @@ import { PageHead, StatCard, SectionCard, EmptyState, Avatar, Tabs, Chip, Search
 import GradeHistory from '../components/GradeHistory.jsx'
 import LessonMap from '../components/LessonMap.jsx'
 import { ClipboardCheck, Gauge, Users, LifeBuoy, Trophy, TrendingUp, TrendingDown, Minus, ChevronRight, BarChart3, Search, BookMarked } from 'lucide-react'
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
+import { SoftArea, DistributionBar } from '../components/charts.jsx'
+import { SERIES } from '../charts.js'
 import { format, startOfDay, startOfWeek } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
@@ -101,29 +102,13 @@ export default function Results(){
 
       <div className="grid lg:grid-cols-[1fr_340px] gap-4 mb-5">
         <SectionCard icon={<TrendingUp size={16}/>} tint="brand" title="Évolution de la moyenne" sub={`Moyenne des évaluations · ${PERIODS.find(p=>p.value===period).label.toLowerCase()}`}>
-          <div className="h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={trend} margin={{top:6,right:6,left:-18,bottom:0}}>
-                <defs><linearGradient id="gAvg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6366F1" stopOpacity={.25}/><stop offset="100%" stopColor="#6366F1" stopOpacity={0}/></linearGradient></defs>
-                <XAxis dataKey="name" tick={{fontSize:11,fill:'#8A93A6'}} axisLine={false} tickLine={false}/>
-                <YAxis domain={[0,100]} tick={{fontSize:11,fill:'#8A93A6'}} axisLine={false} tickLine={false}/>
-                <Tooltip contentStyle={{borderRadius:12,border:'1px solid #EDEFF5',fontSize:12}} formatter={v=>[`${v}/100`,'Moyenne']}/>
-                <Area type="monotone" dataKey="moyenne" stroke="#6366F1" strokeWidth={2.5} fill="url(#gAvg)"/>
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+          <SoftArea data={trend} dataKey="moyenne" color={SERIES[0]} id="gAvg" domain={[0,100]} height={224}/>
         </SectionCard>
         <SectionCard icon={<Gauge size={16}/>} tint="grape" title="Répartition des niveaux" sub="Toutes réponses confondues">
-          <div className="h-40">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart><Pie data={pie} dataKey="value" innerRadius={45} outerRadius={70} paddingAngle={3}>
-                {pie.map(x=><Cell key={x.name} fill={x.color}/>)}</Pie>
-                <Tooltip contentStyle={{borderRadius:12,border:'1px solid #EDEFF5',fontSize:12}}/>
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="grid grid-cols-2 gap-1.5 mt-2">
-            {BUCKETS.map(b=><span key={b.key} className="flex items-center gap-1.5 text-xs"><i className="w-2.5 h-2.5 rounded-full shrink-0" style={{background:b.color}}/><span className="text-muted">{b.label}</span><b className="ml-auto">{data.dist[b.key]}</b></span>)}
+          {/* barre empilée + puces : on compare des longueurs, pas des angles */}
+          <div className="pt-6"><DistributionBar items={pie}/></div>
+          <div className="grid grid-cols-2 gap-1.5 mt-4">
+            {BUCKETS.map(b=><span key={b.key} className="flex items-center gap-1.5 text-xs"><b.Icon size={12} style={{color:b.color}}/><span className="text-muted">{b.label}</span><b className="ml-auto">{data.dist[b.key]}</b></span>)}
           </div>
         </SectionCard>
       </div>

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { db, mutate, uid } from '../db.js'
+import { db, mutate, uid, setParentChildren } from '../db.js'
 import { ROLE } from '../theme.js'
 import { notify } from '../notify.js'
 import { STAFF_POSITIONS, GOVERNORATES, docTypesFor, validCIN } from '../tunisia.js'
@@ -17,10 +17,12 @@ export default function Accounts(){
     const id=uid('u')
     mutate(db=>{
       const user={id,role:f.role,name:f.name.trim(),email:f.email.trim(),pw:f.pw||'1234',cin:f.cin,gender:f.gender,governorate:f.governorate,phone:f.phone,address:f.address,attachments:f.attachments}
-      if(f.role==='parent'){ user.occupation=f.occupation; user.childIds=f.childIds }
+      if(f.role==='parent'){ user.occupation=f.occupation; user.childIds=[] }
       else { user.position=f.position }
       if(f.role==='teacher'){ const tid=uid('t'); db.teachers.push({id:tid,name:user.name,subject:f.subject||'—',designation:f.position,classes:[],experience:0,phone:f.phone,email:user.email,cin:f.cin,governorate:f.governorate,position:f.position,attachments:f.attachments}); user.teacherId=tid }
       db.users.push(user)
+      // écrit aussi student.parentId, sinon le parent ne reçoit rien
+      if(f.role==='parent') setParentChildren(db,id,f.childIds||[])
     })
     notify({to:id,kind:'info',actor:'Direction',title:'compte créé',body:`Bienvenue — rôle ${ROLE[f.role].label}.`,link:'/app'})
     toast.success(`Compte ${ROLE[f.role].label} créé`); setOpen(false); setF(BLANK); force(x=>x+1)
@@ -66,7 +68,11 @@ export default function Accounts(){
       <Section title="Contact"><Field label="Téléphone"><Input value={f.phone} onChange={e=>setF({...f,phone:e.target.value})}/></Field><Field label="Adresse"><Input value={f.address} onChange={e=>setF({...f,address:e.target.value})}/></Field>
         {f.role==='parent'&&<Field label="Profession"><Input value={f.occupation} onChange={e=>setF({...f,occupation:e.target.value})}/></Field>}</Section>
       {f.role==='parent'&&<div className="mb-4"><div className="text-xs font-bold uppercase tracking-wide accent-text mb-2">Enfants</div>
-        <div className="flex flex-wrap gap-2">{d.students.filter(s=>!s.parentId).map(s=><button key={s.id} onClick={()=>toggleChild(s.id)} className={`text-sm px-3 py-1.5 rounded-full border ${f.childIds.includes(s.id)?'accent-soft accent-text':'border-line'}`}>{s.name}</button>)}</div></div>}
+        {/* on affiche aussi les élèves déjà rattachés, en signalant à quel parent :
+            le filtre `!s.parentId` empêchait toute correction d'un mauvais lien */}
+        <div className="flex flex-wrap gap-2">{d.students.map(s=>{ const taken=s.parentId&&!f.childIds.includes(s.id)
+          return <button key={s.id} onClick={()=>toggleChild(s.id)} title={taken?`Déjà lié à ${d.users.find(x=>x.id===s.parentId)?.name||'un autre parent'} — le relier ici le détachera`:undefined}
+            className={`text-sm px-3 py-1.5 rounded-full border ${f.childIds.includes(s.id)?'accent-soft accent-text':taken?'border-line opacity-55':'border-line'}`}>{s.name}{taken&&' ·'}</button> })}</div></div>}
       <div className="mb-2"><div className="text-xs font-bold uppercase tracking-wide accent-text mb-2">Pièces à fournir</div>
         <Attach types={docTypesFor(f.role)} value={f.attachments} onChange={a=>setF({...f,attachments:a})}/></div>
     </Modal>
