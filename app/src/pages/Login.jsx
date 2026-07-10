@@ -9,7 +9,7 @@ import { Mark, Input, Btn } from '../components/ui.jsx'
 export default function Login(){
   const nav=useNavigate(); const [email,setEmail]=useState(''); const [pw,setPw]=useState(''); const [err,setErr]=useState(false)
   const go=()=>{ const u=login(email,pw); if(u&&!u.disabled){nav('/app')} else setErr(u&&u.disabled?'Ce compte a été désactivé. Contactez la direction.':'E-mail ou mot de passe incorrect.') }
-  const quick=db().users.filter(u=>['schooladmin','admin','teacher','supervisor','parent'].includes(u.role)).filter((u,i,a)=>a.findIndex(x=>x.role===u.role)===i)
+  const quick=db().users.filter(u=>['schooladmin','admin','teacher','supervisor','security','parent'].includes(u.role)).filter((u,i,a)=>a.findIndex(x=>x.role===u.role)===i)
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       <div className="hidden lg:flex flex-col justify-between p-12 text-white" style={{background:'linear-gradient(150deg,#6366F1,#8B5CF6)'}}>

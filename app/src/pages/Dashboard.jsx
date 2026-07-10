@@ -16,6 +16,7 @@ import Bulletin from '../components/Bulletin.jsx'
 import { todayIso as todayIsoLocal } from '../clock.js'
 import { rentreeLabel, DemoLiveButton } from '../components/Summer.jsx'
 import { unreadFor } from '../notify.js'
+import { needsSecurity, isNightEvent } from '../social.js'
 // place → shared icon system (subjects.jsx) — same visual family as the live map
 const placeMeta=live=>{
   if(live.place==='class') return live.seg?.cell? subjectMeta(live.seg.cell.subject) : PLACES.etude
@@ -73,6 +74,48 @@ export default function Dashboard(){
   if(u.role==='parent') return <ParentDashboard u={u} d={d} greet={greet}/>
 
   if(u.role==='owner') return <PlatformDashboard d={d} greet={greet}/>
+
+  // L'agent de sécurité : ce soir, qui est dans l'école, la dernière ronde.
+  if(u.role==='security'){
+    const today=todayIsoLocal()
+    const toCover=(d.socialEvents||[]).filter(e=>e.status==='approuve'&&e.date>=today&&needsSecurity(e))
+      .sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time))
+    const tonight=toCover.filter(e=>e.date===today)
+    const inside=(d.visitors||[]).filter(v=>v.date===today&&v.inAt&&!v.outAt)
+    const lastRound=(d.rounds||[]).filter(r=>r.date===today).sort((a,b)=>(b.startAt||'').localeCompare(a.startAt||''))[0]
+    const open=d.incidents.filter(i=>i.status==='open')
+    return (<><PageHead title={greet} sub="Le poste de sécurité, en un coup d'œil."/>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+        <StatCard label="À couvrir ce soir" value={tonight.length} sub={tonight.length?tonight[0].time:'rien de prévu'} tint="brand" icon={<ShieldAlert/>} to="/app/security"/>
+        <StatCard label="Visiteurs dans l'école" value={inside.length} tint="grape" icon={<Users/>} to="/app/security"/>
+        <StatCard label="Dernière ronde" value={lastRound?lastRound.startAt:'—'} sub={lastRound?`${lastRound.points.length} zones`:'aucune aujourd\'hui'} tint="sky" icon={<CalendarCheck/>} to="/app/security"/>
+        <StatCard label="Incidents ouverts" value={open.length} tint="coral" icon={<ShieldAlert/>} to="/app/incidents"/>
+      </div>
+      <div className="grid lg:grid-cols-2 gap-4">
+        <Card className="p-5"><h3 className="font-bold mb-1">Prochains événements à couvrir</h3>
+          <p className="text-xs text-muted mb-3">Approuvés par la Direction — soirées, affluence, personnes extérieures</p>
+          {toCover.length? <div className="space-y-2">{toCover.slice(0,5).map(e=>(
+            <Link key={e.id} to="/app/security" className="flex items-center gap-3 text-sm border-b border-line pb-2 last:border-0 hover:bg-canvas rounded-lg px-1 transition">
+              <span className="text-lg">{isNightEvent(e)?'🌙':'☀️'}</span>
+              <span className="min-w-0 flex-1"><span className="block font-semibold truncate">{e.title}</span>
+                <span className="block text-xs text-muted">{e.date} · {e.time} · {e.place}</span></span>
+              <ChevronRight size={15} className="text-muted"/>
+            </Link>))}</div>
+           : <EmptyState icon={<CalendarCheck size={22}/>} title="Aucun événement à couvrir" sub="Les activités approuvées apparaîtront ici."/>}
+        </Card>
+        <Card className="p-5"><h3 className="font-bold mb-1">Visiteurs actuellement dans l'école</h3>
+          <p className="text-xs text-muted mb-3">Entrés, badge remis, pas encore sortis</p>
+          {inside.length? <div className="space-y-2">{inside.map(v=>(
+            <div key={v.id} className="flex items-center gap-3 text-sm border-b border-line pb-2 last:border-0">
+              <Avatar name={v.name} seed={v.id} size={30}/>
+              <span className="min-w-0 flex-1"><span className="block font-semibold truncate">{v.name}</span>
+                <span className="block text-xs text-muted">{v.purpose} · reçu par {v.hostName}</span></span>
+              <span className="text-xs font-bold tabular-nums">{v.inAt}</span>
+            </div>))}</div>
+           : <EmptyState icon={<Users size={22}/>} title="Personne dans l'école" sub="Aucun visiteur enregistré à cette heure."/>}
+        </Card>
+      </div></>)
+  }
 
   if(u.role==='supervisor'){
     const open=d.incidents.filter(i=>i.status==='open')

@@ -8,12 +8,14 @@ import {
   Baby, CalendarDays, AlertTriangle, Lightbulb, UserCheck, Ban,
 } from 'lucide-react'
 import {
-  STATES, CATEGORIES, AUDIENCES, KIDS, PLACES, IDEAS, DEFAULT_MIN, MIN_LEAD_DAYS, RSVP_WINDOW_H,
+  STATES, CATEGORIES, KIDS, PLACES, DEFAULT_MIN, MIN_LEAD_DAYS, RSVP_WINDOW_H, SECURITY_NOTICE_H,
+  SPACES, spaceOfRole, seesAllSpaces, CATEGORIES_OF, AUDIENCES_OF, defaultAudience, ideasFor,
   audienceOf, kidsOf, needsReason, earliestDate, rsvpDeadline, deadlinePassed,
   goingCount, adultCount, childCount, maybeList, waitlist, seatsLeft, isFull,
   hasJoined, participantOf, quorumReached, missingForQuorum, joinBlockedReason,
   amountFor, consentStale, promoteFromWaitlist, isLateWithdrawal, facilityClash,
-  joinButtonLabel, sweep, isLive, isDead,
+  joinButtonLabel, sweep, isLive, isDead, isPending, canDecide, awaitingRole,
+  needsSecurity, securityNeeds, securityNotice, isNightEvent,
 } from '../social.js'
 import { now as appNow } from '../clock.js'
 import { format, formatDistanceToNowStrict, parseISO } from 'date-fns'
@@ -25,19 +27,20 @@ const money = n => `${n} DT`
 // « 1 enfants » : le pluriel français ne s'accorde pas avec 1.
 const plural = (n, one, many) => `${n} ${n > 1 ? many : one}`
 
-const BLANK = () => ({
-  title: '', cat: 'sport', desc: '', date: '', time: '18:00', place: PLACES[0],
-  audience: 'mixte', reason: '', kids: 'bienvenus', custom: false,
+const BLANK = (space = 'parent') => ({
+  title: '', cat: CATEGORIES_OF[space][0].k, desc: '', date: '', time: '18:00', place: PLACES[0],
+  audience: defaultAudience(space), reason: '', kids: 'bienvenus', custom: false,
   minParticipants: DEFAULT_MIN, maxParticipants: '', pricePerPerson: 0, priceCovers: '',
 })
 
 export default function Social() {
   const u = current()
   const isParent = u.role === 'parent'
+  const canPropose = u.role !== 'owner'
   const isDirection = ['schooladmin', 'admin'].includes(u.role)
   const [, force] = useState(0); const refresh = () => force(x => x + 1)
   const [open, setOpen] = useState(false)
-  const [f, setF] = useState(BLANK)
+  const [f, setF] = useState(() => BLANK(spaceOfRole(current().role)))
   const [join, setJoin] = useState(null)      // événement en cours d'inscription
   const [decide, setDecide] = useState(null)  // événement en cours de décision (Direction)
 
@@ -54,16 +57,24 @@ export default function Social() {
         ev.participants.forEach(p => p.userId !== ev.by && notify({ to: p.userId, kind: 'info', actor: 'Espace parents', title: 'Activité annulée', body: `« ${ev.title} » est annulée faute de participants. Vous n'avez rien à payer.`, link: '/app/social' }))
       }
       if (to === 'soumis') {
-        notify({ role: 'schooladmin', kind: 'request', actor: 'Espace parents', title: 'Activité à valider', body: `« ${ev.title} » a atteint son quorum — réservation de ${ev.place} à confirmer.`, link: '/app/social' })
-        notify({ role: 'admin', kind: 'request', actor: 'Espace parents', title: 'Activité à valider', body: `« ${ev.title} » a atteint son quorum.`, link: '/app/social' })
+        // La chaîne commence à l'Administration ; la Direction tranchera ensuite.
+        notify({ role: 'admin', kind: 'request', actor: 'Espaces', title: 'Activité à instruire',
+          body: `« ${ev.title} » a atteint son quorum — vérifiez le lieu et la sécurité, puis visez.`, link: '/app/social' })
       }
     })
     if (changed.length) refresh()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const events = [...(d.socialEvents || [])].sort((a, b) => a.date.localeCompare(b.date))
+  // Chaque rôle a son espace ; l'Administration et la Direction les voient tous.
+  const mySpace = spaceOfRole(u.role)
+  const seesAll = seesAllSpaces(u.role)
+  const events = [...(d.socialEvents || [])]
+    .filter(e => seesAll || (e.space || 'parent') === mySpace)
+    .sort((a, b) => a.date.localeCompare(b.date))
   const live = events.filter(e => isLive(e.status))
-  const toDecide = events.filter(e => e.status === 'soumis')
+  // Ce qui attend MA décision, à mon étage de la chaîne.
+  const toDecide = events.filter(e => canDecide(e, u))
+  const pendingAll = events.filter(e => isPending(e.status))
   const settled = events.filter(e => e.status === 'approuve' || e.status === 'termine')
   const closed = events.filter(e => isDead(e.status))
 
@@ -72,7 +83,7 @@ export default function Social() {
   // Choisir « Match de football » remplit la catégorie, le lieu, la mixité, les
   // enfants, le quorum et le prix. Tout reste modifiable ensuite.
   const useIdea = idea => setF(prev => ({
-    ...BLANK(), date: prev.date, time: prev.time,
+    ...BLANK(mySpace), date: prev.date, time: prev.time,
     title: idea.title, cat: idea.cat, desc: idea.desc, place: idea.place,
     audience: idea.audience, kids: idea.kids,
     minParticipants: idea.min, pricePerPerson: idea.price,
@@ -88,7 +99,7 @@ export default function Social() {
     const max = f.maxParticipants ? Number(f.maxParticipants) : null
     if (max && max < min) return toast.error('La capacité ne peut pas être inférieure au quorum')
     const price = Math.max(0, Number(f.pricePerPerson) || 0)
-    if (price > 0 && !f.priceCovers.trim()) return toast.error('Dites ce que le prix couvre — les parents doivent le savoir avant de s\'inscrire')
+    if (price > 0 && !f.priceCovers.trim()) return toast.error('Dites ce que le prix couvre — les participants doivent le savoir avant de s\'inscrire')
 
     const at = Date.now()
     const ev = {
@@ -98,14 +109,15 @@ export default function Social() {
       audience: f.audience, reason: f.reason.trim(), kids: f.kids,
       minParticipants: min, maxParticipants: max,
       pricePerPerson: price, priceCovers: f.priceCovers.trim(),
-      status: 'collecte', participants: [],
+      space: mySpace, status: 'collecte', participants: [],
     }
     // L'organisateur est le premier inscrit — il connaît le prix, il l'a fixé.
     ev.participants.push({ userId: u.id, name: u.name, rsvp: 'oui', adults: 1, children: 0, priceAgreedPerPerson: price, amountAgreed: price, agreedAt: at })
     mutate(db => { db.socialEvents = db.socialEvents || []; db.socialEvents.unshift(ev) })
-    notify({ role: 'parent', kind: 'notice', actor: u.name, title: 'Nouvelle activité entre parents', body: `${ev.title} · ${format(parseISO(ev.date), 'd MMM', { locale: fr })}${price ? ` · ${money(price)}/pers.` : ' · gratuit'}`, link: '/app/social' })
-    toast.success(`Proposition publiée — ${RSVP_WINDOW_H} h pour réunir ${min} parents`)
-    setOpen(false); setF(BLANK()); refresh()
+    SPACES[mySpace].roles.forEach(r => notify({ role: r, kind: 'notice', actor: u.name, title: `Nouvelle activité · ${SPACES[mySpace].label}`,
+      body: `${ev.title} · ${format(parseISO(ev.date), 'd MMM', { locale: fr })}${price ? ` · ${money(price)}/pers.` : ' · gratuit'}`, link: '/app/social' }))
+    toast.success(`Proposition publiée — ${RSVP_WINDOW_H} h pour réunir ${min} participants`)
+    setOpen(false); setF(BLANK(mySpace)); refresh()
   }
 
   /* ── S'inscrire ─────────────────────────────────────────────────────────── */
@@ -151,32 +163,59 @@ export default function Social() {
     toast.success('Activité annulée — les inscrits sont prévenus'); refresh()
   }
 
-  /* ── Décision de la Direction ───────────────────────────────────────────── */
+  /* ── Décision : Administration, puis Direction ───────────────────────────── */
   const settle = (ev, approved, note) => {
-    if (!isDirection) return
-    if (!approved && !note.trim()) return toast.error('Indiquez le motif du refus — les parents le liront')
+    const fresh = db().socialEvents.find(x => x.id === ev.id)
+    if (!fresh || !canDecide(fresh, u)) { setDecide(null); return toast.error("Ce n'est pas à vous de décider maintenant") }
+    if (!approved && !note.trim()) return toast.error('Indiquez le motif du refus — les participants le liront')
+
+    const isFinal = fresh.status === 'vise'      // la Direction tranche
+    const next = !approved ? 'refuse' : isFinal ? 'approuve' : 'vise'
+    const roleLabel = u.role === 'admin' ? 'Administration' : 'Direction'
+
     mutate(db => {
       const e = db.socialEvents.find(x => x.id === ev.id)
-      if (e.status !== 'soumis') return
-      e.status = approved ? 'approuve' : 'refuse'
-      e.decision = { by: u.name, at: Date.now(), note: note.trim() }
+      e.status = next
+      e.approvals = [...(e.approvals || []), { role: u.role, by: u.name, at: Date.now(), decision: approved ? 'approuve' : 'refuse', note: note.trim() }]
+      if (next !== 'vise') e.decision = { by: u.name, at: Date.now(), note: note.trim() }
+      if (next === 'approuve' && needsSecurity(e)) e.securityNotifiedAt = Date.now()
     })
-    if (approved) {
-      // Une activité approuvée entre au calendrier de l'école.
+
+    if (next === 'vise') {
+      notify({ role: 'schooladmin', kind: 'request', actor: u.name, title: 'Activité visée — décision attendue',
+        body: `« ${ev.title} » a été visée par l'Administration. Votre approbation finale est requise.`, link: '/app/social' })
+      notify({ to: ev.by, kind: 'info', actor: roleLabel, title: 'Votre activité avance',
+        body: `« ${ev.title} » est visée par l'Administration ; la Direction doit encore l'approuver.`, link: '/app/social' })
+      toast.success('Activité visée — transmise à la Direction pour approbation finale')
+      setDecide(null); return refresh()
+    }
+
+    if (next === 'approuve') {
+      // L'activité entre au calendrier de l'école…
       mutate(db => {
         db.events.push({ id: uid('e'), date: ev.date, time: ev.time, title: ev.title, type: 'Événement',
-          desc: `Activité proposée par ${ev.byName} (Espace parents).`, place: ev.place, audience: 'parent', by: u.name })
+          desc: `Activité proposée par ${ev.byName} (${SPACES[ev.space || 'parent'].label}).`, place: ev.place, audience: 'all', by: u.name })
       })
+      // …et l'agent de sécurité est prévenu s'il doit couvrir la soirée.
+      const reasons = securityNeeds(ev)
+      if (reasons.length) {
+        notify({ role: 'security', kind: 'notice', actor: 'Direction', title: 'Événement à couvrir',
+          body: `« ${ev.title} » · ${format(parseISO(ev.date), 'EEEE d MMMM', { locale: fr })} à ${ev.time} · ${ev.place}. ${reasons[0]}`, link: '/app/security' })
+        const notice = securityNotice({ ...ev, securityNotifiedAt: Date.now() })
+        if (notice.short) notify({ role: 'schooladmin', kind: 'info', actor: 'Sécurité', title: 'Préavis court pour la sécurité',
+          body: `« ${ev.title} » : l'agent est prévenu ${notice.hours} h avant (minimum ${SECURITY_NOTICE_H} h).`, link: '/app/security' })
+      }
     }
+
     ev.participants.forEach(p => notify({
-      to: p.userId, kind: approved ? 'notice' : 'info', actor: 'Direction',
+      to: p.userId, kind: approved ? 'notice' : 'info', actor: roleLabel,
       title: approved ? 'Activité confirmée' : 'Activité refusée',
       body: approved
         ? `« ${ev.title} » est confirmée · ${ev.place} · ${format(parseISO(ev.date), 'EEEE d MMMM', { locale: fr })}${ev.pricePerPerson ? ` · ${money(amountFor(ev, p.adults, p.children))} à régler auprès de l'administration` : ' · gratuit'}`
         : `« ${ev.title} » n'a pas été retenue : ${note.trim()} Vous n'avez rien à payer.`,
       link: '/app/social',
     }))
-    toast.success(approved ? 'Activité approuvée — lieu réservé, parents prévenus' : 'Activité refusée — parents prévenus')
+    toast.success(approved ? 'Activité approuvée — lieu réservé, participants prévenus' : 'Activité refusée — participants prévenus')
     setDecide(null); refresh()
   }
 
@@ -189,21 +228,22 @@ export default function Social() {
   const myEvents = events.filter(e => hasJoined(e, u.id))
 
   return (<>
-    <PageHead title="Espace parents" sub={isDirection ? "Les activités proposées par les parents — vous validez et réservez le lieu." : "Proposez une sortie, un match, un atelier. Les autres parents s'inscrivent, l'école valide."}
-      action={isParent && <Btn onClick={() => { setF(BLANK()); setOpen(true) }}><Plus size={16} /> Proposer une activité</Btn>} />
+    <PageHead title={seesAll ? 'Espaces & activités' : SPACES[mySpace].label}
+      sub={seesAll ? "Les activités proposées par les parents, les enseignants et le personnel — l'Administration instruit, la Direction approuve." : SPACES[mySpace].sub}
+      action={canPropose && <Btn onClick={() => { setF(BLANK(mySpace)); setOpen(true) }}><Plus size={16} /> Proposer une activité</Btn>} />
 
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
       <StatCard tint="brand" icon={<Sparkles size={20} />} value={live.length} label="Activités ouvertes" sub="inscriptions en cours" />
-      <StatCard tint="butter" icon={<Hourglass size={20} />} value={toDecide.length} label="En attente de la Direction" />
+      <StatCard tint="butter" icon={<Hourglass size={20} />} value={seesAll ? pendingAll.length : toDecide.length} label={seesAll ? "En cours de validation" : "En attente de l'école"} />
       <StatCard tint="mint" icon={<Check size={20} />} value={settled.length} label="Confirmées" />
-      {isParent
-        ? <StatCard tint="grape" icon={<UserCheck size={20} />} value={myEvents.length} label="Mes participations" />
-        : <StatCard tint="grape" icon={<Users size={20} />} value={events.length} label="Propositions au total" />}
+      {seesAll
+        ? <StatCard tint="grape" icon={<Users size={20} />} value={events.length} label="Propositions au total" />
+        : <StatCard tint="grape" icon={<UserCheck size={20} />} value={myEvents.length} label="Mes participations" />}
     </div>
 
     {/* File d'attente de la Direction */}
-    {isDirection && toDecide.length > 0 && (
-      <SectionCard icon={<Hourglass size={16} />} tint="butter" title="Activités à valider" sub="Le quorum est atteint : reste à confirmer la réservation du lieu." bodyClass="p-3" className="mb-5">
+    {toDecide.length > 0 && (
+      <SectionCard icon={<Hourglass size={16} />} tint="butter" title={u.role === 'admin' ? "Activités à instruire" : "Activités à approuver"} sub={u.role === 'admin' ? "Quorum atteint : vérifiez le lieu, la sécurité, puis visez pour la Direction." : "Visées par l'Administration — votre approbation est finale."} bodyClass="p-3" className="mb-5">
         {toDecide.map(ev => {
           const clash = facilityClash(ev, d.events)
           return (
@@ -229,7 +269,9 @@ export default function Social() {
 
     {events.length === 0
       ? <Card><EmptyState icon={<Sparkles size={26} />} title="Aucune activité pour l'instant"
-          sub={isParent ? "Proposez la première : un match, un café, un atelier — les autres parents vous rejoindront." : "Les parents n'ont encore rien proposé."} /></Card>
+          sub={seesAll ? "Personne n'a encore rien proposé, dans aucun espace."
+            : canPropose ? "Proposez la première — les autres vous rejoindront."
+            : "Rien n'a encore été proposé dans cet espace."} /></Card>
       : <div className="grid lg:grid-cols-2 gap-4">
           {[...live, ...toDecide, ...settled, ...closed].map(ev =>
             <EventCard key={ev.id} ev={ev} u={u} isDirection={isDirection}
@@ -237,9 +279,9 @@ export default function Social() {
               onDecide={() => setDecide(ev)} onMarkPaid={markPaid} />)}
         </div>}
 
-    {isParent && <ProposeModal open={open} onClose={() => setOpen(false)} f={f} setF={setF} minDate={minDate} onSubmit={propose} useIdea={useIdea} />}
+    {canPropose && <ProposeModal open={open} onClose={() => setOpen(false)} f={f} setF={setF} minDate={minDate} onSubmit={propose} useIdea={useIdea} space={mySpace} />}
     {join && <JoinModal ev={join} u={u} onClose={() => setJoin(null)} onConfirm={confirmJoin} />}
-    {decide && <DecideModal ev={decide} clash={facilityClash(decide, d.events)} onClose={() => setDecide(null)} onSettle={settle} />}
+    {decide && <DecideModal ev={decide} clash={facilityClash(decide, d.events)} onClose={() => setDecide(null)} onSettle={settle} role={u.role} />}
   </>)
 }
 
@@ -295,7 +337,7 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
       {isLive(ev.status) && <>
         <div>
           <div className="flex items-center justify-between text-xs mb-1">
-            <span className="font-semibold">{adultCount(ev)} / {ev.minParticipants} parents{childCount(ev) > 0 && <span className="text-muted font-normal"> · {plural(childCount(ev), 'enfant', 'enfants')}</span>}</span>
+            <span className="font-semibold">{adultCount(ev)} / {ev.minParticipants} {(ev.space || 'parent') === 'parent' ? 'parents' : 'personnes'}{childCount(ev) > 0 && <span className="text-muted font-normal"> · {plural(childCount(ev), 'enfant', 'enfants')}</span>}</span>
             <span className="text-muted">{need > 0 ? `encore ${need}` : 'quorum atteint'}</span>
           </div>
           <div className="h-2 rounded-full bg-canvas overflow-hidden">
@@ -337,7 +379,7 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
 
       {/* Actions */}
       <div className="flex items-center gap-2 flex-wrap mt-auto pt-1">
-        {u.role === 'parent' && isLive(ev.status) && (
+        {u.role !== 'owner' && isLive(ev.status) && (
           me
             ? <>
                 <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl" style={{ background: STATUS.okSoft, color: STATUS.ok }}>
@@ -351,16 +393,18 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
               : <Btn size="sm" onClick={onJoin}>{isFull(ev) ? "Rejoindre la liste d'attente" : joinButtonLabel(ev)}</Btn>
         )}
         {mine && isLive(ev.status) && <Btn size="sm" variant="danger" onClick={onCancel}><X size={13} /> Annuler</Btn>}
-        {isDirection && ev.status === 'soumis' && <Btn size="sm" onClick={onDecide}><ShieldCheck size={14} /> Examiner</Btn>}
+        {canDecide(ev, u) && <Btn size="sm" onClick={onDecide}><ShieldCheck size={14} /> {ev.status === 'vise' ? 'Approuver' : 'Instruire'}</Btn>}
       </div>
     </Card>
   )
 }
 
 /* ── Proposer ─────────────────────────────────────────────────────────────── */
-function ProposeModal({ open, onClose, f, setF, minDate, onSubmit, useIdea }) {
+function ProposeModal({ open, onClose, f, setF, minDate, onSubmit, useIdea, space }) {
   const [filter, setFilter] = useState('tous')
-  const shown = filter === 'tous' ? IDEAS : IDEAS.filter(i => i.cat === filter)
+  const cats = CATEGORIES_OF[space]
+  const ideas = ideasFor(space)
+  const shown = filter === 'tous' ? ideas : ideas.filter(i => i.cat === filter)
   const chosen = f.title && !f.custom
   return (
     <Modal open={open} onClose={onClose} title="Proposer une activité" size="2xl"
@@ -374,7 +418,7 @@ function ProposeModal({ open, onClose, f, setF, minDate, onSubmit, useIdea }) {
           <span className="text-sm font-bold">Quelle activité ? <span className="text-muted font-medium">Le reste se remplit tout seul.</span></span>
         </div>
         <div className="flex gap-1.5 flex-wrap mb-3">
-          {[{ k: 'tous', label: 'Tout', icon: '✨' }, ...CATEGORIES].map(c => (
+          {[{ k: 'tous', label: 'Tout', icon: '✨' }, ...cats].map(c => (
             <button key={c.k} onClick={() => setFilter(c.k)} aria-pressed={filter === c.k}
               className={`text-[12px] font-bold px-2.5 py-1.5 rounded-full border transition ${filter === c.k ? 'border-transparent text-white' : 'border-line hover:bg-canvas'}`}
               style={filter === c.k ? { background: 'var(--accent)' } : {}}>{c.icon} {c.label}</button>))}
@@ -394,7 +438,7 @@ function ProposeModal({ open, onClose, f, setF, minDate, onSubmit, useIdea }) {
                 </div>
               </button>)
           })}
-          <button onClick={() => setF({ ...BLANK(), custom: true, date: f.date, time: f.time })} aria-pressed={!!f.custom}
+          <button onClick={() => setF({ ...BLANK(space), custom: true, date: f.date, time: f.time })} aria-pressed={!!f.custom}
             className={`text-left rounded-2xl border border-dashed p-3 transition ${f.custom ? 'border-transparent' : 'border-line hover:bg-canvas'}`}
             style={f.custom ? { boxShadow: '0 0 0 2px var(--accent)', background: 'var(--accent-soft)' } : {}}>
             <div className="text-sm font-bold flex items-center gap-2"><span className="text-xl leading-none">✏️</span>Autre activité</div>
@@ -410,15 +454,15 @@ function ProposeModal({ open, onClose, f, setF, minDate, onSubmit, useIdea }) {
           <span className="font-bold flex-1">{f.title}</span>
           <button onClick={() => setF({ ...f, custom: true })} className="text-[12px] font-bold accent-text">renommer</button>
         </div>}
-        <Field label="Catégorie"><Select value={f.cat} onChange={e => setF({ ...f, cat: e.target.value })}>{CATEGORIES.map(c => <option key={c.k} value={c.k}>{c.icon} {c.label}</option>)}</Select></Field>
+        <Field label="Catégorie"><Select value={f.cat} onChange={e => setF({ ...f, cat: e.target.value })}>{cats.map(c => <option key={c.k} value={c.k}>{c.icon} {c.label}</option>)}</Select></Field>
         <Field label="Lieu"><Select value={f.place} onChange={e => setF({ ...f, place: e.target.value })}>{PLACES.map(p => <option key={p}>{p}</option>)}</Select></Field>
         <Field label={`Date * (au plus tôt le ${minDate})`} hint={`L'école a besoin de ${MIN_LEAD_DAYS} jours pour réserver le lieu.`}>
           <Input type="date" min={minDate} value={f.date} onChange={e => setF({ ...f, date: e.target.value })} /></Field>
         <Field label="Heure"><Input type="time" value={f.time} onChange={e => setF({ ...f, time: e.target.value })} /></Field>
 
-        <Field label="Qui peut participer ?"><Select value={f.audience} onChange={e => setF({ ...f, audience: e.target.value })}>{AUDIENCES.map(a => <option key={a.k} value={a.k}>{a.label}</option>)}</Select></Field>
+        <Field label="Qui peut participer ?"><Select value={f.audience} onChange={e => setF({ ...f, audience: e.target.value })}>{AUDIENCES_OF[space].map(a => <option key={a.k} value={a.k}>{a.label}</option>)}</Select></Field>
         <Field label="Les enfants"><Select value={f.kids} onChange={e => setF({ ...f, kids: e.target.value })}>{KIDS.map(k => <option key={k.k} value={k.k}>{k.label}</option>)}</Select></Field>
-        {needsReason(f.audience) && <div className="sm:col-span-2"><Field label="Pourquoi cette activité n'est-elle pas mixte ? *" hint="Les autres parents et la Direction liront ce motif.">
+        {needsReason(f.audience) && <div className="sm:col-span-2"><Field label="Pourquoi cette activité n'est-elle pas ouverte à tous ? *" hint="Les autres participants et la Direction liront ce motif.">
           <Input value={f.reason} onChange={e => setF({ ...f, reason: e.target.value })} placeholder="ex. cours de danse entre mamans, avec garde d'enfants" /></Field></div>}
 
         <Field label="Participants minimum" hint="En dessous, l'activité s'annule toute seule."><Input type="number" min={2} value={f.minParticipants} onChange={e => setF({ ...f, minParticipants: e.target.value })} /></Field>
@@ -431,7 +475,7 @@ function ProposeModal({ open, onClose, f, setF, minDate, onSubmit, useIdea }) {
       </div>
 
       <p className="text-[12px] text-muted mt-3">
-        Votre proposition reste ouverte <b>{RSVP_WINDOW_H} h</b>. Si <b>{f.minParticipants || DEFAULT_MIN} parents</b> s'inscrivent, elle part à la Direction, qui confirme et réserve le lieu.
+        Votre proposition reste ouverte <b>{RSVP_WINDOW_H} h</b>. Si <b>{f.minParticipants || DEFAULT_MIN} personnes</b> s'inscrivent, elle part à l'Administration, qui l'instruit, puis à la Direction, qui l'approuve et réserve le lieu.
         Sinon elle s'annule et <b>personne ne paie</b>. L'argent n'est jamais prélevé ici : il se règle auprès de l'administration, après confirmation.
       </p>
     </Modal>
@@ -496,13 +540,15 @@ function JoinModal({ ev, u, onClose, onConfirm }) {
 }
 
 /* ── Décision de la Direction ─────────────────────────────────────────────── */
-function DecideModal({ ev, clash, onClose, onSettle }) {
+function DecideModal({ ev, clash, onClose, onSettle, role }) {
   const [note, setNote] = useState('')
   const aud = audienceOf(ev.audience)
+  const isFinal = ev.status === 'vise'   // la Direction tranche ; l'Administration ne fait que viser
+  const reasons = securityNeeds(ev)
   return (
-    <Modal open onClose={onClose} title="Valider l'activité" size="lg"
+    <Modal open onClose={onClose} title={isFinal ? "Approuver l'activité" : "Instruire l'activité"} size="lg"
       footer={<><Btn variant="danger" onClick={() => onSettle(ev, false, note)}><X size={15} /> Refuser</Btn>
-        <Btn onClick={() => onSettle(ev, true, note)}><Check size={15} /> Approuver & réserver</Btn></>}>
+        <Btn onClick={() => onSettle(ev, true, note)}><Check size={15} /> {isFinal ? "Approuver & réserver" : "Viser & transmettre à la Direction"}</Btn></>}>
       <div className="space-y-2 text-sm">
         <div className="font-extrabold text-base">{catOf(ev.cat).icon} {ev.title}</div>
         <div className="text-muted">{ev.desc}</div>
@@ -523,7 +569,14 @@ function DecideModal({ ev, clash, onClose, onSettle }) {
           <AlertTriangle size={15} /> Conflit : « {clash.title} » occupe déjà {ev.place} ce jour-là.</div>}
         <Field label="Motif (obligatoire en cas de refus)">
           <Textarea rows={2} value={note} onChange={e => setNote(e.target.value)} placeholder="ex. le terrain est réservé pour le cross de l'école" /></Field>
-        <p className="text-[12px] text-muted">En approuvant, l'activité entre au calendrier de l'école et les {adultCount(ev)} inscrits sont prévenus{ev.pricePerPerson ? ` du montant à régler` : ''}. En refusant, personne ne paie.</p>
+        {reasons.length > 0 && <div className="rounded-xl px-3 py-2.5 text-[12px]" style={{ background: '#EEF1F6', color: '#334155' }}>
+          <div className="font-bold flex items-center gap-1.5 mb-1"><ShieldCheck size={13} /> Présence de l'agent de sécurité requise</div>
+          <ul className="space-y-0.5">{reasons.map(r => <li key={r}>· {r}</li>)}</ul>
+          <div className="mt-1 opacity-80">L'agent est prévenu dès l'approbation ; il lui faut {SECURITY_NOTICE_H} h pour préparer.</div>
+        </div>}
+        <p className="text-[12px] text-muted">{isFinal
+          ? `En approuvant, l'activité entre au calendrier de l'école, les ${adultCount(ev)} inscrits sont prévenus${ev.pricePerPerson ? ' du montant à régler' : ''}${reasons.length ? ", et l'agent de sécurité reçoit sa feuille de route" : ''}.`
+          : "En visant, vous transmettez à la Direction, qui décidera. Rien n'est confirmé aux participants tant qu'elle n'a pas approuvé."} En refusant, personne ne paie.</p>
       </div>
     </Modal>
   )

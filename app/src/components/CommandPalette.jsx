@@ -21,7 +21,7 @@ export default function CommandPalette({ open, onClose, user }){
     const out=[]
     NAV.filter(n=>n.roles.includes(user.role)&&(!query||n.label.toLowerCase().includes(query)))
       .slice(0,query?6:9)
-      .forEach(n=>out.push({group:'Pages',label:n.label,Icon:n.icon,run:()=>navigate(n.to)}))
+      .forEach(n=>out.push({group:'Pages',label:n.labelFor?.[user.role]||n.label,Icon:n.icon,run:()=>navigate(n.to)}))
     const canStudents=['schooladmin','admin','supervisor','teacher'].includes(user.role)
     const canTeachers=['schooladmin','admin'].includes(user.role)
     if(query&&canStudents) d.students.filter(s=>s.name.toLowerCase().includes(query)).slice(0,5)

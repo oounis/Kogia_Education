@@ -1,7 +1,7 @@
 // Clé STABLE : la version du schéma est stockée dans la base elle-même (`_v`) et
 // les évolutions passent par migrate(). Voir db() plus bas.
 const KEY="coreon_db"
-const SCHEMA=20
+const SCHEMA=21
 const LEGACY_KEYS=Array.from({length:18},(_,i)=>`coreon_db_v${18-i}`)
 const MONTHS=["Sep","Oct","Nov","Déc","Jan","Fév","Mar","Avr","Mai","Juin"]
 export const FEE_MONTHS=MONTHS
@@ -62,6 +62,8 @@ function seed(){
     {id:"u_admin",role:"admin",name:"Karim Jelassi",email:"admin@alnour.tn",pw:"office",phone:"+216 20 666 666"},
     {id:"t1",role:"teacher",name:"Othman Ounis",email:"enseignant@alnour.tn",pw:"teacher",teacherId:"t1"},
     {id:"u_super",role:"supervisor",name:"Dali Brahmi",email:"surveillant@alnour.tn",pw:"super",phone:"+216 20 777 777"},
+    // agent de sécurité : portail, visiteurs, rondes, soirées — distinct du surveillant
+    {id:"u_secu",role:"security",name:"Mongi Zouaoui",email:"securite@alnour.tn",pw:"secu",gender:"Homme",phone:"+216 20 777 888"},
     // `gender` sert aux événements réservés aux mères ou aux pères (Espace parents).
     {id:"p1",role:"parent",name:"Karim Ben Salah",email:"parent@alnour.tn",pw:"parent",gender:"Homme",childIds:["s1"],phone:"+216 20 888 111",occupation:"Ingénieur",address:"Tunis"},
     {id:"p2",role:"parent",name:"Anis Trabelsi",email:"parent2@alnour.tn",pw:"parent",gender:"Homme",childIds:["s2"],phone:"+216 20 888 222",occupation:"Médecin"},
@@ -213,7 +215,7 @@ function seed(){
   const par=(id,name,adults=1,children=0,price=0,extra={})=>({userId:id,name,rsvp:'oui',adults,children,priceAgreedPerPerson:price,amountAgreed:price*(adults+children),agreedAt:Date.now()-2*HR,paid:false,...extra})
   const socialEvents=[
     { // en cours de collecte : il manque des joueurs
-      id:'sev_foot', at:Date.now()-6*HR, by:'p2', byName:'Anis Trabelsi',
+      id:'sev_foot', at:Date.now()-6*HR, by:'p2', byName:'Anis Trabelsi', space:'parent',
       title:'Match de football entre pères', cat:'sport',
       desc:"Deux équipes, une heure de jeu. Chaussures de sport obligatoires.",
       date:dISO(5), time:'18:00', place:'Terrain de football',
@@ -225,7 +227,7 @@ function seed(){
         {userId:'p5',name:'Mehdi Gharbi',rsvp:'peut-etre',adults:1,children:0,priceAgreedPerPerson:5,amountAgreed:5,agreedAt:Date.now()-HR}],
     },
     { // quorum atteint, échéance passée → attend la Direction
-      id:'sev_danse', at:Date.now()-30*HR, by:'p3', byName:'Salma Khelifi',
+      id:'sev_danse', at:Date.now()-30*HR, by:'p3', byName:'Salma Khelifi', space:'parent',
       title:'Atelier danse entre mères', cat:'atelier',
       desc:"Une heure de danse avec une intervenante. Une garde d'enfants est organisée sur place.",
       date:dISO(4), time:'17:30', place:'Salle polyvalente',
@@ -236,7 +238,7 @@ function seed(){
       participants:[par('p3','Salma Khelifi',1,0,8), par('p4','Sonia Ferchichi',1,1,8)],
     },
     { // approuvée : au calendrier, reste l'encaissement
-      id:'sev_cafe', at:Date.now()-4*DY, by:'p1', byName:'Karim Ben Salah',
+      id:'sev_cafe', at:Date.now()-4*DY, by:'p1', byName:'Karim Ben Salah', space:'parent',
       title:'Café des parents', cat:'rencontre',
       desc:"Un moment simple pour se rencontrer autour d'un café.",
       date:dISO(2), time:'09:00', place:'Bibliothèque',
@@ -247,7 +249,70 @@ function seed(){
     },
   ]
 
-  return {classes,students,teachers,users,payments,evaluations,incidents,requests,books,routes,homework,events,socialEvents,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,timetables:genTimetables(classes),settings,schools}
+  // Une soirée déjà approuvée : c'est elle que l'agent de sécurité doit couvrir.
+  socialEvents.push({
+    id:'sev_fete', at:Date.now()-6*DY, by:'p1', byName:'Karim Ben Salah', space:'parent',
+    title:"Fête de fin d'année des parents", cat:'fete',
+    desc:"Chacun apporte un plat. Sono et décoration financées par la caisse des parents.",
+    date:dISO(2), time:'19:00', place:"Cour de l'école",
+    audience:'mixte', reason:'', kids:'bienvenus',
+    minParticipants:15, maxParticipants:null, pricePerPerson:10, priceCovers:'la sono et la décoration',
+    status:'approuve',
+    approvals:[{role:'admin',by:'Karim Jelassi',at:Date.now()-3*DY,decision:'approuve',note:''},
+               {role:'schooladmin',by:'Lina Aderra',at:Date.now()-2*DY,decision:'approuve',note:''}],
+    decision:{by:'Lina Aderra',at:Date.now()-2*DY,note:''},
+    securityNotifiedAt:Date.now()-2*DY,
+    security:{checks:{brief:true,liste:true,portail:true},notes:'',agentName:'Mongi Zouaoui'},
+    participants:[par('p1','Karim Ben Salah',2,1,10), par('p2','Anis Trabelsi',2,0,10), par('p3','Salma Khelifi',1,2,10),
+                  par('p4','Sonia Ferchichi',2,1,10), par('p5','Mehdi Gharbi',2,2,10)],
+  })
+
+  // Un événement par espace : les enseignants et le personnel ont le leur.
+  socialEvents.push({
+    id:'sev_formation', at:Date.now()-10*HR, by:'t1', byName:'Othman Ounis', space:'teacher',
+    title:'Formation : évaluer sans noter', cat:'formation',
+    desc:"Atelier entre collègues sur l'évaluation par compétences.",
+    date:dISO(6), time:'16:30', place:'Salle polyvalente',
+    audience:'tous', reason:'', kids:'sans',
+    minParticipants:3, maxParticipants:null, pricePerPerson:0, priceCovers:'',
+    status:'collecte',
+    participants:[par('t1','Othman Ounis',1,0,0)],
+  })
+  socialEvents.push({
+    id:'sev_secours', at:Date.now()-2*DY, by:'u_super', byName:'Dali Brahmi', space:'staff',
+    title:'Formation premiers secours', cat:'formation',
+    desc:'Gestes qui sauvent, avec un formateur agréé.',
+    date:dISO(9), time:'14:00', place:'Salle polyvalente',
+    audience:'tous', reason:'', kids:'sans',
+    minParticipants:3, maxParticipants:null, pricePerPerson:15, priceCovers:'le formateur et le matériel',
+    status:'vise',   // instruit par l'Administration, attend la Direction
+    approvals:[{role:'admin',by:'Karim Jelassi',at:Date.now()-DY,decision:'approuve',note:''}],
+    // proposée par le surveillant ; visée par l'Administration — nul ne vise sa propre proposition
+    participants:[par('u_super','Dali Brahmi',1,0,15), par('u_admin','Karim Jelassi',1,0,15), par('u_secu','Mongi Zouaoui',1,0,15)],
+  })
+
+  // ── Poste de sécurité : registre, rondes, main courante ──
+  const hm=d=>`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
+  const todayISO=dISO(0)
+  const visitors=[
+    {id:'v1',date:todayISO,name:'Nizar Ben Amor',idType:'CIN',idNumber:'0912****',org:'Papeterie El Amel',purpose:'Livraison',hostName:'Karim Jelassi',
+     inAt:'08:12',outAt:'08:31',badge:'V-001',escort:false,escortName:'',vehicle:'214 TU 3120',agentName:'Mongi Zouaoui'},
+    {id:'v2',date:todayISO,name:'Sonia Ferchichi',idType:'CIN',idNumber:'0731****',org:'',purpose:'Rencontre avec un enseignant',hostName:'Hela Morjane',
+     inAt:'10:05',outAt:null,badge:'V-002',escort:true,escortName:'Dali Brahmi',vehicle:'',agentName:'Mongi Zouaoui'},
+  ]
+  const rounds=[
+    {id:'r1',date:todayISO,agentName:'Mongi Zouaoui',startAt:'07:15',endAt:'07:38',
+     points:[{k:'portail',at:'07:15',anomaly:''},{k:'cour',at:'07:20',anomaly:''},{k:'batiment',at:'07:26',anomaly:''},
+             {k:'biblio',at:'07:30',anomaly:''},{k:'technique',at:'07:34',anomaly:'Extincteur du couloir : pression basse'},{k:'parking',at:'07:38',anomaly:''}]},
+  ]
+  const logbook=[
+    {id:'l1',at:Date.now()-9*HR, agentName:'Mongi Zouaoui',kind:'prise',place:'Poste de garde',text:"Prise de service. Clés du portail et du bâtiment récupérées."},
+    {id:'l2',at:Date.now()-8.5*HR,agentName:'Mongi Zouaoui',kind:'ronde',place:'Périmètre',text:'Ronde du matin effectuée, 6 points de passage.'},
+    {id:'l3',at:Date.now()-8.4*HR,agentName:'Mongi Zouaoui',kind:'anomalie',place:'Local technique',text:"Extincteur du couloir : pression basse. Signalé à la Direction."},
+    {id:'l4',at:Date.now()-7*HR, agentName:'Mongi Zouaoui',kind:'visiteur',place:'Portail principal',text:'Livraison Papeterie El Amel — badge V-001, sorti à 08:31.'},
+  ]
+
+  return {classes,students,teachers,users,payments,evaluations,incidents,requests,books,routes,homework,events,socialEvents,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,visitors,rounds,logbook,timetables:genTimetables(classes),settings,schools}
 }
 export const DEFAULT_SETTINGS={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026', director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis', brand:'#6366F1', logoText:'AN', currency:'DT' }
 export const settings=()=>({...DEFAULT_SETTINGS, ...(db().settings||{})})
@@ -257,7 +322,7 @@ export function saveSettings(patch){ return mutate(d=>{ d.settings={...DEFAULT_S
 // à chaque évolution du schéma (coreon_db_v17 → v18 …), ce qui abandonnait la base
 // précédente et RÉINSTALLAIT les données de démonstration par-dessus les vraies
 // données de l'école. La version vit désormais DANS la base (`_v`) et on migre.
-const COLLECTIONS={classes:[],students:[],teachers:[],users:[],evaluations:[],incidents:[],requests:[],books:[],routes:[],homework:[],events:[],socialEvents:[],exams:[],messages:[],notifications:[],staffLeaves:[],schools:[],payments:{},attendance:{},staffAttendance:{},staffClock:{},timetables:{}}
+const COLLECTIONS={classes:[],students:[],teachers:[],users:[],evaluations:[],incidents:[],requests:[],books:[],routes:[],homework:[],events:[],socialEvents:[],exams:[],messages:[],notifications:[],staffLeaves:[],schools:[],visitors:[],rounds:[],logbook:[],payments:{},attendance:{},staffAttendance:{},staffClock:{},timetables:{}}
 
 function migrate(d){
   const from=d._v||0
@@ -265,6 +330,12 @@ function migrate(d){
   if(!Object.keys(d.timetables).length) d.timetables=genTimetables(d.classes)
   if(!d.settings) d.settings={...DEFAULT_SETTINGS}
 
+  if(from<21){
+    // Poste de sécurité : registre des visiteurs, rondes, main courante.
+    d.visitors=d.visitors||[]; d.rounds=d.rounds||[]; d.logbook=d.logbook||[]
+    // les activités connaissent désormais leur espace et leur volet sécurité
+    d.socialEvents.forEach(e=>{ if(!e.space) e.space='parent'; if(!e.security) e.security=null })
+  }
   if(from<20){
     // Espace parents : les parents ont besoin d'une civilité pour les activités
     // réservées aux mères ou aux pères. On ne devine pas — on laisse vide.

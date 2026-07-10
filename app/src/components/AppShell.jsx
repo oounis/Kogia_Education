@@ -32,7 +32,7 @@ export default function AppShell({ children }){
         <div className="flex items-center gap-2 px-2 mb-5"><Mark size={30}/><div className="font-extrabold lowercase tracking-tight">coreon <span className="accent-text font-normal text-sm">edu</span></div></div>
         <nav className="flex-1 space-y-1 overflow-y-auto scroll-thin -mr-2 pr-2">
           {items.map(n=>{ const active=loc.pathname===n.to; return (
-            <Link key={n.to} to={n.to} onClick={()=>setOpen(false)} aria-current={active?'page':undefined} className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${active?'accent-soft accent-text font-semibold':'text-muted font-medium hover:bg-canvas hover:text-ink'}`}>{active&&<span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r-full accent-bg" aria-hidden="true"/>}<n.icon size={18}/> {n.label}</Link>) })}
+            <Link key={n.to} to={n.to} onClick={()=>setOpen(false)} aria-current={active?'page':undefined} className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${active?'accent-soft accent-text font-semibold':'text-muted font-medium hover:bg-canvas hover:text-ink'}`}>{active&&<span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r-full accent-bg" aria-hidden="true"/>}<n.icon size={18}/> {n.labelFor?.[u.role]||n.label}</Link>) })}
         </nav>
         <div className="rounded-2xl p-4 text-white text-sm mt-3" style={{background:`linear-gradient(135deg,${role.color},#10162B)`}}><div className="font-bold">{role.label}</div><div className="opacity-80 text-xs mt-1">{u.role==='owner'?'Kogia Group · Console SaaS':`${settings().schoolName} · ${settings().city}`}</div></div>
       </aside>

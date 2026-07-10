@@ -1,7 +1,7 @@
 // Single source of truth for per-route role permissions.
 // Used by App.jsx (route guards) AND the notification system (so a notification
 // never links a user to a page their role can't open).
-export const ALL=['owner','schooladmin','admin','teacher','supervisor','parent']
+export const ALL=['owner','schooladmin','admin','teacher','supervisor','security','parent']
 export const ROUTE_ROLES={
   '/app': ALL,
   '/app/schools': ['owner'],
@@ -10,7 +10,7 @@ export const ROUTE_ROLES={
   '/app/students': ['schooladmin','admin','supervisor','teacher'],
   '/app/teachers': ['schooladmin','admin'],
   '/app/staff': ['schooladmin','admin'],
-  '/app/pointage': ['teacher','supervisor','admin'],
+  '/app/pointage': ['teacher','supervisor','security','admin'],
   '/app/evaluate': ['teacher'],
   '/app/results': ['schooladmin','admin'],
   '/app/timetable': ['schooladmin','admin','teacher','parent','supervisor'],
@@ -22,9 +22,10 @@ export const ROUTE_ROLES={
   '/app/live': ['parent'],
   '/app/library': ['schooladmin','admin','teacher'],
   '/app/transport': ['schooladmin','admin','parent'],
-  '/app/events': ['schooladmin','admin','teacher','supervisor','parent'],
-  '/app/social': ['parent','schooladmin','admin'],
-  '/app/incidents': ['supervisor','admin','schooladmin'],
+  '/app/events': ['schooladmin','admin','teacher','supervisor','security','parent'],
+  '/app/social': ['parent','teacher','supervisor','security','schooladmin','admin'],
+  '/app/security': ['security','schooladmin','admin'],
+  '/app/incidents': ['supervisor','security','admin','schooladmin'],
   '/app/requests': ['teacher','admin','schooladmin'],
   '/app/messages': ALL,
   '/app/notices': ALL,

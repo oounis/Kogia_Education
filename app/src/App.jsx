@@ -31,6 +31,7 @@ import Results from './pages/Results.jsx'
 import Staff from './pages/Staff.jsx'
 import Pointage from './pages/Pointage.jsx'
 import Social from './pages/Social.jsx'
+import Security from './pages/Security.jsx'
 import { ROUTE_ROLES } from './access.js'
 
 // ── Security: strict per-route authorization by role ──
@@ -77,6 +78,7 @@ export default function App(){
         <Route path="/app/transport" element={R(<Transport/>, "/app/transport")}/>
         <Route path="/app/events" element={R(<Events/>, "/app/events")}/>
         <Route path="/app/social" element={R(<Social/>, "/app/social")}/>
+        <Route path="/app/security" element={R(<Security/>, "/app/security")}/>
         <Route path="/app/incidents" element={R(<Incidents/>, "/app/incidents")}/>
         <Route path="/app/requests" element={R(<Requests/>, "/app/requests")}/>
         <Route path="/app/messages" element={R(<Messages/>, "/app/messages")}/>
