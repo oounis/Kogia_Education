@@ -1,7 +1,7 @@
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import toast from 'react-hot-toast'
-import { current } from './auth.js'
+import { current } from '@core/auth.js'
 import AppShell from './components/AppShell.jsx'
 import Landing from './pages/Landing.jsx'
 import Login from './pages/Login.jsx'
@@ -32,8 +32,8 @@ import Staff from './pages/Staff.jsx'
 import Pointage from './pages/Pointage.jsx'
 import Social from './pages/Social.jsx'
 import Security from './pages/Security.jsx'
-import { ROUTE_ROLES } from './access.js'
-import { featureEnabled } from './features.js'
+import { ROUTE_ROLES } from '@core/access.js'
+import { featureEnabled } from '@core/features.js'
 
 // ── Security: strict per-route authorization by role ──
 // La table des permissions vit dans access.js (source unique, refus par défaut) :

@@ -1,13 +1,14 @@
 import { db, studentsOfClass } from './db.js'
 import { now as appNow, isWeekend, isDemoLive } from './clock.js'
-import { Star, ThumbsUp, Minus, TriangleAlert, TrendingUp, Handshake, Lightbulb, Target } from 'lucide-react'
+// Les icônes sont NOMMÉES, pas importées : le web les résout dans `lucide-react`,
+// Android dans `lucide-react-native`. Le cœur ne connaît aucune des deux.
 // Niveaux : la couleur n'est jamais le seul indice — chaque niveau porte une icône
 // et son libellé (indispensable, la séparation tritan de cette échelle est au plancher).
 export const BUCKETS=[
-  {key:"excellent",label:"Excellent",color:"#12946F",soft:"#E7F5F0",Icon:Star},
-  {key:"good",label:"Bien",color:"#0E7FB8",soft:"#E6F1F8",Icon:ThumbsUp},
-  {key:"average",label:"Moyen",color:"#C97C1E",soft:"#FBF1E3",Icon:Minus},
-  {key:"weak",label:"Insuffisant",color:"#DC4B54",soft:"#FBEBEC",Icon:TriangleAlert},
+  {key:"excellent",label:"Excellent",color:"#12946F",soft:"#E7F5F0",icon:"Star"},
+  {key:"good",label:"Bien",color:"#0E7FB8",soft:"#E6F1F8",icon:"ThumbsUp"},
+  {key:"average",label:"Moyen",color:"#C97C1E",soft:"#FBF1E3",icon:"Minus"},
+  {key:"weak",label:"Insuffisant",color:"#DC4B54",soft:"#FBEBEC",icon:"TriangleAlert"},
 ]
 export const QUESTIONS=[
   {id:"q1",text:"Participation en classe aujourd'hui"},
@@ -17,8 +18,8 @@ export const QUESTIONS=[
   {id:"q5",text:"Performance générale du jour"},
 ]
 export const BADGES=[
-  {key:"star",label:"Élève du jour",Icon:Star},{key:"improved",label:"Plus grand progrès",Icon:TrendingUp},
-  {key:"team",label:"Esprit d'équipe",Icon:Handshake},{key:"idea",label:"Bonne idée",Icon:Lightbulb},{key:"focus",label:"Très concentré",Icon:Target},
+  {key:"star",label:"Élève du jour",icon:"Star"},{key:"improved",label:"Plus grand progrès",icon:"TrendingUp"},
+  {key:"team",label:"Esprit d'équipe",icon:"Handshake"},{key:"idea",label:"Bonne idée",icon:"Lightbulb"},{key:"focus",label:"Très concentré",icon:"Target"},
 ]
 // Les séances de l'enseignant, identiques du lundi au vendredi.
 // (Auparavant chaque ligne portait `day:1` mais personne ne lisait ce champ :

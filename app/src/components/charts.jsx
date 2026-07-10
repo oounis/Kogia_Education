@@ -1,5 +1,5 @@
 import { ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, LabelList } from 'recharts'
-import { axis, grid, tooltip, GRID, MUTED, BAR_RADIUS, BAR_RADIUS_H, BAR_SIZE } from '../charts.js'
+import { axis, grid, tooltip, GRID, MUTED, BAR_RADIUS, BAR_RADIUS_H, BAR_SIZE } from '@core/charts.js'
 
 // Briques de graphiques partagées : mêmes axes discrets, même grille pâle, même
 // infobulle douce partout. Un seul endroit à changer pour toute l'application.

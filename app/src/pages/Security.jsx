@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { current } from '../auth.js'
-import { db, mutate, uid, settings } from '../db.js'
-import { notify } from '../notify.js'
+import { current } from '@core/auth.js'
+import { db, mutate, uid, settings } from '@core/db.js'
+import { notify } from '@core/notify.js'
 import {
   PageHead, Card, StatCard, SectionCard, Btn, Modal, Field, Input, Select, Textarea,
   Avatar, Tabs, EmptyState, Badge, STATUS,
@@ -14,12 +14,12 @@ import {
   URGENCES, CONSIGNES, CHECKPOINTS, checkpointOf, LOG_KINDS, logKindOf,
   ID_TYPES, PURPOSES, needsEscort, isInside, badgeNumber,
   CHECKLIST, CHECK_PHASES, checklistTotal, checklistDone, phaseDone, isPhaseComplete, checklistComplete,
-} from '../security.js'
+} from '@core/security.js'
 import {
   securityNeeds, needsSecurity, isNightEvent, securityNotice, SECURITY_NOTICE_H,
   adultCount, childCount, goingCount, audienceOf,
-} from '../social.js'
-import { now as appNow, todayIso, isoOf } from '../clock.js'
+} from '@core/social.js'
+import { now as appNow, todayIso, isoOf } from '@core/clock.js'
 import { format, parseISO } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'

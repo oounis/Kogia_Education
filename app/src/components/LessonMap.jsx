@@ -1,4 +1,4 @@
-import { mentionFor } from '../results.js'
+import { mentionFor } from '@core/results.js'
 
 // La carte « par matière & leçon » — le cœur du produit, réutilisée partout
 // (fiche élève Direction, tableau de bord Parent, vue matière).

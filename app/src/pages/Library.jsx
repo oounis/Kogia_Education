@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { db, mutate } from '../db.js'
+import { db, mutate } from '@core/db.js'
 import { PageHead, Table, Btn, IconTile, EmptyState, SectionCard, STATUS } from '../components/ui.jsx'
 import { BookMarked } from 'lucide-react'
 import toast from 'react-hot-toast'

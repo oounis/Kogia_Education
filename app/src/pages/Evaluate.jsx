@@ -3,16 +3,17 @@ import { DndContext, DragOverlay, PointerSensor, KeyboardSensor, useSensor, useS
 import { Clock, ChevronRight, ChevronLeft, Check, Zap, RotateCcw, Users, MapPin, CalendarDays } from 'lucide-react'
 import { StudentChip, DropZone, dndAnnouncements } from '../components/dnd.jsx'
 import { PageHead, Btn, Avatar, Textarea, STATUS, Whale } from '../components/ui.jsx'
-import { teacherSchedule, QUESTIONS, BUCKETS, BADGES } from '../data.js'
-import { db, mutate, uid, studentById } from '../db.js'
-import { current } from '../auth.js'
-import { notify } from '../notify.js'
-import { studentSummary, mentionFor } from '../results.js'
-import { now } from '../clock.js'
+import { teacherSchedule, QUESTIONS, BUCKETS, BADGES } from '@core/data.js'
+import { db, mutate, uid, studentById } from '@core/db.js'
+import { current } from '@core/auth.js'
+import { notify } from '@core/notify.js'
+import { studentSummary, mentionFor } from '@core/results.js'
+import { now } from '@core/clock.js'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'
 import { isSummer, SummerFreeze } from '../components/Summer.jsx'
+import { Ic } from '../icons.jsx'
 
 const DRAFT_KEY='coreon_eval_draft'
 const loadDraft=()=>{ try{ return JSON.parse(localStorage.getItem(DRAFT_KEY)||'null') }catch{ return null } }
@@ -123,7 +124,7 @@ export default function Evaluate(){
           <div className="text-xs font-bold uppercase accent-text mb-2">Notes enregistrées</div>
           <div className="divide-y divide-line">
             {saved.map((s,i)=>(<div key={i} className="flex items-center justify-between py-2 text-sm">
-              <span className="font-medium inline-flex items-center gap-1.5">{s.name} {s.badge&&<span className="accent-text" title={s.badge.label}><s.badge.Icon size={14}/></span>}</span>
+              <span className="font-medium inline-flex items-center gap-1.5">{s.name} {s.badge&&<span className="accent-text" title={s.badge.label}><Ic n={s.badge.icon} size={14}/></span>}</span>
               <span className="font-bold" style={{color:s.mention?.color}}>{s.score}/100</span>
             </div>))}
           </div>
@@ -174,7 +175,7 @@ export default function Evaluate(){
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {BUCKETS.map(b=>{ const inB=students.filter(s=>place[s.id]===b.key); return (
             <DropZone key={b.key} id={b.key} label={`${b.label} — ${inB.length} élève(s)`} className="card p-3 min-h-[150px]">
-              <div className="flex items-center justify-between mb-2"><span className="text-sm font-bold flex items-center gap-1.5" style={{color:b.color}}><b.Icon size={15}/><span>{b.label}</span></span>
+              <div className="flex items-center justify-between mb-2"><span className="text-sm font-bold flex items-center gap-1.5" style={{color:b.color}}><Ic n={b.icon} size={15}/><span>{b.label}</span></span>
                 <span className="text-xs font-bold w-6 h-6 grid place-items-center rounded-full text-white" style={{background:b.color}}>{inB.length}</span></div>
               <div className="flex flex-wrap gap-2">{inB.map(s=><StudentChip key={s.id} student={s} bucketLabel={b.label}/>)}</div>
             </DropZone>) })}
@@ -202,8 +203,8 @@ function BadgePicker({students,badges,setBadges}){
   return (<div>
     <div className="flex flex-wrap gap-2 mb-3">{students.map(s=>(
       <button key={s.id} onClick={()=>setSel(sel===s.id?null:s.id)} className={`flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border bg-white text-sm ${sel===s.id?'accent-text':'border-line'}`} style={sel===s.id?{borderColor:'var(--accent)'}:{}}>
-        <Avatar name={s.name} seed={s.id} size={24}/>{s.name}{badges[s.id]&&(()=>{const B=BADGES.find(b=>b.key===badges[s.id]);return B?<span className="accent-text" title={B.label}><B.Icon size={14}/></span>:null})()}</button>))}</div>
-    {sel&&<div className="flex flex-wrap gap-2 pop">{BADGES.map(b=><button key={b.key} onClick={()=>{setBadges(p=>({...p,[sel]:b.key}));setSel(null)}} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-line bg-white text-sm hover:accent-soft"><b.Icon size={14} className="accent-text"/> {b.label}</button>)}
+        <Avatar name={s.name} seed={s.id} size={24}/>{s.name}{badges[s.id]&&(()=>{const B=BADGES.find(b=>b.key===badges[s.id]);return B?<span className="accent-text" title={B.label}><Ic n={B.icon} size={14}/></span>:null})()}</button>))}</div>
+    {sel&&<div className="flex flex-wrap gap-2 pop">{BADGES.map(b=><button key={b.key} onClick={()=>{setBadges(p=>({...p,[sel]:b.key}));setSel(null)}} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-line bg-white text-sm hover:accent-soft"><Ic n={b.icon} size={14} className="accent-text"/> {b.label}</button>)}
       <button onClick={()=>{setBadges(p=>{const n={...p};delete n[sel];return n});setSel(null)}} className="px-3 py-1.5 rounded-full text-sm text-muted">retirer</button></div>}
   </div>)
 }

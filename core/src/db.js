@@ -1,5 +1,6 @@
 // Clé STABLE : la version du schéma est stockée dans la base elle-même (`_v`) et
 // les évolutions passent par migrate(). Voir db() plus bas.
+import { getItem, setItem, removeItem } from './storage.js'
 const KEY="coreon_db"
 const SCHEMA=21
 const LEGACY_KEYS=Array.from({length:18},(_,i)=>`coreon_db_v${18-i}`)
@@ -393,10 +394,10 @@ function migrate(d){
 }
 
 function load(){
-  try{ const raw=localStorage.getItem(KEY); if(raw) return JSON.parse(raw) }catch{ /* corrompu */ }
+  try{ const raw=getItem(KEY); if(raw) return JSON.parse(raw) }catch{ /* corrompu */ }
   // reprise d'une base écrite par une version antérieure (clé versionnée)
   for(const legacy of LEGACY_KEYS){
-    try{ const raw=localStorage.getItem(legacy); if(raw){ const d=JSON.parse(raw); localStorage.removeItem(legacy); return d } }catch{ /* ignore */ }
+    try{ const raw=getItem(legacy); if(raw){ const d=JSON.parse(raw); removeItem(legacy); return d } }catch{ /* ignore */ }
   }
   return null
 }
@@ -411,9 +412,9 @@ export function db(){
   return d
 }
 export function setTimetableCell(classId,pi,di,cell){ return mutate(d=>{ d.timetables=d.timetables||{}; d.timetables[classId]=d.timetables[classId]||Array.from({length:6},()=>Array(5).fill(null)); d.timetables[classId][pi]=d.timetables[classId][pi]||Array(5).fill(null); d.timetables[classId][pi][di]=cell }) }
-export function save(d){localStorage.setItem(KEY,JSON.stringify(d))}
+export function save(d){setItem(KEY,JSON.stringify(d))}
 export function mutate(fn){const d=db();fn(d);save(d);return d}
-export function resetDb(){localStorage.removeItem(KEY)}
+export function resetDb(){removeItem(KEY)}
 export const uid=(p="id")=>p+"_"+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3)
 
 // ── lien parent ↔ enfant ────────────────────────────────────────────────────

@@ -8,6 +8,11 @@ export const ROLE={
   security:{label:'Sécurité',color:'#475569',color2:'#0E7FB8',soft:'#EEF1F6'},   // agent de sécurité : portail, visiteurs, soirées
   parent:{label:'Parent',color:'#FF6B81',color2:'#FB7185',soft:'#FFE8EC'},
 }
+// Le web peint l'accent dans des variables CSS ; Android n'a pas de :root, il lit
+// la palette retournée. Les deux appellent la même fonction et obtiennent le même
+// couple de couleurs — d'où le `return r`.
 export function applyAccent(role){const r=ROLE[role]||ROLE.admin
+  if(typeof document==='undefined') return r
   const st=document.documentElement.style
-  st.setProperty('--accent',r.color); st.setProperty('--accent-2',r.color2||r.color); st.setProperty('--accent-soft',r.soft)}
+  st.setProperty('--accent',r.color); st.setProperty('--accent-2',r.color2||r.color); st.setProperty('--accent-soft',r.soft)
+  return r}

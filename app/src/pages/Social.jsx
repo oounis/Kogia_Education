@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import { current } from '../auth.js'
-import { db, mutate, uid } from '../db.js'
-import { notify } from '../notify.js'
+import { current } from '@core/auth.js'
+import { db, mutate, uid } from '@core/db.js'
+import { notify } from '@core/notify.js'
 import { PageHead, Card, Btn, Modal, Field, Input, Select, Textarea, Avatar, EmptyState, StatCard, SectionCard, STATUS } from '../components/ui.jsx'
 import {
   Users, Plus, Clock, MapPin, Wallet, Check, X, Hourglass, Sparkles, ShieldCheck,
@@ -16,8 +16,8 @@ import {
   amountFor, consentStale, promoteFromWaitlist, isLateWithdrawal, facilityClash,
   joinButtonLabel, sweep, isLive, isDead, isPending, canDecide, awaitingRole, belongsToSpace,
   needsSecurity, securityNeeds, securityNotice, isNightEvent,
-} from '../social.js'
-import { now as appNow } from '../clock.js'
+} from '@core/social.js'
+import { now as appNow } from '@core/clock.js'
 import { format, formatDistanceToNowStrict, parseISO } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'

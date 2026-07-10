@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { current } from '../auth.js'
-import { settings, saveSettings } from '../db.js'
+import { current } from '@core/auth.js'
+import { settings, saveSettings } from '@core/db.js'
 import { PageHead, Card, Btn, Field, Input, Section, Modal } from '../components/ui.jsx'
 import { Building2, Palette, Save, Check } from 'lucide-react'
 import toast from 'react-hot-toast'

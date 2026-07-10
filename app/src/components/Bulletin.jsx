@@ -1,10 +1,11 @@
-import { db, classById } from '../db.js'
-import { bulletinFor, mentionFor } from '../results.js'
+import { db, classById } from '@core/db.js'
+import { bulletinFor, mentionFor } from '@core/results.js'
 import { Btn, Avatar, STATUS } from './ui.jsx'
 import { Dialog } from '@headlessui/react'
 import { X, Printer, Award, CalendarCheck } from 'lucide-react'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { Ic } from '../icons.jsx'
 
 const ANNEE = '2025–2026'
 
@@ -96,7 +97,7 @@ export default function Bulletin({ student, onClose }){
             {b.badges.length>0 && (<>
               <h3 className="text-sm font-bold uppercase tracking-wide text-muted mb-2 flex items-center gap-1.5"><Award size={14}/> Distinctions</h3>
               <div className="flex flex-wrap gap-2 mb-6">
-                {b.badges.slice(0,8).map((bd,i)=><span key={i} className="text-xs font-semibold px-2.5 py-1 rounded-full accent-soft accent-text inline-flex items-center gap-1">{bd.Icon&&<bd.Icon size={12}/>}{bd.label}</span>)}
+                {b.badges.slice(0,8).map((bd,i)=><span key={i} className="text-xs font-semibold px-2.5 py-1 rounded-full accent-soft accent-text inline-flex items-center gap-1">{bd.icon&&<Ic n={bd.icon} size={12}/>}{bd.label}</span>)}
               </div>
             </>)}
 

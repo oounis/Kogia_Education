@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { login, loginAs } from '../auth.js'
-import { ROLE } from '../theme.js'
-import { db } from '../db.js'
+import { login, loginAs } from '@core/auth.js'
+import { ROLE } from '@core/theme.js'
+import { db } from '@core/db.js'
 import { Zap } from 'lucide-react'
 import { Mark, Input, Btn } from '../components/ui.jsx'
 export default function Login(){

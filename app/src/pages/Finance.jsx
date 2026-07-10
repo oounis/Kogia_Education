@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { db, mutate, FEE_MONTHS, studentById } from '../db.js'
-import { notify } from '../notify.js'
+import { db, mutate, FEE_MONTHS, studentById } from '@core/db.js'
+import { notify } from '@core/notify.js'
 import { PageHead, Card, StatCard, Avatar, Btn, EmptyState, STATUS } from '../components/ui.jsx'
 import { Wallet, BellRing, Hourglass, Check } from 'lucide-react'
 import toast from 'react-hot-toast'

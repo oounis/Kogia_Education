@@ -1,7 +1,7 @@
 import { Sun, PlayCircle } from 'lucide-react'
 import { Whale } from './ui.jsx'
-import { schoolPhase } from '../livestatus.js'
-import { isDemoLive, setDemoLive, now } from '../clock.js'
+import { schoolPhase } from '@core/livestatus.js'
+import { isDemoLive, setDemoLive, now } from '@core/clock.js'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 

@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react'
-import { db, mutate, uid } from '../db.js'
-import { current } from '../auth.js'
-import { ROLE } from '../theme.js'
-import { notify } from '../notify.js'
+import { db, mutate, uid } from '@core/db.js'
+import { current } from '@core/auth.js'
+import { ROLE } from '@core/theme.js'
+import { notify } from '@core/notify.js'
 import { PageHead, Card, StatCard, SectionCard, Avatar, Btn, Modal, Field, Input, Select, Textarea, Tabs, EmptyState, SearchInput, STATUS } from '../components/ui.jsx'
 import { BriefcaseBusiness, Clock, UserX, Plane, Save, Download, ChevronLeft, ChevronRight, Check, X, Plus, TrendingUp, AlertTriangle, CalendarRange } from 'lucide-react'
 import { SoftArea } from '../components/charts.jsx'
@@ -15,7 +15,7 @@ const ST={present:['Présent',STATUS.ok],late:['Retard',STATUS.warn],absent:['Ab
 const NEXT={present:'late',late:'absent',absent:'conge',conge:'present'}
 const LEAVE_TYPES={annuel:'Congé annuel',maladie:'Maladie',exceptionnel:'Exceptionnel',permission:'Permission (heures)'}
 const QUOTA=30 // jours de congé annuel / an
-import { isoOf } from '../clock.js'
+import { isoOf } from '@core/clock.js'
 
 function staffList(d){
   return [

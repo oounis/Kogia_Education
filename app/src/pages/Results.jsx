@@ -1,15 +1,16 @@
 import { useState, useMemo } from 'react'
-import { db, classById } from '../db.js'
-import { BUCKETS } from '../data.js'
-import { studentSummary, mentionFor, lessonBreakdown } from '../results.js'
+import { db, classById } from '@core/db.js'
+import { BUCKETS } from '@core/data.js'
+import { studentSummary, mentionFor, lessonBreakdown } from '@core/results.js'
 import { PageHead, StatCard, SectionCard, EmptyState, Avatar, Tabs, Chip, SearchInput, Table, Modal, STATUS } from '../components/ui.jsx'
 import GradeHistory from '../components/GradeHistory.jsx'
 import LessonMap from '../components/LessonMap.jsx'
 import { ClipboardCheck, Gauge, Users, LifeBuoy, Trophy, TrendingUp, TrendingDown, Minus, ChevronRight, BarChart3, Search, BookMarked } from 'lucide-react'
 import { SoftArea, DistributionBar } from '../components/charts.jsx'
-import { SERIES } from '../charts.js'
+import { SERIES } from '@core/charts.js'
 import { format, startOfDay, startOfWeek } from 'date-fns'
 import { fr } from 'date-fns/locale'
+import { Ic } from '../icons.jsx'
 
 const PERIODS=[{value:'day',label:'Jour'},{value:'week',label:'Semaine'},{value:'month',label:'Mois'},{value:'year',label:'Année'}]
 const CUT={day:1,week:7,month:30,year:365}
@@ -108,7 +109,7 @@ export default function Results(){
           {/* barre empilée + puces : on compare des longueurs, pas des angles */}
           <div className="pt-6"><DistributionBar items={pie}/></div>
           <div className="grid grid-cols-2 gap-1.5 mt-4">
-            {BUCKETS.map(b=><span key={b.key} className="flex items-center gap-1.5 text-xs"><b.Icon size={12} style={{color:b.color}}/><span className="text-muted">{b.label}</span><b className="ml-auto">{data.dist[b.key]}</b></span>)}
+            {BUCKETS.map(b=><span key={b.key} className="flex items-center gap-1.5 text-xs"><Ic n={b.icon} size={12} style={{color:b.color}}/><span className="text-muted">{b.label}</span><b className="ml-auto">{data.dist[b.key]}</b></span>)}
           </div>
         </SectionCard>
       </div>

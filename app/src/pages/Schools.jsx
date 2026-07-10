@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { db, mutate, uid, resetDb } from '../db.js'
+import { db, mutate, uid, resetDb } from '@core/db.js'
 import { PageHead, Card, StatCard, SectionCard, Avatar, IconTile, Btn, Modal, Field, Input, Select, EmptyState, STATUS } from '../components/ui.jsx'
 import { Building2, Users, Wallet, Hourglass, KeyRound, Plus, Ban, Check, ShieldAlert, MapPin } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { todayIso } from '../clock.js'
+import { todayIso } from '@core/clock.js'
 
 const PLAN_TINT={Pro:['#EEF2FF','#6366F1'],Essentiel:['#E4F7FE','#0BA5D8']}
 const ST={active:{label:'Active',bg:'#E2FBF3',fg:STATUS.ok},trial:{label:"Période d'essai",bg:'#FFF4DD',fg:STATUS.warn},suspended:{label:'Suspendue',bg:'#EEF1F6',fg:STATUS.neutral}}

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Mark, STATUS } from '../components/ui.jsx'
-import { ROLE } from '../theme.js'
+import { ROLE } from '@core/theme.js'
 import {
   Zap, ArrowRight, ClipboardCheck, CalendarCheck, Wallet, BookOpen, ShieldAlert, MessageSquare,
   Bus, CalendarDays, Award, ShieldCheck, Globe, Check, Star, ChevronDown, Sparkles, Lock,

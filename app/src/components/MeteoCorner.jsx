@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Menu } from '@headlessui/react'
-import { fetchWeather, coordsOf } from '../meteo.js'
-import { settings } from '../db.js'
+import { fetchWeather, coordsOf } from '@core/meteo.js'
+import { settings } from '@core/db.js'
 import WeatherIcon from './WeatherIcon.jsx'
 import { Wind, Droplets, ChevronDown } from 'lucide-react'
 

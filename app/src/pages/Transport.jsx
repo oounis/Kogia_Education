@@ -1,5 +1,5 @@
-import { db } from '../db.js'
-import { current } from '../auth.js'
+import { db } from '@core/db.js'
+import { current } from '@core/auth.js'
 import { PageHead, StatCard, SectionCard, EmptyState, Btn, Avatar } from '../components/ui.jsx'
 import { Bus, Phone, Clock, Users, Route, School, MapPin } from 'lucide-react'
 

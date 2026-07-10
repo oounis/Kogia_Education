@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
-import { current } from '../auth.js'
-import { db, mutate, uid } from '../db.js'
-import { notify } from '../notify.js'
+import { current } from '@core/auth.js'
+import { db, mutate, uid } from '@core/db.js'
+import { notify } from '@core/notify.js'
 import { PageHead, Card, StatCard, SectionCard, Btn, Modal, Field, Input, Select, Textarea, EmptyState, Whale, STATUS } from '../components/ui.jsx'
 import { LogIn, LogOut, Clock, CalendarCheck, Plane, Plus, Hourglass, Timer } from 'lucide-react'
 import { format } from 'date-fns'
@@ -12,7 +12,7 @@ import { isSummer, rentreeLabel } from '../components/Summer.jsx'
 /* ── Pointage : la badgeuse personnelle de chaque membre du personnel ────── */
 const LEAVE_TYPES={annuel:'Congé annuel',maladie:'Maladie',exceptionnel:'Exceptionnel',permission:'Permission (heures)'}
 const QUOTA=30, LATE='08:05'
-import { isoOf, now as appNow } from '../clock.js'
+import { isoOf, now as appNow } from '@core/clock.js'
 const hm=d=>format(d,'HH:mm')
 const toMin=t=>{ const [h,m]=String(t).split(':').map(Number); return h*60+m }
 const fmtH=min=>`${Math.floor(min/60)} h ${String(min%60).padStart(2,'0')}`

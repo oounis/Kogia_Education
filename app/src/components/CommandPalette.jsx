@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Dialog } from '@headlessui/react'
-import { db, classById } from '../db.js'
-import { NAV } from '../nav.js'
+import { db, classById } from '@core/db.js'
+import { NAV } from '@core/nav.js'
 import { Avatar } from './ui.jsx'
 import { Search, CornerDownLeft } from 'lucide-react'
+import { Ic } from '../icons.jsx'
 
 const Kbd=({children})=><span className="text-[11px] font-bold text-muted border border-line rounded-md px-1.5 py-0.5 bg-canvas">{children}</span>
 
@@ -21,7 +22,7 @@ export default function CommandPalette({ open, onClose, user }){
     const out=[]
     NAV.filter(n=>n.roles.includes(user.role)&&(!query||n.label.toLowerCase().includes(query)))
       .slice(0,query?6:9)
-      .forEach(n=>out.push({group:'Pages',label:n.labelFor?.[user.role]||n.label,Icon:n.icon,run:()=>navigate(n.to)}))
+      .forEach(n=>out.push({group:'Pages',label:n.labelFor?.[user.role]||n.label,icon:n.icon,run:()=>navigate(n.to)}))
     const canStudents=['schooladmin','admin','supervisor','teacher'].includes(user.role)
     const canTeachers=['schooladmin','admin'].includes(user.role)
     if(query&&canStudents) d.students.filter(s=>s.name.toLowerCase().includes(query)).slice(0,5)
@@ -58,7 +59,7 @@ export default function CommandPalette({ open, onClose, user }){
                 <button onMouseEnter={()=>setIdx(i)} onClick={()=>go(it)}
                   className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left transition ${i===idx?'accent-soft':''}`}>
                   {it.seed!=null? <Avatar name={it.label} seed={it.seed} size={28}/>
-                    : <span className={`w-7 h-7 grid place-items-center rounded-lg bg-canvas ${i===idx?'accent-text':'text-muted'}`}><it.Icon size={15}/></span>}
+                    : <span className={`w-7 h-7 grid place-items-center rounded-lg bg-canvas ${i===idx?'accent-text':'text-muted'}`}><Ic n={it.icon} size={15}/></span>}
                   <span className="flex-1 min-w-0"><span className="block text-sm font-semibold truncate">{it.label}</span>
                     {it.sub&&<span className="block text-[12px] text-muted truncate">{it.sub}</span>}</span>
                   {i===idx&&<CornerDownLeft size={13} className="text-muted shrink-0"/>}

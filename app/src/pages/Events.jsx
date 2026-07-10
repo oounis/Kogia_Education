@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
-import { current } from '../auth.js'
-import { db, mutate, uid } from '../db.js'
-import { notify } from '../notify.js'
+import { current } from '@core/auth.js'
+import { db, mutate, uid } from '@core/db.js'
+import { notify } from '@core/notify.js'
 import { PageHead, Card, Btn, Modal, Field, Input, Select, Textarea, EmptyState, STATUS } from '../components/ui.jsx'
 import { CalendarDays, Plus, ChevronLeft, ChevronRight, Clock, Users, Trash2, MapPin } from 'lucide-react'
 import {

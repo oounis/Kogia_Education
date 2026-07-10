@@ -8,6 +8,8 @@
 //     heures affichées sont locales : entre 00 h et 01 h en Tunisie (UTC+1) tout
 //     était enregistré la veille. isoOf() est local.
 
+import { getItem, setItem } from './storage.js'
+
 const DEMO_KEY = 'coreon_demo_live'
 const SCHOOL_OPEN = 8 * 60          // 08:00
 const SCHOOL_CLOSE = 15 * 60        // 15:00
@@ -26,14 +28,14 @@ function fromUrl() {
 export function isDemoLive() {
   const forced = fromUrl()
   if (forced !== null) {
-    try { localStorage.setItem(DEMO_KEY, forced ? '1' : '0') } catch { /* quota / private mode */ }
+    setItem(DEMO_KEY, forced ? '1' : '0')
     return forced
   }
-  try { return localStorage.getItem(DEMO_KEY) === '1' } catch { return false }
+  return getItem(DEMO_KEY) === '1'
 }
 
 export function setDemoLive(on) {
-  try { localStorage.setItem(DEMO_KEY, on ? '1' : '0') } catch { /* ignore */ }
+  setItem(DEMO_KEY, on ? '1' : '0')
 }
 
 // L'heure vue par l'application. En mode démo, on garde la date réelle (les

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { format } from 'date-fns'
-import { now as appNow } from '../clock.js'
+import { now as appNow } from '@core/clock.js'
 import { fr } from 'date-fns/locale'
 
 // Horloge du tableau de bord — le pendant temporel de la météo :
