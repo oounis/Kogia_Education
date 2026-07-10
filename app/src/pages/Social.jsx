@@ -14,7 +14,7 @@ import {
   goingCount, adultCount, childCount, maybeList, waitlist, seatsLeft, isFull,
   hasJoined, participantOf, quorumReached, missingForQuorum, joinBlockedReason,
   amountFor, consentStale, promoteFromWaitlist, isLateWithdrawal, facilityClash,
-  joinButtonLabel, sweep, isLive, isDead, isPending, canDecide, awaitingRole,
+  joinButtonLabel, sweep, isLive, isDead, isPending, canDecide, awaitingRole, belongsToSpace,
   needsSecurity, securityNeeds, securityNotice, isNightEvent,
 } from '../social.js'
 import { now as appNow } from '../clock.js'
@@ -36,7 +36,7 @@ const BLANK = (space = 'parent') => ({
 export default function Social() {
   const u = current()
   const isParent = u.role === 'parent'
-  const canPropose = u.role !== 'owner'
+  const canPropose = u.role !== 'owner'   // chacun propose dans SON espace
   const isDirection = ['schooladmin', 'admin'].includes(u.role)
   const [, force] = useState(0); const refresh = () => force(x => x + 1)
   const [open, setOpen] = useState(false)
@@ -379,7 +379,7 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
 
       {/* Actions */}
       <div className="flex items-center gap-2 flex-wrap mt-auto pt-1">
-        {u.role !== 'owner' && isLive(ev.status) && (
+        {belongsToSpace(ev.space, u.role) && isLive(ev.status) && (
           me
             ? <>
                 <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl" style={{ background: STATUS.okSoft, color: STATUS.ok }}>

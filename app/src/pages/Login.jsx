@@ -36,7 +36,7 @@ export default function Login(){
               <button onClick={()=>{loginAs('u_owner');nav('/app')}} className="text-xs font-semibold px-3 py-1.5 rounded-full border border-line bg-white" style={{color:ROLE.owner.color}}>Kogia Group ({ROLE.owner.label})</button>
               {quick.map(u=>{const r=ROLE[u.role];return <button key={u.id} onClick={()=>{loginAs(u.id);nav('/app')}} className="text-xs font-semibold px-3 py-1.5 rounded-full border border-line bg-white" style={{color:r.color}}>{r.label}</button>})}
             </div>
-            <div className="text-[12px] text-muted mt-3">ex : enseignant@alnour.tn / teacher · direction@alnour.tn / admin</div>
+            <div className="text-[12px] text-muted mt-3">ex : enseignant@alnour.tn / teacher · direction@alnour.tn / admin · securite@alnour.tn / secu</div>
           </div>
         </motion.div>
       </div>

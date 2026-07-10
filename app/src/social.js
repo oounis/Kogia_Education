@@ -85,21 +85,24 @@ export const canDecide = (ev, user) =>
 // comptabilité. La Direction et l'Administration voient tout (elles valident).
 export const SPACES = {
   parent: {
-    key: 'parent', label: 'Espace parents', roles: ['parent'],
+    key: 'parent', label: 'Espace parents', members: 'aux parents', roles: ['parent'],
     sub: "Proposez une sortie, un match, un atelier. Les autres parents s'inscrivent, l'école valide.",
   },
   teacher: {
-    key: 'teacher', label: 'Espace enseignants', roles: ['teacher'],
+    key: 'teacher', label: 'Espace enseignants', members: 'aux enseignants', roles: ['teacher'],
     sub: 'Formations, réunions pédagogiques, sorties entre collègues — proposées par vous, validées par l\'école.',
   },
   staff: {
-    key: 'staff', label: 'Espace personnel', roles: ['admin', 'schooladmin', 'supervisor', 'security'],
+    key: 'staff', label: 'Espace personnel', members: 'au personnel de l’école', roles: ['admin', 'schooladmin', 'supervisor', 'security'],
     sub: "Réunions, formations et moments d'équipe du personnel de l'école.",
   },
 }
 export const spaceOfRole = role => Object.values(SPACES).find(s => s.roles.includes(role))?.key || 'staff'
-// L'Administration et la Direction valident tous les espaces ; elles les voient tous.
+// L'Administration et la Direction valident tous les espaces ; elles les VOIENT tous.
+// Voir un espace et en faire partie sont deux choses différentes : la Direction lit
+// le match de football des pères pour l'approuver, elle ne s'y inscrit pas.
 export const seesAllSpaces = role => role === 'admin' || role === 'schooladmin'
+export const belongsToSpace = (space, role) => spaceOfRole(role) === (space || 'parent')
 
 // ── Catégories (par espace) ─────────────────────────────────────────────────
 const CAT = {
@@ -202,8 +205,11 @@ export const participantOf = (ev, userId) => (ev.participants || []).find(p => p
 export const quorumReached = ev => adultCount(ev) >= (ev.minParticipants || DEFAULT_MIN)
 export const missingForQuorum = ev => Math.max(0, (ev.minParticipants || DEFAULT_MIN) - adultCount(ev))
 
-// Un parent peut-il rejoindre ? Renvoie null si oui, sinon la raison (affichée telle quelle).
+// Peut-on rejoindre ? Renvoie null si oui, sinon la raison (affichée telle quelle).
 export function joinBlockedReason(ev, user) {
+  // On ne s'inscrit que dans SON espace. L'Administration voit l'activité des parents
+  // pour l'instruire ; elle n'y prend pas une place.
+  if (!belongsToSpace(ev.space, user.role)) return `Activité réservée ${SPACES[ev.space || 'parent'].members}.`
   if (!isLive(ev.status)) return "Les inscriptions sont closes."
   if (deadlinePassed(ev)) return "La date limite d'inscription est passée."
   if (hasJoined(ev, user.id)) return null
