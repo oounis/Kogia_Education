@@ -3,7 +3,12 @@
 import { PERIODS, timetableFor } from './data.js'
 import { isDemoLive, now as appNow, SCHOOL_OPEN, SCHOOL_CLOSE } from './clock.js'
 
-export const room = n => `${import.meta.env.BASE_URL}rooms/${n}.jpg`
+// Chemin des photos d'ambiance : la base d'assets est injectée par la
+// plateforme (le web pose import.meta.env.BASE_URL dans main.jsx — Metro ne
+// supporte pas `import.meta`, le cœur ne doit donc jamais y toucher).
+let assetBase = '/'
+export const setAssetBase = b => { assetBase = b || '/' }
+export const room = n => `${assetBase}rooms/${n}.jpg`
 export const AREAS = {
   class:      { label:'Salle de classe',   color:'#6366F1', img:'class' },
   infirmerie: { label:'Infirmerie',         color:'#FF6B81', img:'infirmerie' },

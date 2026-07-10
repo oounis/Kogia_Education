@@ -35,11 +35,21 @@ Devoirs, Examens, Bibliothèque, Transport scolaire sont **éteints**, pas effac
 - Vérifié : `grep -rn "sessionStorage\|localStorage\|document\.\|window\." core/src/`
   ne renvoie que des usages gardés par `typeof`.
 
-### 4. 📱 Application Android (Expo) — `mobile/` — NOUVELLE cette session
-Expo SDK 57 / React Native 0.86 / React 19 (même React que le web). État : **démarre,
-se connecte, affiche le tableau de bord parent et l'aperçu staff — vérifié au rendu**
-(export web de l'app RN + chromium headless, zéro erreur console ; les chiffres du
-parent — 66/100, 4/10 mois, 85 % présence — sont IDENTIQUES au web, même cœur).
+### 4. 📱 Application Android (Expo) — `mobile/` — PRODUIT COMPLET (session 3 du 2026-07-10)
+Expo SDK 57 / React Native 0.86 / React 19 (même React que le web). État : **14 écrans
+natifs**, barre d'onglets par rôle + pile (Shell.js fait main, contrat écran stable
+`({user, params, nav})`), kit de composants partagé (`src/components.js`).
+Écrans : Login, Dashboard (parent + staff), Suivi en direct (timeline de la journée),
+Bulletin, Espaces/Social (cycle complet : proposer→viser→approuver→s'inscrire, quorum,
+désistements), Événements (calendrier mensuel), Messages (fils + bulles + envoi),
+Annonces, Notifications (inbox → navigation par lien), Paiements (déclarer, jamais
+s'auto-marquer payé), Emploi du temps (lecture, par rôle), Pointage (badgeuse + congés),
+Évaluer (flux 30 s en tap-tap : élève → panier, mêmes formes de données que le web),
+Appel/Présence (vue école pour direction, appel une-main pour enseignant).
+**Vérifié au rendu, 6 rôles × tous les onglets × tout le menu Plus : ZÉRO erreur
+console** (export web de l'app RN + chromium headless). Les modules cachés restent
+absents du mobile (même nav.js). Les mutations mobiles ont exactement les mêmes formes
+que le web (bulletins/notifications calculés par le même cœur).
 - `metro.config.js` : alias `@core` → `../core/src` via `resolveRequest` +
   `watchFolders: ['../core']`.
 - **⚠️ Piège SDK 57 contourné** : pendant `expo export`, le « on-demand filesystem »
@@ -72,11 +82,16 @@ logique** — toute info saisie d'un côté apparaît immédiatement de l'autre.
 3. Ce backend débloque AUSSI les prérequis « vraie école » : plaintext passwords,
    escalade de rôle côté client, multi-onglets (voir §Rappels).
 
-### B. Écrans natifs suivants (dans l'ordre de valeur)
-1. Parent : Suivi en direct (la carte « En classe » du web), notifications, paiements.
-2. Enseignant : Évaluer (le flux 30 secondes — LE flagship), Appel.
-3. Navigation par onglets (expo-router ou react-navigation) quand > 3 écrans.
-4. Badge/pointage staff, annonces.
+### B. Mobile — reste à faire (les écrans principaux sont FAITS)
+1. Écrans secondaires encore « Bientôt sur mobile » : Élèves, Enseignants, Personnel,
+   Comptes, Écoles, Suivi élèves (admin), Frais & Finances, Poste de sécurité,
+   Incidents, Demandes, Paramètres (le Shell les liste déjà, plaquette automatique).
+2. Test sur vrai téléphone (Expo Go, `npx expo start --tunnel` depuis WSL).
+3. Polices : le web utilise Nunito/Plus Jakarta — brancher expo-font quand on voudra
+   une parité typographique.
+4. Autres corrections cœur de cette session : `livestatus.js` ne touche plus
+   `import.meta` (setAssetBase, posé par app/src/main.jsx) ; `rentreeDate/rentreeLabel/
+   frDateLabel` vivent dans core/clock.js sans date-fns (Summer.jsx les ré-exporte).
 
 ### C. Distribution Android
 Expo Go suffit pour le développement. Pour un APK de démo : `eas build` (compte Expo

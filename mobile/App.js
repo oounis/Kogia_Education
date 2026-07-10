@@ -9,23 +9,23 @@ import { C } from './src/ui.js'
 export default function App() {
   const [ready, setReady] = useState(false)
   const [user, setUser] = useState(null)
-  const [screens, setScreens] = useState(null)
+  const [mods, setMods] = useState(null)
 
   useEffect(() => {
     (async () => {
       await hydrate()
       // Les modules qui touchent db() ne sont chargés qu'après l'hydratation.
-      const [{ current }, clock, Login, Dashboard] = await Promise.all([
+      const [{ current }, clock, storage, Login, Shell] = await Promise.all([
         import('@core/auth.js'),
         import('@core/clock.js'),
+        import('@core/storage.js'),
         import('./src/screens/Login.js'),
-        import('./src/screens/Dashboard.js'),
+        import('./src/Shell.js'),
       ])
       // Tant qu'il n'y a pas de vraie école : mode démonstration par défaut
       // (équivalent du ?live=1 du web), sans écraser un choix déjà mémorisé.
-      const { getItem } = await import('@core/storage.js')
-      if (getItem('coreon_demo_live') == null) clock.setDemoLive(true)
-      setScreens({ Login: Login.default, Dashboard: Dashboard.default })
+      if (storage.getItem('coreon_demo_live') == null) clock.setDemoLive(true)
+      setMods({ Login: Login.default, Shell: Shell.default })
       setUser(current())
       setReady(true)
     })()
@@ -37,12 +37,12 @@ export default function App() {
     </View>
   )
 
-  const { Login, Dashboard } = screens
+  const { Login, Shell } = mods
   return (
     <View style={{ flex: 1, backgroundColor: C.canvas }}>
       <StatusBar style="dark" />
       {user
-        ? <Dashboard user={user} onLogout={() => setUser(null)} />
+        ? <Shell key={user.id} user={user} onLogout={() => setUser(null)} />
         : <Login onLogin={setUser} />}
     </View>
   )

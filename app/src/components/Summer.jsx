@@ -1,21 +1,12 @@
 import { Sun, PlayCircle } from 'lucide-react'
 import { Whale } from './ui.jsx'
 import { schoolPhase } from '@core/livestatus.js'
-import { isDemoLive, setDemoLive, now } from '@core/clock.js'
-import { format } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { isDemoLive, setDemoLive } from '@core/clock.js'
+// La rentrée est calculée dans le cœur (partagée avec Android) — on ré-exporte
+// pour ne pas casser les imports existants.
+export { rentreeDate, rentreeLabel } from '@core/clock.js'
 
 export const isSummer = () => schoolPhase() === 'vacances'
-
-// La rentrée : 15 septembre de l'année scolaire en cours. Le jour de la semaine
-// est calculé, jamais écrit en dur (le 15 septembre 2026 est un mardi, pas un lundi).
-export function rentreeDate(ref = now()) {
-  const y = ref.getMonth() >= 8 && ref.getDate() >= 15 ? ref.getFullYear() + 1 : ref.getFullYear()
-  return new Date(y, 8, 15)
-}
-export function rentreeLabel(ref = now()) {
-  return format(rentreeDate(ref), 'EEEE d MMMM', { locale: fr })
-}
 
 // Bouton « démarrer la démo » : force l'app en journée de classe (voir clock.js).
 export function DemoLiveButton({ className = '' }) {

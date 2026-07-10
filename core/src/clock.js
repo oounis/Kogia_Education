@@ -63,4 +63,19 @@ export const isWeekend = (d = now()) => { const wd = d.getDay(); return wd === 0
 export const isoOf = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 export const todayIso = () => isoOf(now())
 
+// La rentrée : 15 septembre de l'année scolaire en cours. Le jour de la semaine
+// est calculé, jamais écrit en dur. Formatage français sans dépendance (le web
+// utilisait date-fns ici — interdit dans le cœur, Android n'en veut pas).
+const JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi']
+const MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre']
+export function rentreeDate(ref = now()) {
+  const y = ref.getMonth() >= 8 && ref.getDate() >= 15 ? ref.getFullYear() + 1 : ref.getFullYear()
+  return new Date(y, 8, 15)
+}
+export function rentreeLabel(ref = now()) {
+  const d = rentreeDate(ref)
+  return `${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]}`
+}
+export const frDateLabel = d => `${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]}`
+
 export { SCHOOL_OPEN, SCHOOL_CLOSE }
