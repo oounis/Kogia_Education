@@ -2,15 +2,43 @@ import { useState } from 'react'
 import { db, mutate, FEE_MONTHS, studentById } from '../db.js'
 import { notify } from '../notify.js'
 import { PageHead, Card, StatCard, Avatar, Btn, EmptyState, STATUS } from '../components/ui.jsx'
-import { Wallet, BellRing } from 'lucide-react'
+import { Wallet, BellRing, Hourglass, Check } from 'lucide-react'
 import toast from 'react-hot-toast'
 const COL={paid:STATUS.ok,pending:STATUS.warn,overdue:STATUS.danger,due:STATUS.neutral}
-const COL_FR={paid:'Payé',pending:'En attente',overdue:'En retard',due:'Impayé'}
-const NEXT={due:'paid',overdue:'paid',pending:'paid',paid:'pending'}
+const COL_FR={paid:'Payé',pending:'À confirmer',overdue:'En retard',due:'Impayé'}
+// L'administration est la SEULE à pouvoir passer un mois en « Payé » : le parent ne
+// fait que signaler son versement (statut « pending »). Un clic sur une case
+// encaisse (→ payé) ; recliquer un mois payé l'annule (→ impayé).
+const NEXT={due:'paid',overdue:'paid',pending:'paid',paid:'due'}
+
 export default function Finance(){
   const [,force]=useState(0); const d=db()
   const counts={paid:0,pending:0,overdue:0,due:0}; Object.values(d.payments).forEach(a=>a.forEach(p=>counts[p.status]++))
-  const cycle=(sid,mi)=>{ mutate(db=>{ const p=db.payments[sid][mi]; p.status=NEXT[p.status]||'paid' }); force(x=>x+1) }
+
+  // Prévient le parent quand SON mois change d'état — c'est le retour attendu
+  // après qu'il a signalé son versement.
+  const tellParent=(sid,month,status)=>{
+    const s=studentById(sid); if(!s?.parentId) return
+    const msg = status==='paid'
+      ? {title:'Paiement confirmé',body:`${month} confirmé pour ${s.name.split(' ')[0]} — merci !`}
+      : {title:'Paiement annulé',body:`${month} est repassé en impayé pour ${s.name.split(' ')[0]}. Contactez l'administration.`}
+    notify({to:s.parentId,kind:'payment',actor:'Administration',...msg,link:'/app/payments'})
+  }
+  const cycle=(sid,mi)=>{
+    let month,next
+    mutate(db=>{ const p=db.payments[sid][mi]; month=p.month; next=NEXT[p.status]||'paid'; p.status=next })
+    tellParent(sid,month,next)
+    toast.success(next==='paid'?`${month} confirmé · parent notifié`:`${month} annulé · parent notifié`)
+    force(x=>x+1) }
+
+  // Les versements signalés par les parents, en attente d'encaissement.
+  const toConfirm=d.students.flatMap(s=>(d.payments[s.id]||[])
+    .map((p,mi)=>p.status==='pending'?{s,p,mi}:null).filter(Boolean))
+  const confirmAll=()=>{
+    if(!toConfirm.length) return
+    toConfirm.forEach(({s,mi})=>{ mutate(db=>{db.payments[s.id][mi].status='paid'}) })
+    toConfirm.forEach(({s,p})=>tellParent(s.id,p.month,'paid'))
+    toast.success(`${toConfirm.length} versement(s) confirmé(s) · parents notifiés`); force(x=>x+1) }
   const remind=(sid)=>{ const s=studentById(sid); const unpaid=d.payments[sid].filter(p=>p.status!=='paid').map(p=>p.month)
     const parent=d.users.find(u=>u.id===s.parentId)
     if(parent) notify({to:parent.id,kind:'payment',title:'Rappel de paiement',body:`${unpaid.length} mois impayé(s) pour ${s.name} : ${unpaid.join(', ')}`})
@@ -28,14 +56,31 @@ export default function Finance(){
     toast.success(`${sent} parent(s) relancé(s)${noParent?` · ${noParent} élève(s) sans compte parent lié`:''}`)
   }
   return (<>
-    <PageHead title="Frais & Finances" sub="Touchez un mois pour le marquer payé. Relancez les parents en un clic."
+    <PageHead title="Frais & Finances" sub="Confirmez les versements signalés, encaissez au guichet, relancez les retards."
       action={<Btn onClick={remindAll} disabled={lateStudents.length===0}><BellRing size={15}/> Relancer tous les retards ({lateStudents.length})</Btn>}/>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
       <StatCard label="Payés" value={counts.paid} tint="mint" icon={<Wallet/>}/>
-      <StatCard label="En attente" value={counts.pending} tint="butter" icon={<Wallet/>}/>
+      <StatCard label="À confirmer" value={counts.pending} tint="butter" icon={<Hourglass/>} sub="signalés par les parents"/>
       <StatCard label="En retard" value={counts.overdue} tint="coral" icon={<Wallet/>}/>
       <StatCard label="Impayés (à venir)" value={counts.due} tint="sky" icon={<Wallet/>}/>
     </div>
+
+    {toConfirm.length>0 && <Card className="p-4 mb-5">
+      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <h3 className="font-bold flex items-center gap-1.5"><Hourglass size={16} style={{color:STATUS.warn}}/> Versements signalés — à confirmer <span className="text-xs text-muted font-normal">({toConfirm.length})</span></h3>
+        <Btn size="sm" onClick={confirmAll}><Check size={14}/> Tout confirmer</Btn>
+      </div>
+      <p className="text-xs text-muted mb-3">Un parent a signalé avoir payé. Confirmez après encaissement — le mois passe en « Payé » et le parent est prévenu.</p>
+      <div className="space-y-1.5 max-h-64 overflow-y-auto scroll-thin">
+        {toConfirm.map(({s,p,mi})=>(
+          <div key={s.id+p.month} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
+            <Avatar name={s.name} seed={s.id} size={32}/>
+            <span className="min-w-0 flex-1"><span className="block text-sm font-semibold truncate">{s.name}</span>
+              <span className="block text-[11px] text-muted">{p.month} · signalé par le parent</span></span>
+            <Btn size="sm" onClick={()=>cycle(s.id,mi)}><Check size={14}/> Confirmer</Btn>
+          </div>))}
+      </div>
+    </Card>}
     {d.students.length===0 ? <Card><EmptyState icon={<Wallet size={26}/>} title="Aucun élève" sub="Les échéanciers de paiement apparaîtront ici dès qu'un élève sera inscrit."/></Card>
     : <Card className="p-4 overflow-x-auto scroll-thin">
       <table className="w-full text-sm">

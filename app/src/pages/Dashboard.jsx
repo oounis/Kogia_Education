@@ -105,7 +105,9 @@ export default function Dashboard(){
 
   // schooladmin / admin
   const fc={paid:0,pending:0,overdue:0,due:0}; Object.values(d.payments).forEach(arr=>arr.forEach(p=>fc[p.status]++))
-  const pie=[['Payés',STATUS.ok],['En attente',STATUS.warn],['En retard',STATUS.danger],['Impayés',STATUS.neutral]].map(([n,c],i)=>({name:n,value:Object.values(fc)[i],color:c}))
+  // « À confirmer » = versements signalés par les parents, pas encore encaissés :
+  // ils ne comptent PAS dans le recouvrement (collected = fc.paid).
+  const pie=[['Payés',STATUS.ok],['À confirmer',STATUS.warn],['En retard',STATUS.danger],['Impayés',STATUS.neutral]].map(([n,c],i)=>({name:n,value:Object.values(fc)[i],color:c}))
   const totalFees=pie.reduce((s,p)=>s+p.value,0); const collected=fc.paid
   const collectRate=totalFees?Math.round((collected/totalFees)*100):0
   // présence réelle : agrégation des appels enregistrés (14 derniers jours d'école)
