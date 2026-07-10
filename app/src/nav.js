@@ -3,7 +3,7 @@
 import {
   LayoutDashboard, Users, GraduationCap, UserCog, ClipboardCheck, Wallet, CreditCard,
   ShieldAlert, FileText, Megaphone, Building2, CalendarCheck, BookOpen, BookMarked, BriefcaseBusiness, Fingerprint,
-  Bus, CalendarDays, MessageSquare, Award, CalendarClock, Radio, Settings, BarChart3
+  Bus, CalendarDays, MessageSquare, Award, CalendarClock, Radio, Settings, BarChart3, Sparkles
 } from 'lucide-react'
 
 export const NAV=[
@@ -26,6 +26,7 @@ export const NAV=[
   { to:'/app/library', label:'Bibliothèque', icon:BookMarked, roles:['schooladmin','admin','teacher'] },
   { to:'/app/transport', label:'Transport', icon:Bus, roles:['schooladmin','admin','parent'] },
   { to:'/app/events', label:'Événements', icon:CalendarDays, roles:['schooladmin','admin','teacher','supervisor','parent'] },
+  { to:'/app/social', label:'Espace parents', icon:Sparkles, roles:['parent','schooladmin','admin'] },
   { to:'/app/incidents', label:'Incidents', icon:ShieldAlert, roles:['supervisor','admin','schooladmin'] },
   { to:'/app/requests', label:'Demandes', icon:FileText, roles:['teacher','admin','schooladmin'] },
   { to:'/app/messages', label:'Messages', icon:MessageSquare, roles:['owner','schooladmin','admin','teacher','supervisor','parent'] },

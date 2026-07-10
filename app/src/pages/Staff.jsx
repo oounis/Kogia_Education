@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { db, mutate, uid } from '../db.js'
+import { current } from '../auth.js'
 import { ROLE } from '../theme.js'
 import { notify } from '../notify.js'
 import { PageHead, Card, StatCard, SectionCard, Avatar, Btn, Modal, Field, Input, Select, Textarea, Tabs, EmptyState, SearchInput, STATUS } from '../components/ui.jsx'
@@ -185,8 +186,19 @@ function LeavesTab({ d, staff, refresh }){
       workdays(lv.from,lv.to).forEach(day=>{ const k=isoOf(day)
         db.staffAttendance[k]=db.staffAttendance[k]||{}; db.staffAttendance[k][lv.staffId]='conge' }) })
   }
+  // Accorder un congé est une prérogative de la DIRECTION : un admin de bureau
+  // pouvait approuver les congés des enseignants — et surtout LE SIEN, déposé
+  // depuis sa propre badgeuse. Deux verrous : le rôle, et « pas soi-même ».
+  const me=current()
+  const isDirection=me.role==='schooladmin'
+  const myStaffId=me.teacherId||me.id
+  const canDecide=lv=> isDirection && lv.staffId!==myStaffId
+
   const decide=(lv,status)=>{
-    mutate(db=>{ const x=(db.staffLeaves||[]).find(y=>y.id===lv.id); if(x){ x.status=status; x.by='Direction' } })
+    if(!canDecide(lv)) return toast.error(lv.staffId===myStaffId
+      ? "Vous ne pouvez pas décider de votre propre congé"
+      : "Seule la Direction peut accorder un congé")
+    mutate(db=>{ const x=(db.staffLeaves||[]).find(y=>y.id===lv.id); if(x&&x.status==='pending'){ x.status=status; x.by=me.name } })
     if(status==='approved'&&lv.type!=='permission') applyLeave(lv)   // une permission de quelques heures ne remplit pas la journée
     notify({to:lv.staffId,kind:'info',actor:'Direction',title:status==='approved'?'Congé approuvé':'Congé refusé',
       body:`${LEAVE_TYPES[lv.type]} du ${lv.from} au ${lv.to} : ${status==='approved'?'accordé. Bon repos !':'refusé — voir la direction.'}`})
@@ -194,11 +206,13 @@ function LeavesTab({ d, staff, refresh }){
     refresh()
   }
   const add=()=>{
+    if(!isDirection) return toast.error("Seule la Direction peut enregistrer un congé")
     if(!f.staffId||!f.from||!f.to) return toast.error('Employé et dates requis')
+    if(f.staffId===myStaffId) return toast.error("Déposez votre propre congé depuis « Mon pointage » : la Direction le validera")
     if(f.to<f.from) return toast.error('La date de fin précède le début')
     const days=workdays(f.from,f.to).length
     if(days===0) return toast.error('La plage ne contient aucun jour ouvré')
-    const lv={id:uid('lv'),staffId:f.staffId,type:f.type,from:f.from,to:f.to,days,reason:f.reason.trim(),status:'approved',at:Date.now(),by:'Direction'}
+    const lv={id:uid('lv'),staffId:f.staffId,type:f.type,from:f.from,to:f.to,days,reason:f.reason.trim(),status:'approved',at:Date.now(),by:me.name}
     mutate(db=>{ db.staffLeaves=db.staffLeaves||[]; db.staffLeaves.push(lv) })
     applyLeave(lv)
     toast.success(`Congé enregistré (${days} j ouvrés) — présence remplie automatiquement`)
@@ -217,12 +231,16 @@ function LeavesTab({ d, staff, refresh }){
                 <span className="block text-sm font-semibold">{nameOf(lv.staffId)} · {LEAVE_TYPES[lv.type]}</span>
                 <span className="block text-xs text-muted">{lv.type==='permission'?`${lv.from}${lv.hours?` · ${lv.hours} h`:''}`:`${lv.from} → ${lv.to} · ${lv.days} j ouvrés`}{lv.reason?` · « ${lv.reason} »`:''}</span>
               </span>
-              <Btn size="sm" onClick={()=>decide(lv,'approved')}><Check size={14}/> Approuver</Btn>
-              <Btn size="sm" variant="danger" onClick={()=>decide(lv,'rejected')}><X size={14}/></Btn>
+              {canDecide(lv)
+                ? <><Btn size="sm" onClick={()=>decide(lv,'approved')}><Check size={14}/> Approuver</Btn>
+                    <Btn size="sm" variant="danger" onClick={()=>decide(lv,'rejected')}><X size={14}/></Btn></>
+                : <span className="text-[11px] font-semibold text-muted text-right shrink-0">
+                    {lv.staffId===myStaffId ? 'Votre demande —\nla Direction décide' : 'Décision réservée\nà la Direction'}
+                  </span>}
             </div>))}
         </SectionCard>
         <SectionCard icon={<Plane size={16}/>} tint="grape" title="Historique des congés"
-          action={<Btn size="sm" onClick={()=>{setF(BLANK_LV);setOpen(true)}}><Plus size={14}/> Enregistrer un congé</Btn>} bodyClass="p-3">
+          action={isDirection&&<Btn size="sm" onClick={()=>{setF(BLANK_LV);setOpen(true)}}><Plus size={14}/> Enregistrer un congé</Btn>} bodyClass="p-3">
           {leaves.filter(l=>l.status!=='pending').length===0 ? <EmptyState title="Aucun congé enregistré"/>
           : leaves.filter(l=>l.status!=='pending').map(lv=>{ const [lbl,col]=stLv[lv.status]
             return (

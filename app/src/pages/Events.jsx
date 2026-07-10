@@ -22,7 +22,13 @@ const emptyForm=d=>({date:d||'',time:'',title:'',type:'Événement',desc:'',plac
 export default function Events(){
   const u=current()
   const canAdd=['owner','schooladmin','admin','teacher','supervisor'].includes(u.role)
+  // Un enseignant ou un surveillant pouvait supprimer, en un clic et sans confirmation,
+  // les événements officiels de la Direction (dates d'examens, réunion de parents).
+  // On ne supprime que ses propres événements ; la Direction peut tout supprimer.
+  const isDirection=['owner','schooladmin','admin'].includes(u.role)
+  const canDelete=e=> isDirection || e.by===u.name
   const [,force]=useState(0); const bump=()=>force(x=>x+1)
+  const [confirmDel,setConfirmDel]=useState(null)
   const [cursor,setCursor]=useState(startOfMonth(new Date()))
   const [sel,setSel]=useState(format(new Date(),'yyyy-MM-dd'))
   const [open,setOpen]=useState(false); const [f,setF]=useState(emptyForm())
@@ -43,7 +49,10 @@ export default function Events(){
     roles.forEach(r=>notify({role:r,kind:'notice',actor:u.name,title:'Nouvel événement · '+f.title.trim(),body:`${format(parseISO(f.date),'d MMM',{locale:fr})}${f.time?' à '+f.time:''}`,link:'/app/events'}))
     toast.success('Événement ajouté au calendrier'); setOpen(false); setSel(f.date); setCursor(startOfMonth(parseISO(f.date))); bump()
   }
-  const del=(id)=>{ mutate(d=>{ d.events=d.events.filter(e=>e.id!==id) }); toast.success('Événement supprimé'); bump() }
+  const del=(ev)=>{
+    if(!canDelete(ev)) return toast.error("Vous ne pouvez supprimer que vos propres événements")
+    mutate(d=>{ d.events=d.events.filter(e=>e.id!==ev.id) })
+    toast.success('Événement supprimé'); setConfirmDel(null); bump() }
 
   const selList=(byDay[sel]||[]).slice().sort((a,b)=>(a.time||'').localeCompare(b.time||''))
   const upcoming=events.filter(e=>e.date>=format(new Date(),'yyyy-MM-dd')).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,5)
@@ -109,7 +118,7 @@ export default function Events(){
                     </div>
                     {e.desc&&<div className="text-xs text-muted mt-1">{e.desc}</div>}
                   </div>
-                  {canAdd&&<button onClick={()=>del(e.id)} className="opacity-0 group-hover:opacity-100 text-muted hover:text-coral"><Trash2 size={14}/></button>}
+                  {canDelete(e)&&<button onClick={()=>setConfirmDel(e)} aria-label={`Supprimer ${e.title}`} className="opacity-0 group-hover:opacity-100 focus:opacity-100 text-muted hover:text-coral"><Trash2 size={14}/></button>}
                 </div>
               </div>
             ))}
@@ -141,6 +150,11 @@ export default function Events(){
         <Field label="Destinataires"><Select value={f.audience} onChange={e=>setF({...f,audience:e.target.value})}>{Object.entries(AUD).map(([k,v])=><option key={k} value={k}>{v}</option>)}</Select></Field>
         <div className="sm:col-span-2"><Field label="Description (optionnel)"><Textarea rows={3} value={f.desc} onChange={e=>setF({...f,desc:e.target.value})} placeholder="Détails de l’événement…"/></Field></div>
       </div>
+    </Modal>
+
+    <Modal open={!!confirmDel} onClose={()=>setConfirmDel(null)} title="Supprimer cet événement ?" size="sm"
+      footer={<><Btn variant="ghost" onClick={()=>setConfirmDel(null)}>Annuler</Btn><Btn onClick={()=>del(confirmDel)}><Trash2 size={15}/> Supprimer</Btn></>}>
+      <p className="text-sm text-muted">« {confirmDel?.title} » sera retiré du calendrier de l'école. Cette action est définitive.</p>
     </Modal>
   </>)
 }

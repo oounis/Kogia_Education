@@ -12,7 +12,7 @@ const BLANK={name:'',city:'Tunis',plan:'Essentiel',director:'',email:''}
 // Console Kogia Group : les écoles clientes de la plateforme.
 export default function Schools(){
   const [,force]=useState(0); const d=db()
-  const [open,setOpen]=useState(false); const [f,setF]=useState(BLANK); const [confirmReset,setConfirmReset]=useState(false)
+  const [open,setOpen]=useState(false); const [f,setF]=useState(BLANK); const [confirmReset,setConfirmReset]=useState(false); const [confirmSuspend,setConfirmSuspend]=useState(null)
   const schools=d.schools||[]
   // studentCount peut être absent/nul sur une école créée à la main → 0, pas NaN
   const count=s=>s.live?d.students.length:(Number(s.studentCount)||0)
@@ -28,11 +28,15 @@ export default function Schools(){
     toast.success(`${f.name} ajoutée — compte Direction créé et identifiants envoyés à ${f.email}`)
     setOpen(false); setF(BLANK); force(x=>x+1)
   }
+  // Suspendre une école gèle l'accès de tout un établissement : on confirme d'abord.
   const toggle=(sc)=>{
-    const now=sc.status==='suspended'?'active':'suspended'
-    mutate(db=>{ const x=db.schools.find(y=>y.id===sc.id); if(x) x.status=now })
-    toast.success(now==='suspended'?`${sc.name} suspendue — accès gelé`:`${sc.name} réactivée`)
-    force(x=>x+1)
+    if(sc.status!=='suspended'){ setConfirmSuspend(sc); return }
+    mutate(db=>{ const x=db.schools.find(y=>y.id===sc.id); if(x) x.status='active' })
+    toast.success(`${sc.name} réactivée`); force(x=>x+1)
+  }
+  const doSuspend=(sc)=>{
+    mutate(db=>{ const x=db.schools.find(y=>y.id===sc.id); if(x) x.status='suspended' })
+    toast.success(`${sc.name} suspendue — accès gelé`); setConfirmSuspend(null); force(x=>x+1)
   }
 
   return (<>
@@ -96,6 +100,12 @@ export default function Schools(){
         <Field label="E-mail du compte Direction *"><Input value={f.email} onChange={e=>setF({...f,email:e.target.value})} placeholder="direction@ecole.tn"/></Field>
       </div>
       <p className="text-xs text-muted mt-3">L'école démarre en <b>période d'essai</b>. Le compte Direction reçoit ses identifiants et crée ensuite tous les autres comptes (Administration, Enseignant, Surveillant, Parent) dans son portail.</p>
+    </Modal>
+
+    <Modal open={!!confirmSuspend} onClose={()=>setConfirmSuspend(null)} title="Suspendre cette école ?" size="sm"
+      footer={<><Btn variant="ghost" onClick={()=>setConfirmSuspend(null)}>Annuler</Btn>
+        <Btn variant="danger" onClick={()=>doSuspend(confirmSuspend)}><Ban size={15}/> Suspendre</Btn></>}>
+      <p className="text-sm text-muted">L'accès de <b>{confirmSuspend?.name}</b> sera gelé : la direction, les enseignants et les parents ne pourront plus se connecter. Vous pourrez réactiver l'école à tout moment.</p>
     </Modal>
 
     <Modal open={confirmReset} onClose={()=>setConfirmReset(false)} title="Réinitialiser les données ?"

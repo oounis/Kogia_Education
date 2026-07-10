@@ -23,6 +23,7 @@ export const ROUTE_ROLES={
   '/app/library': ['schooladmin','admin','teacher'],
   '/app/transport': ['schooladmin','admin','parent'],
   '/app/events': ['schooladmin','admin','teacher','supervisor','parent'],
+  '/app/social': ['parent','schooladmin','admin'],
   '/app/incidents': ['supervisor','admin','schooladmin'],
   '/app/requests': ['teacher','admin','schooladmin'],
   '/app/messages': ALL,

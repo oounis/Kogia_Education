@@ -1,7 +1,7 @@
 // Clé STABLE : la version du schéma est stockée dans la base elle-même (`_v`) et
 // les évolutions passent par migrate(). Voir db() plus bas.
 const KEY="coreon_db"
-const SCHEMA=19
+const SCHEMA=20
 const LEGACY_KEYS=Array.from({length:18},(_,i)=>`coreon_db_v${18-i}`)
 const MONTHS=["Sep","Oct","Nov","Déc","Jan","Fév","Mar","Avr","Mai","Juin"]
 export const FEE_MONTHS=MONTHS
@@ -40,11 +40,11 @@ function seed(){
     S("s1","Amira","Ben Salah","c5a","p1",{gender:"Fille",bloodGroup:"A+",fatherName:"Karim Ben Salah",motherName:"Sonia",allergies:"Arachides",medical:"Asthme léger"}),
     S("s2","Youssef","Trabelsi","c5a","p2",{gender:"Garçon",fatherName:"Anis Trabelsi"}),
     S("s3","Leila","Khelifi","c5a","p3",{gender:"Fille",bloodGroup:"B+"}),
-    S("s4","Karim","Gharbi","c5a",null,{gender:"Garçon"}),S("s5","Sarra","Mejri","c5a",null,{gender:"Fille"}),
+    S("s4","Karim","Gharbi","c5a","p5",{gender:"Garçon"}),S("s5","Sarra","Mejri","c5a",null,{gender:"Fille"}),
     S("s6","Hamza","Bouazizi","c5a",null,{gender:"Garçon"}),S("s7","Nour","Jlassi","c5a",null,{gender:"Fille"}),
     S("s8","Bilel","Chaabane","c5a",null,{gender:"Garçon"}),S("s9","Rania","Sassi","c5a",null,{gender:"Fille"}),
     S("s10","Aziz","Hammami","c5a",null,{gender:"Garçon"}),
-    S("s11","Salma","Ferchichi","c6a",null,{gender:"Fille"}),S("s12","Wassim","Oueslati","c6a",null,{gender:"Garçon"}),
+    S("s11","Salma","Ferchichi","c6a","p4",{gender:"Fille"}),S("s12","Wassim","Oueslati","c6a",null,{gender:"Garçon"}),
     S("s13","Mariem","Saidi","c9a",null,{gender:"Fille",dob:"2018-03-02"}),S("s14","Skander","Ayari","c9a",null,{gender:"Garçon",dob:"2018-07-12"}),
     S("s15","Yasmine","Bouzid","l2s",null,{gender:"Fille",dob:"2019-01-20"}),S("s16","Oussama","Mansouri","l2s",null,{gender:"Garçon",dob:"2019-09-05"}),
     S("s17","Firas","Nasri","c6a",null,{gender:"Garçon"}),S("s18","Ines","Hidri","c6a",null,{gender:"Fille"}),S("s19","Malek","Riahi","c6a",null,{gender:"Garçon"}),S("s20","Dorra","Lahmar","c6a",null,{gender:"Fille"}),
@@ -62,9 +62,12 @@ function seed(){
     {id:"u_admin",role:"admin",name:"Karim Jelassi",email:"admin@alnour.tn",pw:"office",phone:"+216 20 666 666"},
     {id:"t1",role:"teacher",name:"Othman Ounis",email:"enseignant@alnour.tn",pw:"teacher",teacherId:"t1"},
     {id:"u_super",role:"supervisor",name:"Dali Brahmi",email:"surveillant@alnour.tn",pw:"super",phone:"+216 20 777 777"},
-    {id:"p1",role:"parent",name:"Karim Ben Salah",email:"parent@alnour.tn",pw:"parent",childIds:["s1"],phone:"+216 20 888 111",occupation:"Ingénieur",address:"Tunis"},
-    {id:"p2",role:"parent",name:"Anis Trabelsi",email:"parent2@alnour.tn",pw:"parent",childIds:["s2"],phone:"+216 20 888 222",occupation:"Médecin"},
-    {id:"p3",role:"parent",name:"M. Khelifi",email:"parent3@alnour.tn",pw:"parent",childIds:["s3"],phone:"+216 20 888 333",occupation:"Commerçant"},
+    // `gender` sert aux événements réservés aux mères ou aux pères (Espace parents).
+    {id:"p1",role:"parent",name:"Karim Ben Salah",email:"parent@alnour.tn",pw:"parent",gender:"Homme",childIds:["s1"],phone:"+216 20 888 111",occupation:"Ingénieur",address:"Tunis"},
+    {id:"p2",role:"parent",name:"Anis Trabelsi",email:"parent2@alnour.tn",pw:"parent",gender:"Homme",childIds:["s2"],phone:"+216 20 888 222",occupation:"Médecin"},
+    {id:"p3",role:"parent",name:"Salma Khelifi",email:"parent3@alnour.tn",pw:"parent",gender:"Femme",childIds:["s3"],phone:"+216 20 888 333",occupation:"Commerçante"},
+    {id:"p4",role:"parent",name:"Sonia Ferchichi",email:"parent4@alnour.tn",pw:"parent",gender:"Femme",childIds:["s11"],phone:"+216 20 888 444",occupation:"Pharmacienne"},
+    {id:"p5",role:"parent",name:"Mehdi Gharbi",email:"parent5@alnour.tn",pw:"parent",gender:"Homme",childIds:["s4"],phone:"+216 20 888 555",occupation:"Architecte"},
   ]
   const payments={}; students.forEach((s,i)=>{payments[s.id]=MONTHS.map((m,mi)=>{let st="paid";if(mi>=6)st="due";else if((i+mi)%7===0)st="overdue";else if((i+mi)%5===0)st="pending";return{month:m,status:st}})})
   // pre-seeded evaluation for 5ème A so dashboards/parents are not empty
@@ -204,7 +207,47 @@ function seed(){
     {id:"lv3",staffId:"t3",type:"annuel",from:iso(6),to:iso(10),days:4,reason:"Voyage familial",status:"pending",at:Date.now()-1*D,by:null},
     {id:"lv4",staffId:"u_admin",type:"exceptionnel",from:iso(-40),to:iso(-40),days:1,reason:"Événement familial",status:"approved",at:Date.now()-42*D,by:"Lina Aderra"},
   ]
-  return {classes,students,teachers,users,payments,evaluations,incidents,requests,books,routes,homework,events,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,timetables:genTimetables(classes),settings,schools}
+  // ── Espace parents : trois activités pour montrer tout le cycle de vie ──
+  const HR=3600000, DY=86400000
+  const dISO=n=>{const x=new Date(Date.now()+n*DY);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`}
+  const par=(id,name,adults=1,children=0,price=0,extra={})=>({userId:id,name,rsvp:'oui',adults,children,priceAgreedPerPerson:price,amountAgreed:price*(adults+children),agreedAt:Date.now()-2*HR,paid:false,...extra})
+  const socialEvents=[
+    { // en cours de collecte : il manque des joueurs
+      id:'sev_foot', at:Date.now()-6*HR, by:'p2', byName:'Anis Trabelsi',
+      title:'Match de football entre pères', cat:'sport',
+      desc:"Deux équipes, une heure de jeu. Chaussures de sport obligatoires.",
+      date:dISO(5), time:'18:00', place:'Terrain de football',
+      audience:'peres', reason:"match entre pères ; un match entre mères est prévu le mois prochain", kids:'sans',
+      minParticipants:10, maxParticipants:14, pricePerPerson:5, priceCovers:"la location du terrain et l'arbitre",
+      status:'collecte',
+      // que des pères : la règle de non-mixité vaut aussi pour les données de démo
+      participants:[par('p2','Anis Trabelsi',1,0,5), par('p1','Karim Ben Salah',1,0,5),
+        {userId:'p5',name:'Mehdi Gharbi',rsvp:'peut-etre',adults:1,children:0,priceAgreedPerPerson:5,amountAgreed:5,agreedAt:Date.now()-HR}],
+    },
+    { // quorum atteint, échéance passée → attend la Direction
+      id:'sev_danse', at:Date.now()-30*HR, by:'p3', byName:'Salma Khelifi',
+      title:'Atelier danse entre mères', cat:'atelier',
+      desc:"Une heure de danse avec une intervenante. Une garde d'enfants est organisée sur place.",
+      date:dISO(4), time:'17:30', place:'Salle polyvalente',
+      audience:'meres', reason:"cours entre mamans, avec garde d'enfants sur place", kids:'garde',
+      minParticipants:2, maxParticipants:null, pricePerPerson:8, priceCovers:"l'intervenante et la garde d'enfants",
+      status:'soumis', submittedAt:Date.now()-5*HR,
+      // que des mères
+      participants:[par('p3','Salma Khelifi',1,0,8), par('p4','Sonia Ferchichi',1,1,8)],
+    },
+    { // approuvée : au calendrier, reste l'encaissement
+      id:'sev_cafe', at:Date.now()-4*DY, by:'p1', byName:'Karim Ben Salah',
+      title:'Café des parents', cat:'rencontre',
+      desc:"Un moment simple pour se rencontrer autour d'un café.",
+      date:dISO(2), time:'09:00', place:'Bibliothèque',
+      audience:'mixte', reason:'', kids:'bienvenus',
+      minParticipants:2, maxParticipants:null, pricePerPerson:0, priceCovers:'',
+      status:'approuve', decision:{by:'Lina Aderra',at:Date.now()-2*DY,note:''},
+      participants:[par('p1','Karim Ben Salah',1,1), par('p2','Anis Trabelsi',1,0), par('p3','Salma Khelifi',1,2), par('p4','Sonia Ferchichi',1,0)],
+    },
+  ]
+
+  return {classes,students,teachers,users,payments,evaluations,incidents,requests,books,routes,homework,events,socialEvents,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,timetables:genTimetables(classes),settings,schools}
 }
 export const DEFAULT_SETTINGS={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026', director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis', brand:'#6366F1', logoText:'AN', currency:'DT' }
 export const settings=()=>({...DEFAULT_SETTINGS, ...(db().settings||{})})
@@ -214,7 +257,7 @@ export function saveSettings(patch){ return mutate(d=>{ d.settings={...DEFAULT_S
 // à chaque évolution du schéma (coreon_db_v17 → v18 …), ce qui abandonnait la base
 // précédente et RÉINSTALLAIT les données de démonstration par-dessus les vraies
 // données de l'école. La version vit désormais DANS la base (`_v`) et on migre.
-const COLLECTIONS={classes:[],students:[],teachers:[],users:[],evaluations:[],incidents:[],requests:[],books:[],routes:[],homework:[],events:[],exams:[],messages:[],notifications:[],staffLeaves:[],schools:[],payments:{},attendance:{},staffAttendance:{},staffClock:{},timetables:{}}
+const COLLECTIONS={classes:[],students:[],teachers:[],users:[],evaluations:[],incidents:[],requests:[],books:[],routes:[],homework:[],events:[],socialEvents:[],exams:[],messages:[],notifications:[],staffLeaves:[],schools:[],payments:{},attendance:{},staffAttendance:{},staffClock:{},timetables:{}}
 
 function migrate(d){
   const from=d._v||0
@@ -222,6 +265,11 @@ function migrate(d){
   if(!Object.keys(d.timetables).length) d.timetables=genTimetables(d.classes)
   if(!d.settings) d.settings={...DEFAULT_SETTINGS}
 
+  if(from<20){
+    // Espace parents : les parents ont besoin d'une civilité pour les activités
+    // réservées aux mères ou aux pères. On ne devine pas — on laisse vide.
+    d.users.filter(u=>u.role==='parent').forEach(p=>{ if(p.gender===undefined) p.gender=null })
+  }
   if(from<19){
     // les notifications de rôle peuvent désormais cibler une classe (cf. notify.js)
     d.notifications.forEach(n=>{ if(n.classId===undefined) n.classId=null })

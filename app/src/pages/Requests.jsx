@@ -22,16 +22,24 @@ export default function Requests(){
   const [type,setType]=useState(myTypes[0]||''); const [vals,setVals]=useState(defaults(myTypes[0])); const [comment,setComment]=useState('')
   const d=db()
   const mine=d.requests.filter(r=>r.by===u.id)
-  const toDecide=d.requests.filter(r=>r.status==='pending' && r.chain[r.currentLevel]===u.role)
+  // Nul ne valide sa propre demande : un admin qui demandait une attestation de
+  // salaire (chaîne ['admin','schooladmin']) se retrouvait au niveau 0 de sa propre
+  // chaîne et signait lui-même. La séparation des tâches n'existait plus.
+  const toDecide=d.requests.filter(r=>r.status==='pending' && r.chain[r.currentLevel]===u.role && r.by!==u.id)
   const def=REQUEST_DEFS[type]||{fields:[]}
   const setType2=t=>{ setType(t); setVals(defaults(t)) }
   const childOptions=(u.childIds||[]).map(id=>studentById(id)).filter(Boolean)
-  const canDecide=r=> r && r.status==='pending' && r.chain[r.currentLevel]===u.role
+  const canDecide=r=> r && r.status==='pending' && r.chain[r.currentLevel]===u.role && r.by!==u.id
 
   const submit=()=>{ for(const f of def.fields){ if(f.req && !vals[f.k]) return toast.error(`Champ requis : ${f.l}`) }
     const id=uid('req')
-    mutate(db=>{db.requests.unshift({id,at:Date.now(),by:u.id,byName:u.name,type,fields:vals,chain:def.chain,currentLevel:0,approvals:[],status:'pending'})})
-    notify({role:def.chain[0],kind:'request',actor:u.name,title:`nouvelle demande : ${type}`,body:def.fields[0]?`${def.fields[0].l}: ${vals[def.fields[0].k]}`:'',link:'/app/requests'})
+    // On retire de la chaîne le niveau correspondant au rôle du demandeur : il ne
+    // peut pas être son propre approbateur. S'il ne reste personne, la demande
+    // remonte à la direction.
+    const chain=def.chain.filter(role=>role!==u.role)
+    const finalChain=chain.length?chain:['schooladmin']
+    mutate(db=>{db.requests.unshift({id,at:Date.now(),by:u.id,byName:u.name,type,fields:vals,chain:finalChain,currentLevel:0,approvals:[],status:'pending'})})
+    notify({role:finalChain[0],kind:'request',actor:u.name,title:`nouvelle demande : ${type}`,body:def.fields[0]?`${def.fields[0].l}: ${vals[def.fields[0].k]}`:'',link:'/app/requests'})
     toast.success('Demande envoyée'); setOpen(false); setType2(myTypes[0]); refresh() }
 
   const act=(r,decision)=>{
