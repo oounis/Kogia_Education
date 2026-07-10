@@ -26,7 +26,7 @@ export default function MeteoCorner(){
     <Menu as="div" className="relative hidden md:block">
       <Menu.Button className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-2xl hover:shadow transition" style={{background:`linear-gradient(135deg,${c1},${c2})`}} title={`Météo · ${settings().city}`}>
         <WeatherIcon mode={w.mode} size={30}/>
-        <div className="leading-none text-left" style={{color:ink}}><div className="text-sm font-extrabold">{w.temp}°</div><div className="text-[10px] font-semibold opacity-80">{w.label}</div></div>
+        <div className="leading-none text-left" style={{color:ink}}><div className="text-sm font-extrabold">{w.temp}°</div><div className="text-[11px] font-semibold opacity-80">{w.label}</div></div>
         <ChevronDown size={13} style={{color:ink}}/>
       </Menu.Button>
       <Menu.Items className="absolute right-0 mt-2 w-64 card p-0 shadow-2xl z-50 overflow-hidden focus:outline-none">

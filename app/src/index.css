@@ -1,7 +1,9 @@
 @import "tailwindcss";
 @theme {
   --color-ink: #1E2433;
-  --color-muted: #8A93A6;
+  /* #8A93A6 ne donnait que 2.9:1 sur le fond : illisible pour beaucoup de monde.
+     #66707F passe à 4.7:1 — le texte secondaire reste discret, mais se lit. */
+  --color-muted: #66707F;
   --color-line: #EDEFF5;
   --color-canvas: #F6F7FB;
   /* brand + pastel palette (beautiful, soft) */
@@ -23,11 +25,19 @@
   --shadow-md: 0 6px 16px rgba(16,24,40,.07), 0 2px 5px rgba(16,24,40,.04);
   --shadow-lg: 0 14px 32px rgba(16,24,40,.10), 0 5px 10px rgba(16,24,40,.05);
 }
-/* denser base so more content fits the page (rem-based Tailwind scales down) */
-html{scroll-behavior:smooth;font-size:14px}
-body{font-family:var(--font-sans);color:var(--color-ink);-webkit-font-smoothing:antialiased;letter-spacing:-0.006em;
+/* Typographie : un cran plus grand et un peu plus gras qu'avant. À 14 px et en
+   graisse 400, le texte se lisait mal sur un écran d'école ; 15 px en graisse 500
+   reste dense mais confortable, y compris pour un directeur qui lit vite. */
+html{scroll-behavior:smooth;font-size:15px}
+body{font-family:var(--font-sans);color:var(--color-ink);-webkit-font-smoothing:antialiased;
+  font-weight:500;line-height:1.55;letter-spacing:-0.004em;
   background:linear-gradient(180deg,color-mix(in srgb,var(--accent,#6366F1) 4%,var(--color-canvas)) 0%,var(--color-canvas) 320px)}
-h1,h2,h3,h4{font-family:var(--font-display);letter-spacing:-0.022em}
+h1,h2,h3,h4{font-family:var(--font-display);letter-spacing:-0.022em;font-weight:800}
+/* le texte secondaire garde sa discrétion par la couleur, plus par la maigreur */
+.text-muted{font-weight:500}
+b,strong{font-weight:700}
+/* les chiffres s'alignent dans les tableaux et les compteurs */
+.tabular-nums{font-variant-numeric:tabular-nums}
 .card{background:linear-gradient(180deg,#fff,#FDFDFF);border:1px solid var(--color-line);border-radius:1rem;
   box-shadow:var(--shadow-sm),inset 0 1px 0 rgba(255,255,255,.9);transition:box-shadow .2s,transform .2s}
 /* one consistent, accessible focus ring for every interactive element */

@@ -59,12 +59,12 @@ export default function Schools(){
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-bold text-lg truncate">{sc.name}</span>
-                {sc.live&&<span className="text-[10px] font-bold px-2 py-0.5 rounded-full accent-soft accent-text">ÉCOLE DE DÉMO</span>}
+                {sc.live&&<span className="text-[11px] font-bold px-2 py-0.5 rounded-full accent-soft accent-text">ÉCOLE DE DÉMO</span>}
               </div>
               <div className="text-sm text-muted flex items-center gap-1.5"><MapPin size={13}/>{sc.city} · cliente depuis {sc.since}</div>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
-                <span className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{background:pbg,color:pfg}}>Plan {sc.plan} · {sc.price} DT/mois</span>
-                <span className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{background:st.bg,color:st.fg}}>{st.label}</span>
+                <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:pbg,color:pfg}}>Plan {sc.plan} · {sc.price} DT/mois</span>
+                <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:st.bg,color:st.fg}}>{st.label}</span>
                 <span className="text-xs text-muted">{count(sc)} élèves</span>
               </div>
             </div>

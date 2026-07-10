@@ -27,7 +27,7 @@ const plural = (n, one, many) => `${n} ${n > 1 ? many : one}`
 
 const BLANK = () => ({
   title: '', cat: 'sport', desc: '', date: '', time: '18:00', place: PLACES[0],
-  audience: 'mixte', reason: '', kids: 'bienvenus',
+  audience: 'mixte', reason: '', kids: 'bienvenus', custom: false,
   minParticipants: DEFAULT_MIN, maxParticipants: '', pricePerPerson: 0, priceCovers: '',
 })
 
@@ -69,12 +69,15 @@ export default function Social() {
 
   /* ── Proposer une activité ─────────────────────────────────────────────── */
   const minDate = earliestDate(appNow())
-  const useIdea = idea => setF({
-    ...BLANK(), title: idea.title, cat: idea.cat, desc: idea.desc, place: idea.place,
-    audience: idea.audience, kids: idea.kids, minParticipants: idea.min, pricePerPerson: idea.price,
-    reason: idea.audience !== 'mixte' ? '' : '',
-    priceCovers: idea.price ? idea.desc.split('Le prix couvre')[1]?.replace('.', '').trim() || '' : '',
-  })
+  // Choisir « Match de football » remplit la catégorie, le lieu, la mixité, les
+  // enfants, le quorum et le prix. Tout reste modifiable ensuite.
+  const useIdea = idea => setF(prev => ({
+    ...BLANK(), date: prev.date, time: prev.time,
+    title: idea.title, cat: idea.cat, desc: idea.desc, place: idea.place,
+    audience: idea.audience, kids: idea.kids,
+    minParticipants: idea.min, pricePerPerson: idea.price,
+    priceCovers: idea.covers || '', custom: false,
+  }))
 
   const propose = () => {
     if (!f.title.trim()) return toast.error('Donnez un titre à votre activité')
@@ -208,13 +211,13 @@ export default function Social() {
               <span className="text-2xl leading-none mt-0.5">{catOf(ev.cat).icon}</span>
               <div className="min-w-0 flex-1">
                 <div className="font-semibold text-sm">{ev.title}</div>
-                <div className="text-[11px] text-muted mt-0.5">
+                <div className="text-[12px] text-muted mt-0.5">
                   {format(parseISO(ev.date), 'EEEE d MMMM', { locale: fr })} · {ev.time} · {ev.place} · proposé par {ev.byName}
                 </div>
-                <div className="text-[11px] text-muted mt-0.5">
+                <div className="text-[12px] text-muted mt-0.5">
                   {plural(adultCount(ev), 'adulte', 'adultes')}{childCount(ev) > 0 && ` · ${plural(childCount(ev), 'enfant', 'enfants')}`} · {audienceOf(ev.audience).short} · {ev.pricePerPerson ? `${money(ev.pricePerPerson)}/pers.` : 'gratuit'}
                 </div>
-                {clash && <div className="mt-1.5 inline-flex items-center gap-1.5 text-[11px] font-bold px-2 py-1 rounded-lg" style={{ background: STATUS.dangerSoft, color: STATUS.danger }}>
+                {clash && <div className="mt-1.5 inline-flex items-center gap-1.5 text-[12px] font-bold px-2 py-1 rounded-lg" style={{ background: STATUS.dangerSoft, color: STATUS.danger }}>
                   <AlertTriangle size={12} /> {ev.place} est déjà pris ce jour-là : « {clash.title} »
                 </div>}
               </div>
@@ -263,7 +266,7 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-extrabold truncate">{ev.title}</h3>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: st.color + '1E', color: st.color }}>{st.label}</span>
+            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: st.color + '1E', color: st.color }}>{st.label}</span>
           </div>
           <div className="text-xs text-muted mt-0.5">proposé par {mine ? 'vous' : ev.byName}</div>
         </div>
@@ -277,7 +280,7 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
       </div>
 
       {ev.desc && <p className="text-sm text-muted">{ev.desc}</p>}
-      {ev.audience !== 'mixte' && ev.reason && <p className="text-[11px] text-muted italic">Non mixte : {ev.reason}</p>}
+      {ev.audience !== 'mixte' && ev.reason && <p className="text-[12px] text-muted italic">Non mixte : {ev.reason}</p>}
 
       {/* Le prix, en évidence — jamais une surprise le jour J. */}
       <div className="rounded-xl px-3 py-2.5 flex items-center gap-2.5" style={{ background: ev.pricePerPerson ? STATUS.warnSoft : STATUS.okSoft }}>
@@ -298,14 +301,14 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
           <div className="h-2 rounded-full bg-canvas overflow-hidden">
             <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: need > 0 ? STATUS.info : STATUS.ok }} />
           </div>
-          <div className="flex items-center justify-between text-[11px] text-muted mt-1.5">
+          <div className="flex items-center justify-between text-[12px] text-muted mt-1.5">
             <span className="inline-flex items-center gap-1"><Clock size={11} />
               {deadlinePassed(ev) ? 'Inscriptions closes' : `Clôture ${formatDistanceToNowStrict(new Date(deadline), { addSuffix: true, locale: fr })}`}</span>
             {left != null && <span>{plural(left, 'place restante', 'places restantes')}</span>}
           </div>
         </div>
-        {maybeList(ev).length > 0 && <div className="text-[11px] text-muted">{maybeList(ev).length} « peut-être » — ne comptent pas dans le quorum</div>}
-        {waitlist(ev).length > 0 && <div className="text-[11px] text-muted">{waitlist(ev).length} en liste d'attente</div>}
+        {maybeList(ev).length > 0 && <div className="text-[12px] text-muted">{maybeList(ev).length} « peut-être » — ne comptent pas dans le quorum</div>}
+        {waitlist(ev).length > 0 && <div className="text-[12px] text-muted">{waitlist(ev).length} en liste d'attente</div>}
       </>}
 
       {ev.status === 'refuse' && ev.decision?.note && <div className="text-xs rounded-xl px-3 py-2" style={{ background: STATUS.dangerSoft, color: STATUS.danger }}>Refusé par la Direction : {ev.decision.note}</div>}
@@ -314,7 +317,7 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
       {/* Participants + encaissement (Direction) */}
       {(ev.status === 'approuve' || ev.status === 'termine') && (
         <div className="rounded-xl border border-line p-2.5">
-          <div className="text-[11px] font-bold text-muted mb-1.5">{plural(adultCount(ev), 'participant', 'participants')}{ev.pricePerPerson ? ' · règlement auprès de l\'administration' : ''}</div>
+          <div className="text-[12px] font-bold text-muted mb-1.5">{plural(adultCount(ev), 'participant', 'participants')}{ev.pricePerPerson ? ' · règlement auprès de l\'administration' : ''}</div>
           <div className="space-y-1">
             {ev.participants.filter(p => p.rsvp === 'oui' && !p.waitlisted).map(p => (
               <div key={p.userId} className="flex items-center gap-2 text-xs">
@@ -323,9 +326,9 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
                 {ev.pricePerPerson > 0 && <>
                   <span className="text-muted tabular-nums">{money(p.amountAgreed)}</span>
                   {isDirection
-                    ? <button onClick={() => onMarkPaid(ev, p.userId)} className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                    ? <button onClick={() => onMarkPaid(ev, p.userId)} className="text-[11px] font-bold px-2 py-0.5 rounded-full"
                         style={{ background: p.paid ? STATUS.okSoft : STATUS.neutralSoft, color: p.paid ? STATUS.ok : STATUS.neutral }}>{p.paid ? 'Réglé' : 'À régler'}</button>
-                    : <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: p.paid ? STATUS.okSoft : STATUS.neutralSoft, color: p.paid ? STATUS.ok : STATUS.neutral }}>{p.paid ? 'Réglé' : 'À régler'}</span>}
+                    : <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: p.paid ? STATUS.okSoft : STATUS.neutralSoft, color: p.paid ? STATUS.ok : STATUS.neutral }}>{p.paid ? 'Réglé' : 'À régler'}</span>}
                 </>}
               </div>))}
           </div>
@@ -339,7 +342,7 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
             ? <>
                 <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl" style={{ background: STATUS.okSoft, color: STATUS.ok }}>
                   <Check size={13} />{me.waitlisted ? "En liste d'attente" : me.rsvp === 'oui' ? 'Vous participez' : 'Peut-être'}</span>
-                {stale && <span className="text-[11px] font-bold" style={{ color: STATUS.warn }}>Le prix a changé — reconfirmez</span>}
+                {stale && <span className="text-[12px] font-bold" style={{ color: STATUS.warn }}>Le prix a changé — reconfirmez</span>}
                 {stale && <Btn size="sm" onClick={onJoin}>Reconfirmer</Btn>}
                 <Btn size="sm" variant="ghost" onClick={onWithdraw}>Se désister</Btn>
               </>
@@ -356,24 +359,57 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
 
 /* ── Proposer ─────────────────────────────────────────────────────────────── */
 function ProposeModal({ open, onClose, f, setF, minDate, onSubmit, useIdea }) {
-  const [showIdeas, setShowIdeas] = useState(false)
+  const [filter, setFilter] = useState('tous')
+  const shown = filter === 'tous' ? IDEAS : IDEAS.filter(i => i.cat === filter)
+  const chosen = f.title && !f.custom
   return (
     <Modal open={open} onClose={onClose} title="Proposer une activité" size="2xl"
-      footer={<><Btn variant="ghost" onClick={onClose}>Annuler</Btn><Btn onClick={onSubmit}>Publier la proposition</Btn></>}>
+      footer={<><Btn variant="ghost" onClick={onClose}>Annuler</Btn><Btn onClick={onSubmit} disabled={!f.title.trim()}>Publier la proposition</Btn></>}>
 
-      <button onClick={() => setShowIdeas(v => !v)} className="w-full text-left mb-4 rounded-xl px-3 py-2.5 flex items-center gap-2 text-sm font-semibold" style={{ background: '#EEF1FE', color: '#4338CA' }}>
-        <Lightbulb size={16} /> {showIdeas ? 'Masquer les idées' : "Manque d'inspiration ? Voir 10 idées d'activités"}
-      </button>
-      {showIdeas && <div className="grid sm:grid-cols-2 gap-2 mb-4 max-h-52 overflow-y-auto scroll-thin">
-        {IDEAS.map(i => (
-          <button key={i.title} onClick={() => { useIdea(i); setShowIdeas(false) }} className="text-left rounded-xl border border-line p-2.5 hover:bg-canvas">
-            <div className="text-sm font-semibold flex items-center gap-1.5">{catOf(i.cat).icon} {i.title}</div>
-            <div className="text-[11px] text-muted mt-0.5">{audienceOf(i.audience).short} · {i.min} pers. · {i.price ? money(i.price) : 'gratuit'}</div>
-          </button>))}
-      </div>}
+      {/* Le titre est un CHOIX, pas un champ vide : on prend une activité et la
+          catégorie, le lieu, la mixité, les enfants, le quorum et le prix suivent. */}
+      <div className="mb-4">
+        <div className="flex items-center gap-2 mb-2.5">
+          <Lightbulb size={16} className="accent-text" />
+          <span className="text-sm font-bold">Quelle activité ? <span className="text-muted font-medium">Le reste se remplit tout seul.</span></span>
+        </div>
+        <div className="flex gap-1.5 flex-wrap mb-3">
+          {[{ k: 'tous', label: 'Tout', icon: '✨' }, ...CATEGORIES].map(c => (
+            <button key={c.k} onClick={() => setFilter(c.k)} aria-pressed={filter === c.k}
+              className={`text-[12px] font-bold px-2.5 py-1.5 rounded-full border transition ${filter === c.k ? 'border-transparent text-white' : 'border-line hover:bg-canvas'}`}
+              style={filter === c.k ? { background: 'var(--accent)' } : {}}>{c.icon} {c.label}</button>))}
+        </div>
+        <div className="grid sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto scroll-thin pr-1">
+          {shown.map(i => {
+            const on = f.title === i.title && !f.custom
+            return (
+              <button key={i.title} onClick={() => useIdea(i)} aria-pressed={on}
+                className={`text-left rounded-2xl border p-3 transition ${on ? 'border-transparent shadow-md' : 'border-line hover:bg-canvas hover:-translate-y-0.5'}`}
+                style={on ? { boxShadow: '0 0 0 2px var(--accent)', background: 'var(--accent-soft)' } : {}}>
+                <div className="text-sm font-bold flex items-center gap-2"><span className="text-xl leading-none">{catOf(i.cat).icon}</span>{i.title}</div>
+                <div className="text-[12px] text-muted mt-1 flex flex-wrap gap-x-2.5">
+                  <span className="inline-flex items-center gap-1"><MapPin size={11} />{i.place}</span>
+                  <span className="inline-flex items-center gap-1"><Users size={11} />{audienceOf(i.audience).short} · {i.min}</span>
+                  <span className="inline-flex items-center gap-1 font-bold" style={{ color: i.price ? STATUS.warn : STATUS.ok }}><Wallet size={11} />{i.price ? money(i.price) : 'gratuit'}</span>
+                </div>
+              </button>)
+          })}
+          <button onClick={() => setF({ ...BLANK(), custom: true, date: f.date, time: f.time })} aria-pressed={!!f.custom}
+            className={`text-left rounded-2xl border border-dashed p-3 transition ${f.custom ? 'border-transparent' : 'border-line hover:bg-canvas'}`}
+            style={f.custom ? { boxShadow: '0 0 0 2px var(--accent)', background: 'var(--accent-soft)' } : {}}>
+            <div className="text-sm font-bold flex items-center gap-2"><span className="text-xl leading-none">✏️</span>Autre activité</div>
+            <div className="text-[12px] text-muted mt-1">Écrivez votre propre titre et réglez tout vous-même.</div>
+          </button>
+        </div>
+      </div>
 
       <div className="grid sm:grid-cols-2 gap-3">
-        <div className="sm:col-span-2"><Field label="Titre *"><Input value={f.title} onChange={e => setF({ ...f, title: e.target.value })} placeholder="ex. Match de football entre pères" /></Field></div>
+        {f.custom && <div className="sm:col-span-2"><Field label="Titre *"><Input value={f.title} onChange={e => setF({ ...f, title: e.target.value })} placeholder="ex. Tournoi de tennis de table" /></Field></div>}
+        {chosen && <div className="sm:col-span-2 rounded-xl px-3 py-2.5 flex items-center gap-2.5 text-sm" style={{ background: 'var(--accent-soft)' }}>
+          <span className="text-xl leading-none">{catOf(f.cat).icon}</span>
+          <span className="font-bold flex-1">{f.title}</span>
+          <button onClick={() => setF({ ...f, custom: true })} className="text-[12px] font-bold accent-text">renommer</button>
+        </div>}
         <Field label="Catégorie"><Select value={f.cat} onChange={e => setF({ ...f, cat: e.target.value })}>{CATEGORIES.map(c => <option key={c.k} value={c.k}>{c.icon} {c.label}</option>)}</Select></Field>
         <Field label="Lieu"><Select value={f.place} onChange={e => setF({ ...f, place: e.target.value })}>{PLACES.map(p => <option key={p}>{p}</option>)}</Select></Field>
         <Field label={`Date * (au plus tôt le ${minDate})`} hint={`L'école a besoin de ${MIN_LEAD_DAYS} jours pour réserver le lieu.`}>
@@ -394,7 +430,7 @@ function ProposeModal({ open, onClose, f, setF, minDate, onSubmit, useIdea }) {
         <div className="sm:col-span-2"><Field label="Description"><Textarea rows={3} value={f.desc} onChange={e => setF({ ...f, desc: e.target.value })} placeholder="Ce qui est prévu, ce qu'il faut apporter…" /></Field></div>
       </div>
 
-      <p className="text-[11px] text-muted mt-3">
+      <p className="text-[12px] text-muted mt-3">
         Votre proposition reste ouverte <b>{RSVP_WINDOW_H} h</b>. Si <b>{f.minParticipants || DEFAULT_MIN} parents</b> s'inscrivent, elle part à la Direction, qui confirme et réserve le lieu.
         Sinon elle s'annule et <b>personne ne paie</b>. L'argent n'est jamais prélevé ici : il se règle auprès de l'administration, après confirmation.
       </p>
@@ -429,7 +465,7 @@ function JoinModal({ ev, u, onClose, onConfirm }) {
             className={`text-sm font-semibold px-3.5 py-2 rounded-xl border transition ${rsvp === k ? 'border-transparent text-white' : 'border-line hover:bg-canvas'}`}
             style={rsvp === k ? { background: 'var(--accent)' } : {}}>{l}</button>))}
       </div>
-      <p className="text-[11px] text-muted -mt-2 mb-4">« Peut-être » ne compte pas dans le quorum — c'est un signal pour l'organisateur.</p>
+      <p className="text-[12px] text-muted -mt-2 mb-4">« Peut-être » ne compte pas dans le quorum — c'est un signal pour l'organisateur.</p>
 
       {rsvp === 'oui' && <div className="grid sm:grid-cols-2 gap-3 mb-4">
         <Field label="Adultes"><Input type="number" min={1} max={4} value={adults} onChange={e => setAdults(Math.max(1, Number(e.target.value) || 1))} /></Field>
@@ -487,7 +523,7 @@ function DecideModal({ ev, clash, onClose, onSettle }) {
           <AlertTriangle size={15} /> Conflit : « {clash.title} » occupe déjà {ev.place} ce jour-là.</div>}
         <Field label="Motif (obligatoire en cas de refus)">
           <Textarea rows={2} value={note} onChange={e => setNote(e.target.value)} placeholder="ex. le terrain est réservé pour le cross de l'école" /></Field>
-        <p className="text-[11px] text-muted">En approuvant, l'activité entre au calendrier de l'école et les {adultCount(ev)} inscrits sont prévenus{ev.pricePerPerson ? ` du montant à régler` : ''}. En refusant, personne ne paie.</p>
+        <p className="text-[12px] text-muted">En approuvant, l'activité entre au calendrier de l'école et les {adultCount(ev)} inscrits sont prévenus{ev.pricePerPerson ? ` du montant à régler` : ''}. En refusant, personne ne paie.</p>
       </div>
     </Modal>
   )

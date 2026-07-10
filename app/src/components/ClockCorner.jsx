@@ -18,8 +18,8 @@ export default function ClockCorner(){
         <span className="absolute inset-0 rounded-full accent-bg"/>
       </span>
       <div className="leading-none">
-        <div className="font-extrabold text-sm tabular-nums accent-text">{hm}<span className="text-[10px] font-bold opacity-55">:{ss}</span></div>
-        <div className="text-[10px] font-semibold text-muted capitalize mt-0.5">{format(now,'EEE d MMM',{locale:fr})}</div>
+        <div className="font-extrabold text-sm tabular-nums accent-text">{hm}<span className="text-[11px] font-bold opacity-55">:{ss}</span></div>
+        <div className="text-[11px] font-semibold text-muted capitalize mt-0.5">{format(now,'EEE d MMM',{locale:fr})}</div>
       </div>
     </div>
   )

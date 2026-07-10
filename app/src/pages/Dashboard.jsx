@@ -197,7 +197,7 @@ export default function Dashboard(){
       </Card>
     </div>
     <Card className="p-5 mt-4"><div className="flex items-center justify-between mb-3"><h3 className="font-bold flex items-center gap-1.5"><ClipboardCheck size={16}/> Évaluations enregistrées</h3><Link to="/app/results" className="text-xs font-semibold accent-text inline-flex items-center gap-1">Suivi élèves <ChevronRight size={13}/></Link></div>
-      {d.evaluations.length? <div className="overflow-x-auto scroll-thin -mx-5 -mb-5"><table className="w-full text-sm"><thead><tr className="text-left text-[11px] uppercase tracking-wide text-muted bg-canvas"><th className="px-4 py-3 font-semibold">Date</th><th className="px-4 py-3 font-semibold">Classe</th><th className="px-4 py-3 font-semibold">Matière</th><th className="px-4 py-3 font-semibold">Leçon</th><th className="px-4 py-3 font-semibold">Enseignant</th><th className="px-4 py-3 font-semibold text-center">Élèves notés</th><th className="px-4 py-3 font-semibold text-center">Moyenne</th></tr></thead>
+      {d.evaluations.length? <div className="overflow-x-auto scroll-thin -mx-5 -mb-5"><table className="w-full text-sm"><thead><tr className="text-left text-[12px] uppercase tracking-wide text-muted bg-canvas"><th className="px-4 py-3 font-semibold">Date</th><th className="px-4 py-3 font-semibold">Classe</th><th className="px-4 py-3 font-semibold">Matière</th><th className="px-4 py-3 font-semibold">Leçon</th><th className="px-4 py-3 font-semibold">Enseignant</th><th className="px-4 py-3 font-semibold text-center">Élèves notés</th><th className="px-4 py-3 font-semibold text-center">Moyenne</th></tr></thead>
         <tbody className="divide-y divide-line">{d.evaluations.slice(0,8).map(ev=>{ const cls=d.classes.find(c=>c.id===ev.classId); const studs=d.students.filter(s=>s.classId===ev.classId); const scores=studs.map(s=>studentSummary(ev,s.id).score).filter(x=>x!=null); const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):null; const m=mentionFor(avg)
         return (<tr key={ev.id}><td className="px-4 py-3 text-muted whitespace-nowrap">{new Date(ev.at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})}</td><td className="px-4 py-3 font-medium">{ev.className||cls?.name}</td><td className="px-4 py-3">{ev.subject}</td><td className="px-4 py-3 text-muted">{ev.lesson||"—"}</td><td className="px-4 py-3 text-muted">{ev.teacher}</td><td className="px-4 py-3 text-center">{scores.length}</td><td className="px-4 py-3 text-center font-bold" style={{color:m.color}}>{avg!=null?`${avg}/100`:'—'}</td></tr>) })}</tbody></table></div>
        : <EmptyState icon={<ClipboardCheck size={22}/>} title="Aucune évaluation enregistrée" sub="Les évaluations des enseignants apparaîtront ici."/>}
@@ -236,8 +236,8 @@ function PlatformDashboard({ d, greet }){
             return (<Link key={sc.id} to="/app/schools" className="flex items-center gap-3 py-2.5 group">
               <IconTile icon={<Building2 size={16}/>} tint={sc.live?'brand':'slate'} size={38} radius="rounded-xl"/>
               <span className="min-w-0 flex-1"><span className="block text-sm font-semibold truncate group-hover:accent-text">{sc.name}</span>
-                <span className="block text-[11px] text-muted">{sc.city} · {count(sc)} élèves · depuis {sc.since}</span></span>
-              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{background:col+'1E',color:col}}>{lbl}</span>
+                <span className="block text-[12px] text-muted">{sc.city} · {count(sc)} élèves · depuis {sc.since}</span></span>
+              <span className="text-[12px] font-bold px-2 py-0.5 rounded-full" style={{background:col+'1E',color:col}}>{lbl}</span>
               <span className="text-sm font-extrabold w-20 text-right">{sc.status==='active'?`${sc.price} DT/m`:'—'}</span>
             </Link>) })}
         </div>
@@ -281,7 +281,7 @@ function ParentDashboard({u,d,greet}){
     {child&&live&&<Link to="/app/live" className="relative block rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition mb-5 group text-white" style={{background:`linear-gradient(120deg, ${larea.color} 0%, #10162B 100%)`}}>
       <div className="relative flex items-center gap-4 p-5 min-h-[124px]">
         <div className="min-w-0">
-          <div className="flex items-center gap-2 text-[11px] font-bold">
+          <div className="flex items-center gap-2 text-[12px] font-bold">
             <span className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{background:phase==='live'?STATUS.live:'rgba(255,255,255,.25)'}}><Radio size={11}/> {pillTxt}</span>
             <span className="opacity-80 uppercase tracking-wide">Suivi en direct</span>
           </div>
@@ -324,10 +324,10 @@ function ParentDashboard({u,d,greet}){
         {recentEvals.map(e=>{ const m=mentionFor(e.score); return (
           <button key={e.id} onClick={()=>child&&setBulletin(child)} className="flex items-center gap-3 py-2 text-sm w-full text-left hover:bg-canvas rounded-lg px-1 transition">
             <span className="min-w-0 flex-1"><span className="font-semibold">{e.subject}</span>
-              {e.lesson&&<span className="ml-1.5 text-[11px] font-bold px-2 py-0.5 rounded-full accent-soft accent-text">{e.lesson}</span>}
-              <span className="block text-[11px] text-muted">{new Date(e.at).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</span></span>
+              {e.lesson&&<span className="ml-1.5 text-[12px] font-bold px-2 py-0.5 rounded-full accent-soft accent-text">{e.lesson}</span>}
+              <span className="block text-[12px] text-muted">{new Date(e.at).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</span></span>
             <span className="font-extrabold" style={{color:m.color}}>{e.score}/100</span>
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{background:m.color+'1E',color:m.color}}>{m.label}</span>
+            <span className="text-[12px] font-bold px-2 py-0.5 rounded-full" style={{background:m.color+'1E',color:m.color}}>{m.label}</span>
           </button>)})}
       </div>
     </Card>}

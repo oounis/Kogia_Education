@@ -76,7 +76,7 @@ export default function Finance(){
           <div key={s.id+p.month} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
             <Avatar name={s.name} seed={s.id} size={32}/>
             <span className="min-w-0 flex-1"><span className="block text-sm font-semibold truncate">{s.name}</span>
-              <span className="block text-[11px] text-muted">{p.month} · signalé par le parent</span></span>
+              <span className="block text-[12px] text-muted">{p.month} · signalé par le parent</span></span>
             <Btn size="sm" onClick={()=>cycle(s.id,mi)}><Check size={14}/> Confirmer</Btn>
           </div>))}
       </div>
@@ -84,7 +84,7 @@ export default function Finance(){
     {d.students.length===0 ? <Card><EmptyState icon={<Wallet size={26}/>} title="Aucun élève" sub="Les échéanciers de paiement apparaîtront ici dès qu'un élève sera inscrit."/></Card>
     : <Card className="p-4 overflow-x-auto scroll-thin">
       <table className="w-full text-sm">
-        <thead><tr className="text-[11px] uppercase text-muted"><th className="text-left px-2 py-2">Élève</th>{FEE_MONTHS.map(m=><th key={m} className="px-1 py-2">{m}</th>)}<th></th></tr></thead>
+        <thead><tr className="text-[12px] uppercase text-muted"><th className="text-left px-2 py-2">Élève</th>{FEE_MONTHS.map(m=><th key={m} className="px-1 py-2">{m}</th>)}<th></th></tr></thead>
         <tbody className="divide-y divide-line">
           {d.students.map(s=>(
             <tr key={s.id}>

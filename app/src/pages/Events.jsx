@@ -72,7 +72,7 @@ export default function Events(){
             <button onClick={()=>setCursor(addMonths(cursor,1))} className="w-9 h-9 grid place-items-center rounded-lg hover:bg-canvas"><ChevronRight size={18}/></button>
           </div>
         </div>
-        <div className="grid grid-cols-7 text-center text-[11px] font-semibold text-muted mb-1">
+        <div className="grid grid-cols-7 text-center text-[12px] font-semibold text-muted mb-1">
           {['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map(d=><div key={d} className="py-1">{d}</div>)}
         </div>
         <div className="grid grid-cols-7 gap-1">
@@ -86,15 +86,15 @@ export default function Events(){
                 <div className={`text-xs font-bold w-6 h-6 grid place-items-center rounded-full ${isToday(day)?'text-white':''}`} style={isToday(day)?{background:'var(--accent)'}:{}}>{format(day,'d')}</div>
                 <div className="mt-1 space-y-0.5">
                   {evs.slice(0,3).map(e=>(
-                    <div key={e.id} className="text-[10px] font-semibold truncate px-1 py-0.5 rounded" style={{background:tint(e.type)+'22',color:tint(e.type)}}>{e.time?e.time+' ':''}{e.title}</div>
+                    <div key={e.id} className="text-[11px] font-semibold truncate px-1 py-0.5 rounded" style={{background:tint(e.type)+'22',color:tint(e.type)}}>{e.time?e.time+' ':''}{e.title}</div>
                   ))}
-                  {evs.length>3&&<div className="text-[10px] text-muted px-1">+{evs.length-3}</div>}
+                  {evs.length>3&&<div className="text-[11px] text-muted px-1">+{evs.length-3}</div>}
                 </div>
               </button>
             )
           })}
         </div>
-        {canAdd&&<div className="text-[11px] text-muted mt-3">Astuce : double-cliquez sur un jour pour y ajouter un événement.</div>}
+        {canAdd&&<div className="text-[12px] text-muted mt-3">Astuce : double-cliquez sur un jour pour y ajouter un événement.</div>}
       </Card>
 
       {/* Side: selected day + upcoming */}
@@ -111,7 +111,7 @@ export default function Events(){
                   <span className="w-2.5 h-2.5 rounded-full mt-1.5 shrink-0" style={{background:tint(e.type)}}/>
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-sm">{e.title}</div>
-                    <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] text-muted mt-0.5">
+                    <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[12px] text-muted mt-0.5">
                       {e.time&&<span className="flex items-center gap-1"><Clock size={11}/>{e.time}</span>}
                       {e.place&&<span className="flex items-center gap-1"><MapPin size={11}/>{e.place}</span>}
                       <span className="flex items-center gap-1"><Users size={11}/>{AUD[e.audience]||'Toute l’école'}</span>
@@ -130,8 +130,8 @@ export default function Events(){
           <div className="space-y-2">
             {upcoming.length? upcoming.map(e=>(
               <button key={e.id} onClick={()=>{setSel(e.date);setCursor(startOfMonth(parseISO(e.date)))}} className="w-full flex items-center gap-3 text-left rounded-lg p-2 hover:bg-canvas">
-                <div className="w-11 text-center shrink-0"><div className="text-lg font-extrabold" style={{color:tint(e.type)}}>{e.date.slice(8,10)}</div><div className="text-[10px] text-muted uppercase">{format(parseISO(e.date),'MMM',{locale:fr})}</div></div>
-                <div className="min-w-0"><div className="text-sm font-semibold truncate">{e.title}</div><div className="text-[11px] text-muted">{e.type}{e.time?' · '+e.time:''}</div></div>
+                <div className="w-11 text-center shrink-0"><div className="text-lg font-extrabold" style={{color:tint(e.type)}}>{e.date.slice(8,10)}</div><div className="text-[11px] text-muted uppercase">{format(parseISO(e.date),'MMM',{locale:fr})}</div></div>
+                <div className="min-w-0"><div className="text-sm font-semibold truncate">{e.title}</div><div className="text-[12px] text-muted">{e.type}{e.time?' · '+e.time:''}</div></div>
               </button>
             )) : <EmptyState icon={<CalendarDays size={22}/>} title="Rien de prévu" sub="Les prochains événements apparaîtront ici."/>}
           </div>

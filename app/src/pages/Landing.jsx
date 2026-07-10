@@ -178,7 +178,7 @@ export default function Landing(){
         <div className="grid md:grid-cols-3 gap-6 items-start">
           {PRICING.map(([name,price,feats,pop])=>(
             <motion.div key={name} {...up} className={`card p-7 relative ${pop?'ring-2 shadow-2xl':''}`} style={pop?{borderColor:A,boxShadow:'0 24px 50px -20px '+A}:{}}>
-              {pop&&<span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold text-white px-3 py-1 rounded-full" style={{background:A}}>Le plus choisi</span>}
+              {pop&&<span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[12px] font-bold text-white px-3 py-1 rounded-full" style={{background:A}}>Le plus choisi</span>}
               <div className="font-bold text-lg">{name}</div>
               <div className="mt-2 flex items-end gap-1"><span className="text-4xl font-extrabold">{price}</span>{price!=='Sur devis'&&<span className="text-muted mb-1 text-sm">TND / mois</span>}</div>
               <ul className="mt-5 space-y-2.5">{feats.map(f=><li key={f} className="flex items-start gap-2 text-sm"><Check size={16} className="mt-0.5 shrink-0" style={{color:STATUS.ok}}/>{f}</li>)}</ul>
@@ -247,16 +247,16 @@ function EvalMock({ compact }){
   return (
     <div className="card p-4 shadow-2xl" style={{boxShadow:'0 30px 60px -25px rgba(108,92,231,.45)'}}>
       <div className="flex items-center justify-between px-1 pb-3 border-b border-line">
-        <div><div className="font-bold text-sm">5ème A · Mathématiques</div><div className="text-[11px] text-muted">Participation en classe · maintenant</div></div>
-        <span className="text-[10px] font-bold px-2 py-1 rounded-full text-white" style={{background:STATUS.live}}>● EN DIRECT</span>
+        <div><div className="font-bold text-sm">5ème A · Mathématiques</div><div className="text-[12px] text-muted">Participation en classe · maintenant</div></div>
+        <span className="text-[11px] font-bold px-2 py-1 rounded-full text-white" style={{background:STATUS.live}}>● EN DIRECT</span>
       </div>
       <div className={`grid grid-cols-2 gap-2.5 mt-3 ${compact?'':'sm:grid-cols-4'}`}>
         {buckets.map(([label,c,soft,kids])=>(
           <div key={label} className="rounded-xl p-2.5" style={{background:soft}}>
-            <div className="text-[11px] font-bold mb-2" style={{color:c}}>{label}</div>
+            <div className="text-[12px] font-bold mb-2" style={{color:c}}>{label}</div>
             <div className="flex flex-wrap gap-1.5">
-              {kids.map(k=><span key={k} className="w-8 h-8 rounded-full grid place-items-center text-white text-[11px] font-bold" style={{background:c}}>{k}</span>)}
-              <span className="w-8 h-8 rounded-full grid place-items-center text-[11px] border-2 border-dashed" style={{borderColor:c,color:c}}>+</span>
+              {kids.map(k=><span key={k} className="w-8 h-8 rounded-full grid place-items-center text-white text-[12px] font-bold" style={{background:c}}>{k}</span>)}
+              <span className="w-8 h-8 rounded-full grid place-items-center text-[12px] border-2 border-dashed" style={{borderColor:c,color:c}}>+</span>
             </div>
           </div>
         ))}

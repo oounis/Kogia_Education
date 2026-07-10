@@ -26,7 +26,7 @@ export function Badge({ status }){
   const OKp=[STATUS.okSoft,STATUS.ok], WARNp=[STATUS.warnSoft,STATUS.warn], DANGp=[STATUS.dangerSoft,STATUS.danger], NEUTp=[STATUS.neutralSoft,STATUS.neutral]
   const m={paid:[...OKp,'Payé'],pending:[...WARNp,'En attente'],overdue:[...DANGp,'En retard'],due:[...NEUTp,'Impayé'],open:[...WARNp,'Ouvert'],resolved:[...OKp,'Résolu'],approved:[...OKp,'Approuvé'],rejected:[...DANGp,'Rejeté'],present:[...OKp,'Présent'],absent:[...DANGp,'Absent'],late:[...WARNp,'Retard']}
   const [bg,fg,label]=m[status]||[STATUS.neutralSoft,STATUS.neutral,status]
-  return <span className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{background:bg,color:fg}}>{label}</span>
+  return <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:bg,color:fg}}>{label}</span>
 }
 // ── Initials avatar: THE one avatar style of the product. Deterministic soft
 // tint + matching text colour from the person's id/name — no raster images. ──
@@ -45,7 +45,7 @@ export function Btn({ children, variant='primary', size='md', className='', ...p
   const v=variant==='primary'?"text-white accent-bg shadow-sm hover:opacity-90 active:scale-[.98]":variant==='soft'?"accent-soft accent-text hover:brightness-95":variant==='danger'?"bg-white border border-line text-coral hover:bg-coral-soft":variant==='ghost'?"text-muted hover:text-ink hover:bg-canvas":"bg-white border border-line hover:bg-canvas active:scale-[.98]"
   return <button className={`${base} ${s} ${v} ${className}`} {...p}>{children}</button>
 }
-export function Field({ label, children, hint }){ return <label className="block"><span className="text-xs font-semibold text-muted">{label}</span><div className="mt-1">{children}</div>{hint&&<span className="text-[10px] text-muted">{hint}</span>}</label> }
+export function Field({ label, children, hint }){ return <label className="block"><span className="text-xs font-semibold text-muted">{label}</span><div className="mt-1">{children}</div>{hint&&<span className="text-[11px] text-muted">{hint}</span>}</label> }
 export function Input(p){ return <input {...p} className={`w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm accent-ring ${p.className||''}`}/> }
 export function Textarea(p){ return <textarea {...p} className={`w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm accent-ring ${p.className||''}`}/> }
 export function Select(p){ return <select {...p} className={`w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm accent-ring ${p.className||''}`}/> }
@@ -71,7 +71,7 @@ export function Modal({ open, onClose, title, children, footer, size='lg' }){
 }
 export function Table({ head, children }){
   return <div className="card overflow-hidden"><div className="overflow-x-auto scroll-thin"><table className="w-full text-sm">
-    <thead><tr className="text-left text-[11px] uppercase tracking-wide text-muted bg-canvas">{head.map((h,i)=><th key={i} className="px-4 py-3 font-semibold">{h}</th>)}</tr></thead>
+    <thead><tr className="text-left text-[12px] uppercase tracking-wide text-muted bg-canvas">{head.map((h,i)=><th key={i} className="px-4 py-3 font-semibold">{h}</th>)}</tr></thead>
     <tbody className="divide-y divide-line">{children}</tbody></table></div></div>
 }
 export function PageHead({ title, sub, action }){

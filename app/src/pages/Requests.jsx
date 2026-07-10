@@ -59,7 +59,7 @@ export default function Requests(){
   const Chain=({r})=>(<div className="flex items-center gap-1.5 flex-wrap mt-2">
     {r.chain.map((role,i)=>{ const ap=r.approvals[i]; const done=ap?.decision==='approved',rej=ap?.decision==='rejected'
       const st=rej?'rej':done?'ok':(i===r.currentLevel&&r.status==='pending')?'cur':'wait'; const c={ok:STATUS.ok,rej:STATUS.danger,cur:STATUS.warn,wait:STATUS.neutral}[st]
-      return <span key={i} className="flex items-center gap-1.5"><span className="text-[11px] font-bold px-2 py-1 rounded-full flex items-center gap-1" style={{background:c+'22',color:c}}>{done&&<Check size={11}/>}{rej&&<X size={11}/>} {ROLE[role]?.label}</span>{i<r.chain.length-1&&<ChevronRight size={12} className="text-muted"/>}</span> })}
+      return <span key={i} className="flex items-center gap-1.5"><span className="text-[12px] font-bold px-2 py-1 rounded-full flex items-center gap-1" style={{background:c+'22',color:c}}>{done&&<Check size={11}/>}{rej&&<X size={11}/>} {ROLE[role]?.label}</span>{i<r.chain.length-1&&<ChevronRight size={12} className="text-muted"/>}</span> })}
   </div>)
   const Row=({r,decidable})=>(
     <Card className="p-4 hover:shadow-md transition cursor-pointer" >
@@ -162,7 +162,7 @@ function OfficialDoc({ r }){ const m=docModel(r); return (
     <p className="leading-7">{m.body}</p>
     <div className="mt-6 grid grid-cols-2 gap-4"><div className="text-xs text-muted"><b>Circuit de validation :</b>{m.r.approvals.map((a,i)=><div key={i} className="flex items-center gap-1"><Check size={10} className="shrink-0"/> {ROLE[a.role]?.label} — {a.by} ({format(a.at,'dd/MM/yyyy')})</div>)}</div>
       <div className="text-center"><div className="h-12"></div><div className="border-t border-ink/30 pt-1 text-xs">Cachet & signature de la Direction</div></div></div>
-    <div className="text-[10px] text-muted mt-6 pt-2 border-t border-line">Document généré par Coreon Edu — conforme à la {LEGAL.law} (INPDP).</div>
+    <div className="text-[11px] text-muted mt-6 pt-2 border-t border-line">Document généré par Coreon Edu — conforme à la {LEGAL.law} (INPDP).</div>
   </div>) }
 function downloadPDF(r){
   const m=docModel(r); const doc=new jsPDF({unit:'mm',format:'a4'}); const W=210; let y=20

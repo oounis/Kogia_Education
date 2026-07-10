@@ -145,7 +145,7 @@ export default function Results(){
         action={<SearchInput value={q} onChange={e=>setQ(e.target.value)} placeholder="Rechercher un élève…" className="w-56"/>} bodyClass="p-0">
         {rows.length===0 ? <EmptyState icon={<Search size={24}/>} title="Aucun élève ne correspond"/> : (
         <div className="overflow-x-auto scroll-thin"><table className="w-full text-sm">
-          <thead><tr className="text-left text-[11px] uppercase tracking-wide text-muted bg-canvas">
+          <thead><tr className="text-left text-[12px] uppercase tracking-wide text-muted bg-canvas">
             {['#','Élève','Classe','Évaluations','Moyenne','Mention','Tendance',''].map((h,i)=><th key={i} className="px-4 py-3 font-semibold">{h}</th>)}</tr></thead>
           <tbody className="divide-y divide-line">
             {rows.map((x,i)=>(
@@ -155,7 +155,7 @@ export default function Results(){
                 <td className="px-4 py-2.5 text-muted">{classById(x.s.classId)?.name}</td>
                 <td className="px-4 py-2.5 text-muted">{x.count}</td>
                 <td className="px-4 py-2.5 font-extrabold" style={{color:x.mention.color}}>{x.avg}/100</td>
-                <td className="px-4 py-2.5"><span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{background:x.mention.color+'1E',color:x.mention.color}}>{x.mention.label}</span></td>
+                <td className="px-4 py-2.5"><span className="text-[12px] font-bold px-2 py-0.5 rounded-full" style={{background:x.mention.color+'1E',color:x.mention.color}}>{x.mention.label}</span></td>
                 <td className="px-4 py-2.5"><TrendArrow t={x.trend}/></td>
                 <td className="px-4 py-2.5 text-muted"><ChevronRight size={15}/></td>
               </tr>))}
@@ -197,7 +197,7 @@ function RankRow({ x, i, onOpen, best }){
         style={medal?{background:['#FFF4DD','#EEF1F6','#FCEEE2'][i],color:['#E59A12','#64748B','#B45309'][i]}:{background:'#EEF1F6',color:'#64748B'}}>{i+1}</span>
       <Avatar name={x.s.name} seed={x.s.id} size={34}/>
       <span className="min-w-0 flex-1"><span className="block font-semibold truncate leading-tight">{x.s.name}</span>
-        <span className="block text-[11px] text-muted">{classById(x.s.classId)?.name} · {x.count} évaluation{x.count>1?'s':''}</span></span>
+        <span className="block text-[12px] text-muted">{classById(x.s.classId)?.name} · {x.count} évaluation{x.count>1?'s':''}</span></span>
       <TrendArrow t={x.trend}/>
       <span className="text-sm font-extrabold w-14 text-right" style={{color:x.mention.color}}>{x.avg}/100</span>
     </button>

@@ -25,7 +25,7 @@ function Journey({ seq, prog, live }){
             <span className={`mt-[19px] grid place-items-center rounded-full border-2 ${isSchool?'w-4 h-4':'w-3.5 h-3.5'} ${done?'accent-bg border-transparent':'bg-white border-line'}`}>
               {isSchool && <School size={9} className="text-white"/>}
             </span>
-            <span className={`mt-2 text-[10px] text-center leading-tight ${done?'font-bold text-ink':'text-muted'}`}>{s}</span>
+            <span className={`mt-2 text-[11px] text-center leading-tight ${done?'font-bold text-ink':'text-muted'}`}>{s}</span>
           </div>
         )
       })}
@@ -43,8 +43,8 @@ function RouteCard({ r, mine }){
   const n=seq.length, idx=Math.min(n-1, Math.floor(prog*(n-1))+1)
   const nextStop=seq[idx], eta=Math.max(1, Math.round((idx/(n-1)-prog)*42))
   const statusPill = live
-    ? <span className="flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full text-white" style={{background:'#10B981'}}><span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"/>EN DIRECT</span>
-    : <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-canvas text-muted">Aperçu</span>
+    ? <span className="flex items-center gap-1.5 text-[12px] font-bold px-2.5 py-1 rounded-full text-white" style={{background:'#10B981'}}><span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"/>EN DIRECT</span>
+    : <span className="text-[12px] font-bold px-2.5 py-1 rounded-full bg-canvas text-muted">Aperçu</span>
   return (
     <SectionCard icon={<Bus size={16}/>} tint="butter" title={r.name} sub={`Bus ${r.bus} · ${r.students} élèves`} action={statusPill}
       className={mine?'ring-2 ring-[var(--accent)]':''}>
@@ -55,7 +55,7 @@ function RouteCard({ r, mine }){
           <div><div className="font-bold leading-tight">{r.driver}</div><div className="text-xs text-muted">Chauffeur</div></div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="text-right"><div className="text-[11px] text-muted flex items-center gap-1 justify-end"><Clock size={11}/> {dir==='out'?'Dépose':'Arrivée'} à {nextStop}</div><div className="text-sm font-extrabold accent-text">≈ {eta} min</div></div>
+          <div className="text-right"><div className="text-[12px] text-muted flex items-center gap-1 justify-end"><Clock size={11}/> {dir==='out'?'Dépose':'Arrivée'} à {nextStop}</div><div className="text-sm font-extrabold accent-text">≈ {eta} min</div></div>
           {/* le bouton n'avait aucun handler : il ouvre maintenant vraiment le téléphone */}
           {r.phone
             ? <a href={`tel:${r.phone}`} aria-label={`Appeler ${r.driver} au ${r.phone}`}

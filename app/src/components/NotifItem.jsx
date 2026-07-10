@@ -21,7 +21,7 @@ export function NotifRow({ n, onClick, compact }){
       <span className="flex-1 min-w-0">
         <span className="text-sm leading-snug block">{n.actor&&<b>{n.actor} </b>}<span className={n.actor?'text-muted':''}>{n.title}</span></span>
         {n.body&&<span className="text-xs text-muted block truncate">{n.body}</span>}
-        <span className="text-[11px] font-semibold mt-0.5 block" style={{color:!n.read?'var(--accent)':STATUS.neutral}}>{ago(n.at)}</span>
+        <span className="text-[12px] font-semibold mt-0.5 block" style={{color:!n.read?'var(--accent)':STATUS.neutral}}>{ago(n.at)}</span>
       </span>
       {!n.read&&<span className="w-2.5 h-2.5 rounded-full mt-2 shrink-0" style={{background:'var(--accent)'}}/>}
     </button>

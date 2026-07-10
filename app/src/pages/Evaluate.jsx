@@ -93,7 +93,7 @@ export default function Evaluate(){
     <div className="grid sm:grid-cols-2 gap-4">
       {sched.map((s,i)=>(
         <button key={i} onClick={()=>{reset();setSlot(s)}} className="card p-5 text-left hover:shadow-lg transition relative" style={s.isLive?{boxShadow:'0 0 0 2px var(--accent)'}:{}}>
-          {s.isLive && <span className="absolute top-4 right-4 text-[11px] font-bold px-2 py-0.5 rounded-full text-white" style={{background:STATUS.ok}}>● EN COURS</span>}
+          {s.isLive && <span className="absolute top-4 right-4 text-[12px] font-bold px-2 py-0.5 rounded-full text-white" style={{background:STATUS.ok}}>● EN COURS</span>}
           <div className="flex items-center gap-2 text-sm font-bold accent-text"><Clock size={15}/> {s.start} – {s.end}</div>
           <div className="text-xl font-extrabold mt-2">{s.cls.name} <span className="text-muted text-base font-medium">· {s.subject}</span></div>
           <div className="text-sm text-muted">{s.cls.grade}</div>

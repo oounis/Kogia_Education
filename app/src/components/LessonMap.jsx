@@ -11,7 +11,7 @@ export default function LessonMap({ data, compact=false }){
         <div key={s.subject} className="rounded-xl border border-line bg-white p-3">
           <div className="flex items-center justify-between mb-1.5">
             <span className="font-bold text-sm truncate">{s.subject}</span>
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0" style={{background:m.color+'1E',color:m.color}}>{s.avg}/100</span></div>
+            <span className="text-[12px] font-bold px-2 py-0.5 rounded-full shrink-0" style={{background:m.color+'1E',color:m.color}}>{s.avg}/100</span></div>
           <div className="space-y-1">
             {s.lessons.map(l=>{ const lm=mentionFor(l.avg); return (
               <div key={l.lesson} className="flex items-center gap-2 text-xs" title={`${l.lesson} · ${l.count} évaluation(s)`}>

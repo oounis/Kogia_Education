@@ -111,7 +111,7 @@ function StudentsInsights(){
             <div key={sid} className="flex items-center gap-2.5 px-2 py-1.5 rounded-xl hover:bg-canvas">
               <Avatar name={s.name} seed={s.id} size={30}/>
               <span className="min-w-0 flex-1"><span className="block text-sm font-semibold truncate leading-tight">{s.name}</span>
-                <span className="block text-[11px] text-muted">{classById(classId)?.name}</span></span>
+                <span className="block text-[12px] text-muted">{classById(classId)?.name}</span></span>
               <Badge status={status}/>
               <button onClick={()=>notifyParent(s,`${s.name} a été marqué(e) ${FR[status].toLowerCase()} le ${dayLabel}.`)}
                 title="Prévenir le parent" className="w-7 h-7 grid place-items-center rounded-lg text-muted hover:accent-text hover:bg-white"><BellRing size={14}/></button>
@@ -126,7 +126,7 @@ function StudentsInsights(){
           <div key={x.s.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
             <Avatar name={x.s.name} seed={x.s.id} size={34}/>
             <span className="min-w-0 flex-1"><span className="block text-sm font-semibold truncate leading-tight">{x.s.name}</span>
-              <span className="block text-[11px] text-muted">{classById(x.s.classId)?.name} · {x.absent} absences · {x.late} retards</span></span>
+              <span className="block text-[12px] text-muted">{classById(x.s.classId)?.name} · {x.absent} absences · {x.late} retards</span></span>
             <span className="text-sm font-extrabold" style={{color:STATUS.danger}}>{x.total?Math.round(x.absent/x.total*100):0}%</span>
             <Btn size="sm" variant="soft" onClick={()=>notifyParent(x.s,`${x.s.name} cumule ${x.absent} absences sur les 30 derniers jours. Merci de contacter la direction.`)}><BellRing size={13}/> Parent</Btn>
           </div>))}
@@ -205,7 +205,7 @@ function MarkView(){
             className={`text-sm font-semibold px-3 py-2 rounded-xl border transition ${i===slotIdx?'border-transparent text-white':'border-line hover:bg-canvas'}`}
             style={i===slotIdx?{background:'var(--accent)'}:{}}>
             {s.cls.name} <span className="opacity-70 font-normal">· {s.start}</span>
-            {s.isLive && <span className="ml-1.5 text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{background:i===slotIdx?'rgba(255,255,255,.25)':STATUS.ok+'22',color:i===slotIdx?'#fff':STATUS.ok}}>EN COURS</span>}
+            {s.isLive && <span className="ml-1.5 text-[11px] font-bold px-1.5 py-0.5 rounded-full" style={{background:i===slotIdx?'rgba(255,255,255,.25)':STATUS.ok+'22',color:i===slotIdx?'#fff':STATUS.ok}}>EN COURS</span>}
           </button>))}
       </div>
     </Card>

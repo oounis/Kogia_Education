@@ -215,16 +215,27 @@ export function sweep(events, now = Date.now()) {
   return changes
 }
 
-// ── Idées d'événements (l'espace ne doit jamais être vide) ──────────────────
+// ── Catalogue d'activités ───────────────────────────────────────────────────
+// Le titre n'est pas un champ libre : on choisit une activité, et tout le reste
+// suit — catégorie, lieu, mixité, enfants, quorum, prix. Un parent qui veut un
+// match de football ne devrait pas avoir à décider dans quelle « catégorie » il
+// range son match, ni sur quel terrain il se joue.
 export const IDEAS = [
-  { title: 'Match de football entre pères',       cat: 'sport',      audience: 'peres', kids: 'sans',      place: 'Terrain de football', min: 10, price: 5,  desc: 'Deux équipes, une heure de jeu, bonne humeur garantie. Le prix couvre la location du terrain et les arbitres.' },
-  { title: 'Atelier danse entre mères',           cat: 'atelier',    audience: 'meres', kids: 'garde',     place: 'Salle polyvalente',   min: 8,  price: 8,  desc: 'Une heure de danse avec une intervenante. Une garde d’enfants est organisée sur place.' },
+  { title: 'Match de football entre pères',       cat: 'sport',      audience: 'peres', kids: 'sans',      place: 'Terrain de football', min: 10, price: 5,  desc: 'Deux équipes, une heure de jeu, bonne humeur garantie.', covers: 'la location du terrain et les arbitres' },
+  { title: 'Atelier danse entre mères',           cat: 'atelier',    audience: 'meres', kids: 'garde',     place: 'Salle polyvalente',   min: 8,  price: 8,  desc: 'Une heure de danse avec une intervenante. Une garde d’enfants est organisée sur place.', covers: 'l’intervenante et la garde d’enfants' },
   { title: 'Café des parents',                    cat: 'rencontre',  audience: 'mixte', kids: 'bienvenus', place: 'Bibliothèque',        min: 6,  price: 0,  desc: 'Un moment simple pour se rencontrer autour d’un café. Gratuit.' },
-  { title: 'Tournoi de pétanque',                 cat: 'sport',      audience: 'mixte', kids: 'bienvenus', place: 'Cour de l’école',     min: 8,  price: 3,  desc: 'Doublettes tirées au sort. Le prix couvre les boissons.' },
+  { title: 'Tournoi de pétanque',                 cat: 'sport',      audience: 'mixte', kids: 'bienvenus', place: 'Cour de l’école',     min: 8,  price: 3,  desc: 'Doublettes tirées au sort.', covers: 'les boissons' },
   { title: 'Journée propreté du jardin',          cat: 'solidarite', audience: 'mixte', kids: 'bienvenus', place: 'Cour de l’école',     min: 6,  price: 0,  desc: 'On remet le jardin de l’école en état, ensemble. Apportez des gants.' },
-  { title: 'Atelier cuisine tunisienne',          cat: 'atelier',    audience: 'mixte', kids: 'sans',      place: 'Salle polyvalente',   min: 8,  price: 12, desc: 'On cuisine et on partage le repas. Le prix couvre les ingrédients.' },
-  { title: 'Sortie randonnée familiale',          cat: 'sortie',     audience: 'mixte', kids: 'pour',      place: 'Extérieur (hors école)', min: 10, price: 6, desc: 'Randonnée facile, adaptée aux enfants. Le prix couvre le transport.' },
+  { title: 'Atelier cuisine tunisienne',          cat: 'atelier',    audience: 'mixte', kids: 'sans',      place: 'Salle polyvalente',   min: 8,  price: 12, desc: 'On cuisine et on partage le repas.', covers: 'les ingrédients' },
+  { title: 'Sortie randonnée familiale',          cat: 'sortie',     audience: 'mixte', kids: 'pour',      place: 'Extérieur (hors école)', min: 10, price: 6, desc: 'Randonnée facile, adaptée aux enfants.', covers: 'le transport' },
   { title: 'Tournoi d’échecs parents–enfants',    cat: 'sport',      audience: 'mixte', kids: 'pour',      place: 'Bibliothèque',        min: 6,  price: 0,  desc: 'Chaque enfant joue avec un parent. Gratuit, échiquiers fournis.' },
-  { title: 'Fête de fin d’année des parents',     cat: 'fete',       audience: 'mixte', kids: 'bienvenus', place: 'Cour de l’école',     min: 15, price: 10, desc: 'Chacun apporte un plat ; le prix couvre la sono et la décoration.' },
-  { title: 'Séance de yoga entre mères',          cat: 'atelier',    audience: 'meres', kids: 'garde',     place: 'Gymnase',             min: 8,  price: 7,  desc: 'Une heure de yoga doux avec une professeure. Tapis fournis.' },
+  { title: 'Fête de fin d’année des parents',     cat: 'fete',       audience: 'mixte', kids: 'bienvenus', place: 'Cour de l’école',     min: 15, price: 10, desc: 'Chacun apporte un plat.', covers: 'la sono et la décoration' },
+  { title: 'Séance de yoga entre mères',          cat: 'atelier',    audience: 'meres', kids: 'garde',     place: 'Gymnase',             min: 8,  price: 7,  desc: 'Une heure de yoga doux avec une professeure. Tapis fournis.', covers: 'la professeure et la garde d’enfants' },
+  { title: 'Tournoi de volley-ball',              cat: 'sport',      audience: 'mixte', kids: 'bienvenus', place: 'Cour de l’école',     min: 12, price: 3,  desc: 'Équipes mixtes tirées au sort, deux terrains.', covers: 'les filets et les ballons' },
+  { title: 'Basket entre parents',                cat: 'sport',      audience: 'mixte', kids: 'sans',      place: 'Gymnase',             min: 10, price: 4,  desc: 'Match amical, cinq contre cinq.', covers: 'la location du gymnase' },
+  { title: 'Atelier lecture pour les enfants',    cat: 'atelier',    audience: 'mixte', kids: 'pour',      place: 'Bibliothèque',        min: 6,  price: 0,  desc: 'Des parents lisent des histoires aux enfants.' },
+  { title: 'Match de football entre mères',       cat: 'sport',      audience: 'meres', kids: 'garde',     place: 'Terrain de football', min: 10, price: 5,  desc: 'Deux équipes, une heure de jeu. Garde d’enfants sur place.', covers: 'la location du terrain et la garde d’enfants' },
 ]
+// index par titre : le titre choisi remplit tout le formulaire
+export const ideaByTitle = t => IDEAS.find(i => i.title === t) || null
+export const IDEAS_BY_CAT = CATEGORIES.map(c => ({ ...c, items: IDEAS.filter(i => i.cat === c.k) })).filter(g => g.items.length)

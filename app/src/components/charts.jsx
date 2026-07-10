@@ -82,7 +82,7 @@ export function Gauge({ value, max = 100, color, label, size = 132, thickness = 
       </svg>
       <div className="absolute text-center">
         <div className="text-2xl font-extrabold leading-none tabular-nums">{Math.round(pct * 100)}%</div>
-        {label && <div className="text-[11px] text-muted mt-1">{label}</div>}
+        {label && <div className="text-[12px] text-muted mt-1">{label}</div>}
       </div>
     </div>
   )

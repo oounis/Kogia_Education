@@ -68,7 +68,7 @@ export default function Live(){
       <Card className="p-0 overflow-hidden">
         <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-line flex-wrap">
           <div className="flex items-center gap-2.5">
-            <span className="flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1.5 rounded-full text-white shadow" style={{background:pill.bg}}>
+            <span className="flex items-center gap-1.5 text-[12px] font-bold px-2.5 py-1.5 rounded-full text-white shadow" style={{background:pill.bg}}>
               {pill.pulse&&<motion.span animate={{opacity:[1,.3,1]}} transition={{repeat:Infinity,duration:1.4}}><Radio size={12}/></motion.span>}{pill.txt}</span>
             <span className="text-sm font-bold text-muted hidden sm:inline">Journée de {first} · {day}</span>
           </div>
@@ -132,7 +132,7 @@ export default function Live(){
           {simulated && <div className="mt-4 rounded-2xl p-4 border-2 border-dashed" style={{borderColor:area.color+'55',background:area.color+'0A'}}>
             <div className="flex items-center justify-between">
               <span className="flex items-center gap-2 text-sm font-bold" style={{color:area.color}}><MapPin size={15}/> {area.label}</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{background:'#F59E0B22',color:'#B45309'}}>SIMULATION</span>
+              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{background:'#F59E0B22',color:'#B45309'}}>SIMULATION</span>
             </div>
             <div className="text-lg font-extrabold mt-1">À {fmt(min)}, un jour d'école : {st.title==='En classe'?st.sub?.split(' · ')[0]:st.title}</div>
             <div className="text-sm text-muted">{st.seg?.end>st.seg?.start?`Séance de ${fmt(st.seg.start)} à ${fmt(st.seg.end)} (${st.seg.end-st.seg.start} min)`:st.sub}</div>
@@ -147,9 +147,9 @@ export default function Live(){
         <Card className="p-5">
           <div className="flex items-center justify-between mb-1"><div className="font-bold text-sm">{phase==='after'?'Revoir la journée':phase==='live'?'Explorer la journée':'Explorer une journée type'}</div>
             <button onClick={()=>{setMin(defMin);setLiveNow(phase==='live')}} className="text-xs font-semibold accent-text">{phase==='live'?'Revenir à maintenant':'Réinitialiser'}</button></div>
-          <p className="text-[11px] text-muted mb-2">{phase==='live'?'Faites glisser pour revoir un moment de la journée — puis revenez au direct.':phase==='after'?"Rejouez la journée heure par heure sur le plan.":"Faites glisser le curseur pour voir comment se déroule une journée d'école, heure par heure (simple aperçu)."}</p>
+          <p className="text-[12px] text-muted mb-2">{phase==='live'?'Faites glisser pour revoir un moment de la journée — puis revenez au direct.':phase==='after'?"Rejouez la journée heure par heure sur le plan.":"Faites glisser le curseur pour voir comment se déroule une journée d'école, heure par heure (simple aperçu)."}</p>
           <input type="range" min={480} max={900} step={5} value={min} onChange={e=>{setMin(+e.target.value);setLiveNow(false)}} className="w-full accent-[var(--accent)]" aria-label="Explorer la journée"/>
-          <div className="flex justify-between text-[10px] text-muted mt-1"><span>{fmt(open)}</span><span className="font-bold text-ink">{fmt(min)}</span><span>{fmt(close)}</span></div>
+          <div className="flex justify-between text-[11px] text-muted mt-1"><span>{fmt(open)}</span><span className="font-bold text-ink">{fmt(min)}</span><span>{fmt(close)}</span></div>
         </Card>
       </div>
     </div>

@@ -6,7 +6,7 @@ import { NAV } from '../nav.js'
 import { Avatar } from './ui.jsx'
 import { Search, CornerDownLeft } from 'lucide-react'
 
-const Kbd=({children})=><span className="text-[10px] font-bold text-muted border border-line rounded-md px-1.5 py-0.5 bg-canvas">{children}</span>
+const Kbd=({children})=><span className="text-[11px] font-bold text-muted border border-line rounded-md px-1.5 py-0.5 bg-canvas">{children}</span>
 
 // Ctrl+K — jump anywhere, find anyone. One consistent way to move through the product.
 export default function CommandPalette({ open, onClose, user }){
@@ -54,18 +54,18 @@ export default function CommandPalette({ open, onClose, user }){
             {items.length===0 && <div className="px-3 py-10 text-center text-sm text-muted">Aucun résultat pour « {q} »</div>}
             {items.map((it,i)=>{ const head=it.group!==lastGroup?it.group:null; lastGroup=it.group
               return (<div key={it.group+it.label}>
-                {head&&<div className="text-[10px] font-extrabold uppercase tracking-wide text-muted px-2.5 pt-2 pb-1">{head}</div>}
+                {head&&<div className="text-[11px] font-extrabold uppercase tracking-wide text-muted px-2.5 pt-2 pb-1">{head}</div>}
                 <button onMouseEnter={()=>setIdx(i)} onClick={()=>go(it)}
                   className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left transition ${i===idx?'accent-soft':''}`}>
                   {it.seed!=null? <Avatar name={it.label} seed={it.seed} size={28}/>
                     : <span className={`w-7 h-7 grid place-items-center rounded-lg bg-canvas ${i===idx?'accent-text':'text-muted'}`}><it.Icon size={15}/></span>}
                   <span className="flex-1 min-w-0"><span className="block text-sm font-semibold truncate">{it.label}</span>
-                    {it.sub&&<span className="block text-[11px] text-muted truncate">{it.sub}</span>}</span>
+                    {it.sub&&<span className="block text-[12px] text-muted truncate">{it.sub}</span>}</span>
                   {i===idx&&<CornerDownLeft size={13} className="text-muted shrink-0"/>}
                 </button>
               </div>)})}
           </div>
-          <div className="flex items-center gap-3 px-4 py-2.5 border-t border-line text-[11px] text-muted shrink-0">
+          <div className="flex items-center gap-3 px-4 py-2.5 border-t border-line text-[12px] text-muted shrink-0">
             <span className="flex items-center gap-1"><Kbd>↑</Kbd><Kbd>↓</Kbd> naviguer</span>
             <span className="flex items-center gap-1"><Kbd>↵</Kbd> ouvrir</span>
             <span className="flex items-center gap-1 ml-auto"><Kbd>Ctrl</Kbd><Kbd>K</Kbd> depuis n'importe où</span>

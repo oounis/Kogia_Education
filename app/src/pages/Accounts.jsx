@@ -41,8 +41,8 @@ export default function Accounts(){
             {us.map(u=>(
               <button key={u.id} onClick={()=>setView(u)} className={`card p-4 flex items-center gap-3 text-left hover:shadow-lg hover:-translate-y-0.5 transition w-full ${u.disabled?'opacity-60':''}`}>
                 <Avatar name={u.name} seed={u.id} size={44} className={u.disabled?'opacity-50':''}/>
-                <div className="min-w-0 flex-1"><div className="font-semibold truncate flex items-center gap-2">{u.name}{u.disabled&&<span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-canvas text-muted">Désactivé</span>}</div><div className="text-xs text-muted truncate">{u.position||u.occupation||u.email}</div></div>
-                {(u.attachments||[]).length>0&&<span className="inline-flex items-center gap-0.5 text-[11px] text-muted shrink-0"><Paperclip size={11}/>{u.attachments.length}</span>}
+                <div className="min-w-0 flex-1"><div className="font-semibold truncate flex items-center gap-2">{u.name}{u.disabled&&<span className="text-[11px] font-bold px-1.5 py-0.5 rounded-full bg-canvas text-muted">Désactivé</span>}</div><div className="text-xs text-muted truncate">{u.position||u.occupation||u.email}</div></div>
+                {(u.attachments||[]).length>0&&<span className="inline-flex items-center gap-0.5 text-[12px] text-muted shrink-0"><Paperclip size={11}/>{u.attachments.length}</span>}
               </button>
             ))}
           </div>

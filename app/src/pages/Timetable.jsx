@@ -42,7 +42,7 @@ export default function Timetable(){
       sub={<span className="inline-flex items-center gap-2 flex-wrap">
         {mode==='me'&&teacher ? <>{teacher.name} · {teacher.subject}</> : <>Classe {clsName}</>}
         <span className="text-line">|</span>{sessions} séances · Lun–Ven · 6 périodes
-        {editable && <span className="inline-flex items-center gap-1 text-[11px] font-bold accent-soft accent-text px-2 py-0.5 rounded-full"><Pencil size={11}/> mode édition — cliquez sur une case</span>}
+        {editable && <span className="inline-flex items-center gap-1 text-[12px] font-bold accent-soft accent-text px-2 py-0.5 rounded-full"><Pencil size={11}/> mode édition — cliquez sur une case</span>}
       </span>}
       action={
         <div className="flex items-end gap-3">
@@ -79,12 +79,12 @@ export default function Timetable(){
 
 function Row({ row, pi, todayIdx, editable, onCell }){
   return (<>
-    <div className="grid place-items-center text-[10px] text-muted font-bold text-center leading-tight">{row.start}<br/>{row.end}</div>
+    <div className="grid place-items-center text-[11px] text-muted font-bold text-center leading-tight">{row.start}<br/>{row.end}</div>
     {row.cells.map((c,di)=>{
       if(!c) return (
         <button key={di} onClick={()=>onCell(pi,di,null)} disabled={!editable}
           className={`h-full w-full rounded-xl grid place-items-center text-muted/70 ${di===todayIdx?'bg-canvas':'bg-canvas/50'} ${editable?'hover:bg-canvas border-2 border-dashed border-line':''}`}>
-          {editable? <Plus size={14}/> : <span className="text-[10px]">—</span>}
+          {editable? <Plus size={14}/> : <span className="text-[11px]">—</span>}
         </button>)
       const {Icon,color}=subjectMeta(c.subject)
       return (

@@ -65,7 +65,7 @@ export default function Bulletin({ student, onClose }){
             <h3 className="text-sm font-bold uppercase tracking-wide text-muted mb-2">Résultats par matière</h3>
             {b.subjects.length? (
               <table className="w-full text-sm border border-line rounded-lg overflow-hidden mb-6">
-                <thead><tr className="bg-canvas text-left text-[11px] uppercase tracking-wide text-muted">
+                <thead><tr className="bg-canvas text-left text-[12px] uppercase tracking-wide text-muted">
                   <th className="px-3 py-2 font-semibold">Matière</th>
                   <th className="px-3 py-2 font-semibold text-center">Évaluations</th>
                   <th className="px-3 py-2 font-semibold text-center">Moyenne</th>
@@ -118,7 +118,7 @@ export default function Bulletin({ student, onClose }){
               <div><div className="text-muted text-xs">Signature de la Direction</div><div className="h-12 border-b border-line"/></div>
               <div><div className="text-muted text-xs">Signature du Parent / Tuteur</div><div className="h-12 border-b border-line"/></div>
             </div>
-            <div className="text-[10px] text-muted text-center mt-6">Document généré par Coreon Edu — bulletin indicatif, sans valeur officielle dans cette démo.</div>
+            <div className="text-[11px] text-muted text-center mt-6">Document généré par Coreon Edu — bulletin indicatif, sans valeur officielle dans cette démo.</div>
           </div>
         </Dialog.Panel>
       </div>
@@ -130,7 +130,7 @@ function Line({k,v}){ return <div className="flex gap-1.5"><span className="text
 function SummaryBox({label,value,accent,color}){
   return <div className={`rounded-xl border border-line p-3 text-center ${accent?'accent-soft':''}`}>
     <div className="text-2xl font-extrabold leading-none" style={color?{color}:accent?{}:{}}>{value}</div>
-    <div className="text-[11px] text-muted mt-1">{label}</div>
+    <div className="text-[12px] text-muted mt-1">{label}</div>
   </div>
 }
 function Pill({color,label,value}){

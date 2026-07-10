@@ -69,14 +69,14 @@ export default function Pointage(){
       <Card className="p-6 text-center">
         <div className="floaty mx-auto w-fit mb-1"><Whale size={44} from="var(--accent)" to="var(--accent-2,var(--accent))"/></div>
         {isSummer() ? <>
-          <div className="inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1 rounded-full" style={{background:'#FEF3C7',color:'#92400E'}}>VACANCES D'ÉTÉ</div>
+          <div className="inline-flex items-center gap-1.5 text-[12px] font-bold px-3 py-1 rounded-full" style={{background:'#FEF3C7',color:'#92400E'}}>VACANCES D'ÉTÉ</div>
           <div className="text-lg font-extrabold mt-2">Badgeuse en pause</div>
           <p className="text-sm text-muted mt-1">Le pointage reprend le <b>{rentreeLabel()}</b>. Vos heures et votre historique restent consultables ci-contre — bel été !</p>
         </> : !clock ? <>
           <div className="text-lg font-extrabold">Prêt pour la journée ?</div>
           <p className="text-sm text-muted mt-1 capitalize">{format(now,'EEEE d MMMM · HH:mm',{locale:fr})}</p>
           <Btn size="lg" className="mt-4 w-full" onClick={checkIn}><LogIn size={17}/> Pointer l'arrivée</Btn>
-          <p className="text-[11px] text-muted mt-2">Après {LATE}, l'arrivée est comptée en retard.</p></> : null}
+          <p className="text-[12px] text-muted mt-2">Après {LATE}, l'arrivée est comptée en retard.</p></> : null}
         {!isSummer() && working && <>
           <div className="text-lg font-extrabold">Dans l'école depuis {clock.in}</div>
           <div className="text-3xl font-extrabold accent-text mt-1 tabular-nums">{fmtH(elapsed)}</div>
@@ -113,8 +113,8 @@ export default function Pointage(){
         <div key={lv.id} className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-canvas">
           <span className="min-w-0 flex-1">
             <span className="block text-sm font-semibold">{LEAVE_TYPES[lv.type]}{lv.type==='permission'&&lv.hours?` · ${lv.hours} h`:''}</span>
-            <span className="block text-[11px] text-muted">{lv.from===lv.to?lv.from:`${lv.from} → ${lv.to}`}{lv.reason?` · « ${lv.reason} »`:''}</span></span>
-          <span className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{background:col+'1E',color:col}}>{lbl}</span>
+            <span className="block text-[12px] text-muted">{lv.from===lv.to?lv.from:`${lv.from} → ${lv.to}`}{lv.reason?` · « ${lv.reason} »`:''}</span></span>
+          <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:col+'1E',color:col}}>{lbl}</span>
         </div>)})}
     </SectionCard>
 

@@ -41,7 +41,7 @@ function StationNode({ data }){
   const ring = isPlain?(cursor?`0 0 0 3px ${iconColor}`:'0 0 0 2px #E4E8F0') : isCur?`0 0 0 3.5px ${color}` : isDone?`0 0 0 3px ${color}` : '0 0 0 2px #E4E8F0'
   return (
     <div className="relative flex flex-col items-center" style={{width:132}}>
-      <div className="text-[10px] font-extrabold mb-1" style={{color:'#AAB3C2',opacity:isCur?0:1}}>{time}</div>
+      <div className="text-[11px] font-extrabold mb-1" style={{color:'#AAB3C2',opacity:isCur?0:1}}>{time}</div>
       <div className="relative grid place-items-center">
         {isCur && showStudent && <span className="absolute w-20 h-20 rounded-full animate-ping" style={{background:color,opacity:.25}}/>}
         {/* the pupil, marked at her current stop */}
@@ -57,7 +57,7 @@ function StationNode({ data }){
           {isDone && !isPlain && <div className="absolute inset-0 rounded-full grid place-items-center" style={{background:color+'9E'}}><Check size={28} strokeWidth={3.6} className="text-white"/></div>}
         </div>
       </div>
-      <div className={`text-[11px] mt-1.5 text-center leading-tight ${(isCur||(isPlain&&cursor))?'font-extrabold':'font-semibold'}`}
+      <div className={`text-[12px] mt-1.5 text-center leading-tight ${(isCur||(isPlain&&cursor))?'font-extrabold':'font-semibold'}`}
         style={{color:(isFut&&!isPlain)?'#B2BAC8':'#333B4C'}}>{label}</div>
       {sub && (!isFut||isPlain) && <div className="text-[9px]" style={{color:'#A6AFBE'}}>{sub}</div>}
       <Handle id="r" type="source" position={Position.Right} style={HC}/>

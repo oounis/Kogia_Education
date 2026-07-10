@@ -39,7 +39,7 @@ export default function Students(){
     <button onClick={()=>setViewS(s)} className="card p-3 flex items-center gap-3 text-left hover:shadow-lg hover:-translate-y-0.5 transition w-full">
       <Avatar name={s.name} seed={s.id} size={44}/>
       <div className="min-w-0 flex-1"><div className="font-semibold truncate">{s.name}</div><div className="text-xs text-muted">{s.gender} · {classById(s.classId)?.name}</div></div>
-      <span className="inline-flex items-center gap-1 text-[11px] text-muted"><Droplet size={11} className="text-coral"/>{s.bloodGroup}</span>
+      <span className="inline-flex items-center gap-1 text-[12px] text-muted"><Droplet size={11} className="text-coral"/>{s.bloodGroup}</span>
     </button>
   )
 

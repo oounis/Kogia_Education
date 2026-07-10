@@ -73,10 +73,10 @@ function DayTab({ d, staff, refresh }){
             <Avatar name={x.name} seed={x.id} size={36}/>
             <span className="min-w-0 flex-1">
               <span className="block text-sm font-semibold truncate leading-tight">{x.name}</span>
-              <span className="block text-[11px] text-muted truncate">{x.sub}{h?` · 30 j : ${h.absent} abs · ${h.late} ret · ${h.conge} congés`:''}</span>
+              <span className="block text-[12px] text-muted truncate">{x.sub}{h?` · 30 j : ${h.absent} abs · ${h.late} ret · ${h.conge} congés`:''}</span>
             </span>
             <button onClick={()=>setMarks(m=>({...m,[x.id]:NEXT[st]}))}
-              className="text-[11px] font-bold px-3 py-1.5 rounded-full transition" style={{background:col+'1E',color:col}}>{lbl}</button>
+              className="text-[12px] font-bold px-3 py-1.5 rounded-full transition" style={{background:col+'1E',color:col}}>{lbl}</button>
           </div>) })}
       </div>
     </SectionCard>
@@ -100,7 +100,7 @@ function ClockBoard({ d, staff }){
           <span key={x.id} className="inline-flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border border-line bg-white text-sm">
             <Avatar name={x.name} seed={x.id} size={26}/>
             <span className="font-semibold">{x.name.split(' ')[0]}</span>
-            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{background:state[1]+'1E',color:state[1]}}>
+            <span className="text-[12px] font-bold px-2 py-0.5 rounded-full" style={{background:state[1]+'1E',color:state[1]}}>
               {c&&!c.out&&<span className="inline-block w-1.5 h-1.5 rounded-full mr-1 animate-pulse" style={{background:state[1]}}/>}{state[0]}</span>
           </span>)})}
       </div>
@@ -139,7 +139,7 @@ function MonthTab({ d, staff }){
       </div>} bodyClass="p-0">
       {days.length===0 ? <EmptyState title="Aucun jour ouvré écoulé" sub="Ce mois n'a pas encore commencé."/> : (
       <div className="overflow-x-auto scroll-thin"><table className="w-full text-sm">
-        <thead><tr className="text-left text-[11px] uppercase tracking-wide text-muted bg-canvas">
+        <thead><tr className="text-left text-[12px] uppercase tracking-wide text-muted bg-canvas">
           <th className="px-4 py-3 font-semibold">Employé</th>
           <th className="px-2 py-3 font-semibold">Jours</th>
           {['Prés.','Ret.','Abs.','Congés','Taux'].map(h=><th key={h} className="px-2 py-3 font-semibold text-center">{h}</th>)}
@@ -148,7 +148,7 @@ function MonthTab({ d, staff }){
           {rows.map(r=>(
             <tr key={r.id} className="hover:bg-canvas">
               <td className="px-4 py-2.5"><span className="flex items-center gap-2.5 min-w-[170px]"><Avatar name={r.name} seed={r.id} size={30}/>
-                <span className="min-w-0"><span className="block font-semibold truncate leading-tight">{r.name}</span><span className="block text-[10px] text-muted truncate">{r.sub}</span></span></span></td>
+                <span className="min-w-0"><span className="block font-semibold truncate leading-tight">{r.name}</span><span className="block text-[11px] text-muted truncate">{r.sub}</span></span></span></td>
               <td className="px-2 py-2.5"><span className="flex gap-[3px] flex-wrap max-w-[340px]">
                 {r.cells.map((st,i)=>{ const col=st?ST[st][1]:'#E2E8F0'
                   return <i key={i} title={`${format(days[i],'EEE d MMM',{locale:fr})} · ${st?ST[st][0]:'non pointé'}`}
@@ -162,7 +162,7 @@ function MonthTab({ d, staff }){
             </tr>))}
         </tbody>
       </table>
-      <div className="flex items-center gap-4 px-4 py-3 border-t border-line text-[11px] text-muted flex-wrap">
+      <div className="flex items-center gap-4 px-4 py-3 border-t border-line text-[12px] text-muted flex-wrap">
         {Object.entries(ST).map(([k,[lbl,col]])=><span key={k} className="inline-flex items-center gap-1.5"><i className="w-3 h-3 rounded-[4px]" style={{background:col}}/>{lbl}</span>)}
         <span className="inline-flex items-center gap-1.5"><i className="w-3 h-3 rounded-[4px]" style={{background:'#EEF1F6',outline:'1px dashed #D8DEE9'}}/>non pointé</span>
       </div></div>)}
@@ -234,7 +234,7 @@ function LeavesTab({ d, staff, refresh }){
               {canDecide(lv)
                 ? <><Btn size="sm" onClick={()=>decide(lv,'approved')}><Check size={14}/> Approuver</Btn>
                     <Btn size="sm" variant="danger" onClick={()=>decide(lv,'rejected')}><X size={14}/></Btn></>
-                : <span className="text-[11px] font-semibold text-muted text-right shrink-0">
+                : <span className="text-[12px] font-semibold text-muted text-right shrink-0">
                     {lv.staffId===myStaffId ? 'Votre demande —\nla Direction décide' : 'Décision réservée\nà la Direction'}
                   </span>}
             </div>))}
@@ -248,8 +248,8 @@ function LeavesTab({ d, staff, refresh }){
               <Avatar name={nameOf(lv.staffId)} seed={lv.staffId} size={30}/>
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-semibold truncate">{nameOf(lv.staffId)} · {LEAVE_TYPES[lv.type]}</span>
-                <span className="block text-[11px] text-muted">{lv.from} → {lv.to} · {lv.days} j</span></span>
-              <span className="text-[11px] font-bold px-2.5 py-1 rounded-full" style={{background:col+'1E',color:col}}>{lbl}</span>
+                <span className="block text-[12px] text-muted">{lv.from} → {lv.to} · {lv.days} j</span></span>
+              <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:col+'1E',color:col}}>{lbl}</span>
             </div>)})}
         </SectionCard>
       </div>
@@ -311,7 +311,7 @@ function AnalyseTab({ d, staff }){
           <div key={x.id} className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas">
             <Avatar name={x.name} seed={x.id} size={34}/>
             <span className="min-w-0 flex-1"><span className="block text-sm font-semibold truncate">{x.name}</span>
-              <span className="block text-[11px] text-muted">{x.absent} absences · {x.late} retards · 30 j</span></span>
+              <span className="block text-[12px] text-muted">{x.absent} absences · {x.late} retards · 30 j</span></span>
             <span className="text-sm font-extrabold" style={{color:STATUS.danger}}>{x.rate}%</span>
           </div>))}
       </SectionCard>
@@ -325,7 +325,7 @@ function AnalyseTab({ d, staff }){
             <span className="w-40 text-sm font-semibold truncate shrink-0">{x.name}</span>
             <div className="flex-1 h-2.5 rounded-full bg-canvas overflow-hidden"><div className="h-full rounded-full" style={{width:`${x.rate??0}%`,background:col}}/></div>
             <span className="w-12 text-right text-sm font-extrabold" style={{color:col}}>{x.rate!=null?`${x.rate}%`:'—'}</span>
-            <span className="w-28 text-right text-[11px] text-muted">{x.absent} abs · {x.late} ret · {x.conge} congés</span>
+            <span className="w-28 text-right text-[12px] text-muted">{x.absent} abs · {x.late} ret · {x.conge} congés</span>
           </div>)})}
       </div>
     </SectionCard>

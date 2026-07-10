@@ -58,10 +58,10 @@ export default function Payments(){
           <div key={m.month} className="rounded-xl border border-line p-2 text-center">
             <div className="text-xs font-semibold">{m.month}</div>
             <div className="mt-1 w-full h-1.5 rounded-full" style={{background:COL[m.status]}}/>
-            <div className="text-[10px] text-muted mt-1">{FR[m.status]}</div>
-            {m.status==='paid' ? <div className="mt-1.5 text-[10px] text-muted inline-flex items-center gap-0.5"><Check size={11}/> Confirmé</div>
-             : m.status==='pending' ? <div className="mt-1.5 text-[10px] inline-flex items-center gap-0.5" style={{color:STATUS.warn}}><Hourglass size={11}/> En attente</div>
-             : <button onClick={()=>declare(i)} className="mt-1.5 text-[10px] font-bold accent-text inline-flex items-center gap-0.5"><Send size={11}/> Signaler</button>}
+            <div className="text-[11px] text-muted mt-1">{FR[m.status]}</div>
+            {m.status==='paid' ? <div className="mt-1.5 text-[11px] text-muted inline-flex items-center gap-0.5"><Check size={11}/> Confirmé</div>
+             : m.status==='pending' ? <div className="mt-1.5 text-[11px] inline-flex items-center gap-0.5" style={{color:STATUS.warn}}><Hourglass size={11}/> En attente</div>
+             : <button onClick={()=>declare(i)} className="mt-1.5 text-[11px] font-bold accent-text inline-flex items-center gap-0.5"><Send size={11}/> Signaler</button>}
           </div>
         ))}
       </div>

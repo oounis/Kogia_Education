@@ -43,7 +43,7 @@ export default function AppShell({ children }){
             <button onClick={()=>setPalette(true)} aria-label="Recherche globale (Ctrl+K)"
               className="hidden sm:flex items-center gap-2 bg-canvas rounded-xl px-3 py-2 w-72 text-sm text-muted hover:bg-line/60 transition text-left">
               <Search size={16}/><span className="flex-1">Rechercher…</span>
-              <span className="text-[10px] font-bold border border-line rounded-md px-1.5 py-0.5 bg-white">Ctrl K</span>
+              <span className="text-[11px] font-bold border border-line rounded-md px-1.5 py-0.5 bg-white">Ctrl K</span>
             </button>
             <button onClick={()=>setPalette(true)} aria-label="Recherche globale" className="sm:hidden w-10 h-10 grid place-items-center rounded-xl text-muted hover:bg-canvas"><Search size={18}/></button>
             <div className="ml-auto flex items-center gap-2"><SummerChip/><ClockCorner/><MeteoCorner/><BellMenu user={u}/><UserMenu user={u} role={role} onLogout={()=>{logout();nav('/')}}/></div>
@@ -80,7 +80,7 @@ function BellMenu({ user }){
     <Menu as="div" className="relative">
       <Menu.Button className="relative w-10 h-10 grid place-items-center rounded-xl hover:bg-canvas" aria-label="Notifications">
         <Bell size={19} className={unread>0?"accent-text bell-ring":"text-muted"}/>
-        {unread>0&&<span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 grid place-items-center text-[10px] font-bold text-white rounded-full" style={{background:STATUS.live}}>{unread}</span>}
+        {unread>0&&<span className="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 grid place-items-center text-[11px] font-bold text-white rounded-full" style={{background:STATUS.live}}>{unread}</span>}
       </Menu.Button>
       <Menu.Items className="absolute right-0 mt-2 w-[360px] max-w-[92vw] card p-0 shadow-2xl z-50 focus:outline-none overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b border-line"><span className="font-bold">Notifications</span>
@@ -99,7 +99,7 @@ function UserMenu({ user, role, onLogout }){
     <Menu as="div" className="relative">
       <Menu.Button className="flex items-center gap-2 rounded-xl hover:bg-canvas pl-1 pr-2 py-1" aria-label="Menu utilisateur">
         <Avatar name={user.name} seed={user.id} size={36}/>
-        <span className="hidden sm:block text-left leading-tight"><span className="block text-sm font-semibold">{user.name}</span><span className="block text-[11px] text-muted">{role.label}</span></span>
+        <span className="hidden sm:block text-left leading-tight"><span className="block text-sm font-semibold">{user.name}</span><span className="block text-[12px] text-muted">{role.label}</span></span>
         <ChevronDown size={15} className="text-muted"/>
       </Menu.Button>
       <Menu.Items className="absolute right-0 mt-2 w-52 card p-1.5 shadow-xl z-50 focus:outline-none">
