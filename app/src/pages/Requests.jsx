@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import jsPDF from 'jspdf'
 import { current } from '@core/auth.js'
-import { db, mutate, uid, userById, studentById, classById } from '@core/db.js'
+import { db, mutate, uid, userById, studentById, classById, settings } from '@core/db.js'
 import { ROLE } from '@core/theme.js'
 import { notify } from '@core/notify.js'
 import { REQUEST_DEFS, typesForRole, LEGAL } from '@core/tunisia.js'
@@ -139,22 +139,24 @@ export default function Requests(){
 
 /* ---------- document content (shared by preview + PDF) ---------- */
 function docModel(r){
+  // Identité de l'établissement depuis les Paramètres — plus d'« École Al-Nour » figé.
+  const sc=settings()
   const f=r.fields||{}; const today=format(new Date(),'dd/MM/yyyy')
   if(r.type==='Certificat de scolarité'){ const s=studentById(f.child); const cls=classById(s?.classId)
-    return { title:'Certificat de scolarité', ref:r.id.toUpperCase(), today,
-      intro:"La Direction de l'École Al-Nour certifie que l'élève :",
-      rows:[['Nom & prénom',s?.name],['Classe',`${cls?.name||''} (${cls?.grade||''})`],['N° acte de naissance',s?.cin||'—'],['Année scolaire',f.year||'2026/2027']],
+    return { title:'Certificat de scolarité', ref:r.id.toUpperCase(), today, sc,
+      intro:`La Direction de l'établissement ${sc.schoolName} certifie que l'élève :`,
+      rows:[['Nom & prénom',s?.name],['Classe',`${cls?.name||''} (${cls?.grade||''})`],['N° acte de naissance',s?.cin||'—'],['Année scolaire',f.year||sc.year]],
       body:`est régulièrement inscrit(e) et suit ses études dans notre établissement. Le présent certificat est délivré pour servir et valoir ce que de droit${f.addressedTo?` (${f.addressedTo})`:''}.`, r }
   }
   const user=userById(r.by); const t=db().teachers.find(x=>x.id===user?.teacherId); const isSalary=r.type.includes('salaire')
-  return { title:r.type, ref:r.id.toUpperCase(), today, intro:"Nous soussignés, la Direction de l'École Al-Nour, attestons que :",
+  return { title:r.type, ref:r.id.toUpperCase(), today, sc, intro:`Nous soussignés, la Direction de l'établissement ${sc.schoolName}, attestons que :`,
     rows:[['Nom & prénom',r.byName],['Fonction',t?.designation||user?.position||'Enseignant'],['CIN',user?.cin||t?.cin||'—'],['Date d\'embauche',t?.joiningDate||'—'],...(isSalary?[['Salaire mensuel brut',t?.salary?t.salary+' DT':'—']]:[])],
     body:`est employé(e) au sein de notre établissement. La présente attestation est délivrée à l'intéressé(e)${f.addressedTo?`, à l'attention de ${f.addressedTo},`:''} pour servir et valoir ce que de droit${f.purpose?` (${f.purpose})`:''}.`, r }
 }
 function OfficialDoc({ r }){ const m=docModel(r); return (
   <div className="bg-white p-2 text-sm">
     <div className="flex items-center justify-between border-b-2 pb-3 mb-4" style={{borderColor:'#6366F1'}}>
-      <div className="flex items-center gap-2"><svg viewBox="0 0 68 72" width="34" height="34"><defs><linearGradient id="al" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#6366F1"/><stop offset="1" stopColor="#36C5F0"/></linearGradient></defs><path d="M34 62 C31 52 28 47 22 43 C15 38 10 31 7 22 C18 27 28 33 31 41 L34 46 L37 41 C40 33 50 27 61 22 C58 31 53 38 46 43 C40 47 37 52 34 62 Z" fill="url(#al)"/></svg><div><div className="font-extrabold">École Al-Nour</div><div className="text-xs text-muted">Tunis, Tunisie · Tél : +216 71 000 000</div></div></div>
+      <div className="flex items-center gap-2"><svg viewBox="0 0 68 72" width="34" height="34"><defs><linearGradient id="al" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#6366F1"/><stop offset="1" stopColor="#36C5F0"/></linearGradient></defs><path d="M34 62 C31 52 28 47 22 43 C15 38 10 31 7 22 C18 27 28 33 31 41 L34 46 L37 41 C40 33 50 27 61 22 C58 31 53 38 46 43 C40 47 37 52 34 62 Z" fill="url(#al)"/></svg><div><div className="font-extrabold">{m.sc.schoolName}</div><div className="text-xs text-muted">{m.sc.city}, Tunisie · Tél : {m.sc.phone}</div></div></div>
       <div className="text-xs text-right text-muted">Réf : {m.ref}<br/>Tunis, le {m.today}</div></div>
     <h2 className="text-center text-xl font-extrabold uppercase my-4">{m.title}</h2>
     <p className="leading-7">{m.intro}</p>
@@ -167,8 +169,8 @@ function OfficialDoc({ r }){ const m=docModel(r); return (
 function downloadPDF(r){
   const m=docModel(r); const doc=new jsPDF({unit:'mm',format:'a4'}); const W=210; let y=20
   doc.setDrawColor(108,92,231); doc.setLineWidth(0.8); doc.line(20,28,W-20,28)
-  doc.setFont('helvetica','bold'); doc.setFontSize(15); doc.text('École Al-Nour',20,y)
-  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(120); doc.text('Tunis, Tunisie · +216 71 000 000',20,y+5)
+  doc.setFont('helvetica','bold'); doc.setFontSize(15); doc.text(m.sc.schoolName,20,y)
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(120); doc.text(`${m.sc.city}, Tunisie · ${m.sc.phone}`,20,y+5)
   doc.text(`Réf : ${m.ref}`,W-20,y,{align:'right'}); doc.text(`Tunis, le ${m.today}`,W-20,y+5,{align:'right'})
   y=44; doc.setTextColor(20); doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.text(m.title.toUpperCase(),W/2,y,{align:'center'})
   y+=12; doc.setFont('helvetica','normal'); doc.setFontSize(11)

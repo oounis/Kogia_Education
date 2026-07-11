@@ -45,6 +45,9 @@ export default function Dashboard(){
     const buckets=['excellent','good','average','weak']
     const distData=dist.map(([n,c],i)=>{ let v=0; if(ev) cls.students.forEach(s=>{ const sum=studentSummary(ev,s.id); if(sum.score!=null){ const k=sum.score>=85?0:sum.score>=60?1:sum.score>=40?2:3; if(k===i)v++ } }); return {name:n,value:v,color:c} })
     const hasDist=distData.some(x=>x.value>0)
+    // « Mes évaluations » : celles de CET enseignant — la liste affichait toutes
+    // les évaluations de l'école, y compris celles des collègues.
+    const myEvals=d.evaluations.filter(e=>e.teacher===u.name)
     return (<><PageHead title={greet} sub="Votre journée d'enseignement en un coup d'œil."/>
       <div className="grid sm:grid-cols-3 gap-4 mb-5">
         <StatCard label={cls.isLive?"Classe en cours":"Prochaine séance"} value={cls.cls.name} sub={cls.slot.subject} tint="mint" icon={<ClipboardCheck/>} to="/app/evaluate"/>
@@ -64,8 +67,8 @@ export default function Dashboard(){
            : <EmptyState icon={<ClipboardCheck size={22}/>} title="Aucune évaluation" sub="Évaluez cette classe pour voir la répartition des niveaux."/>}
         </Card>
       </div>
-      <Card className="p-5 mt-4"><div className="flex items-center justify-between mb-3"><h3 className="font-bold flex items-center gap-1.5"><ClipboardCheck size={16}/> Mes évaluations enregistrées</h3><span className="text-xs text-muted">{d.evaluations.length} au total</span></div>
-        {d.evaluations.length? <div className="space-y-2">{d.evaluations.slice(0,6).map(ev=>{ const studs=d.students.filter(s=>s.classId===ev.classId); const scores=studs.map(s=>studentSummary(ev,s.id).score).filter(x=>x!=null); const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):null; const m=mentionFor(avg)
+      <Card className="p-5 mt-4"><div className="flex items-center justify-between mb-3"><h3 className="font-bold flex items-center gap-1.5"><ClipboardCheck size={16}/> Mes évaluations enregistrées</h3><span className="text-xs text-muted">{myEvals.length} au total</span></div>
+        {myEvals.length? <div className="space-y-2">{myEvals.slice(0,6).map(ev=>{ const studs=d.students.filter(s=>s.classId===ev.classId); const scores=studs.map(s=>studentSummary(ev,s.id).score).filter(x=>x!=null); const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):null; const m=mentionFor(avg)
           return (<div key={ev.id} className="flex items-center justify-between text-sm border-b border-line pb-2 last:border-0"><div><span className="font-medium">{ev.className} · {ev.subject}</span><span className="text-xs text-muted ml-2">{new Date(ev.at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</span></div><div className="text-right"><span className="text-muted text-xs mr-2">{scores.length} notés</span><span className="font-bold" style={{color:m.color}}>{avg!=null?`${avg}/100`:'—'}</span></div></div>) })}</div>
          : <EmptyState icon={<ClipboardCheck size={22}/>} title="Aucune évaluation enregistrée" sub="Vos évaluations enregistrées apparaîtront ici."/>}
       </Card></>)
@@ -124,7 +127,7 @@ export default function Dashboard(){
       <div className="grid sm:grid-cols-3 gap-4 mb-5">
         <StatCard label="Incidents ouverts" value={open.length} tint="coral" icon={<ShieldAlert/>} to="/app/incidents"/>
         <StatCard label="Élèves" value={d.students.length} tint="sky" icon={<Users/>} to="/app/students"/>
-        <StatCard label="Signalés par moi" value={d.incidents.length} tint="butter" icon={<ShieldAlert/>} to="/app/incidents"/>
+        <StatCard label="Signalés par moi" value={d.incidents.filter(i=>i.by===u.name).length} tint="butter" icon={<ShieldAlert/>} to="/app/incidents"/>
       </div>
       <div className="grid lg:grid-cols-2 gap-4">
         <Card className="p-5"><h3 className="font-bold mb-3">Incidents par gravité</h3>

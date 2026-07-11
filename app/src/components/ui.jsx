@@ -123,7 +123,9 @@ export function SearchInput({ value, onChange, placeholder='Rechercher…', clas
 export function Toolbar({ children, className='' }){ return <div className={`flex items-center gap-2 flex-wrap mb-4 ${className}`}>{children}</div> }
 // ── Segmented tabs ──
 export function Tabs({ tabs, value, onChange, className='' }){
-  return <div className={`inline-flex items-center gap-1 p-1 rounded-xl bg-canvas border border-line ${className}`} role="tablist">
+  // flex-wrap + max-w-full : cinq onglets (Poste de sécurité) débordaient de 33 px
+  // sur un écran de 390 px et créaient un défilement horizontal de toute la page.
+  return <div className={`inline-flex flex-wrap items-center gap-1 p-1 rounded-xl bg-canvas border border-line max-w-full ${className}`} role="tablist">
     {tabs.map(t=>{ const on=t.value===value
       return <button key={t.value} role="tab" aria-selected={on} onClick={()=>onChange(t.value)}
         className={`px-3 py-1.5 rounded-lg text-[13px] font-semibold transition ${on?'bg-white shadow-sm text-ink':'text-muted hover:text-ink'}`}>{t.label}{t.count!=null&&<span className={`ml-1.5 ${on?'accent-text':'text-muted'}`}>{t.count}</span>}</button>

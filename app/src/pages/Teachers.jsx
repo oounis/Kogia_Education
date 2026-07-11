@@ -8,7 +8,7 @@ import { GOVERNORATES, DOC_TYPES, validCIN } from '@core/tunisia.js'
 import Attach from '../components/Attach.jsx'
 import { UserPlus, Search, ChevronRight } from 'lucide-react'
 import toast from 'react-hot-toast'
-const BLANK={name:'',gender:'Garçon',dob:'',subject:'',qualification:'',experience:'',joiningDate:'',designation:'Professeur',phone:'',email:'',address:'',salary:'',cin:'',governorate:'Tunis',attachments:[]}
+const BLANK={name:'',gender:'Homme',dob:'',subject:'',qualification:'',experience:'',joiningDate:'',designation:'Professeur',phone:'',email:'',address:'',salary:'',cin:'',governorate:'Tunis',attachments:[]}
 export default function Teachers(){
   const u=current(); const canEdit=['schooladmin','admin'].includes(u.role)
   const [,force]=useState(0); const [open,setOpen]=useState(false); const [view,setView]=useState(null); const [f,setF]=useState(BLANK); const [q,setQ]=useState('')
@@ -45,7 +45,8 @@ export default function Teachers(){
     <Modal open={open} onClose={()=>setOpen(false)} title="Ajouter un enseignant / membre" size="2xl" footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={add}>Ajouter</Btn></>}>
       <Section title="Informations personnelles">
         <Field label="Nom complet *"><Input value={f.name} onChange={e=>setF({...f,name:e.target.value})}/></Field>
-        <Field label="Genre"><Select value={f.gender} onChange={e=>setF({...f,gender:e.target.value})}><option>Garçon</option><option>Fille</option></Select></Field>
+        {/* adulte : civilité Homme/Femme (« Garçon/Fille » est réservé aux élèves) */}
+        <Field label="Civilité"><Select value={f.gender} onChange={e=>setF({...f,gender:e.target.value})}><option>Homme</option><option>Femme</option></Select></Field>
         <Field label="Date de naissance"><Input type="date" value={f.dob} onChange={e=>setF({...f,dob:e.target.value})}/></Field>
         <Field label="CIN (8 chiffres)"><Input value={f.cin} onChange={e=>setF({...f,cin:e.target.value})} maxLength={8}/></Field>
         <Field label="Gouvernorat"><Select value={f.governorate} onChange={e=>setF({...f,governorate:e.target.value})}>{GOVERNORATES.map(g=><option key={g}>{g}</option>)}</Select></Field>

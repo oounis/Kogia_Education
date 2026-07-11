@@ -91,7 +91,7 @@ export default function Finance(){
               <td className="px-2 py-2"><div className="flex items-center gap-2 min-w-[160px]"><Avatar name={s.name} seed={s.id} size={28}/><span className="font-medium">{s.name}</span></div></td>
               {d.payments[s.id].map((p,mi)=>(
                 <td key={mi} className="px-1 py-2 text-center">
-                  <button onClick={()=>cycle(s.id,mi)} title={p.status} className="w-6 h-6 rounded-md mx-auto block" style={{background:COL[p.status]}}/>
+                  <button onClick={()=>cycle(s.id,mi)} title={`${p.month} · ${COL_FR[p.status]}`} className="w-6 h-6 rounded-md mx-auto block" style={{background:COL[p.status]}}/>
                 </td>
               ))}
               <td className="px-2"><button onClick={()=>remind(s.id)} className="text-xs font-semibold inline-flex items-center gap-1 accent-text"><BellRing size={13}/> relancer</button></td>

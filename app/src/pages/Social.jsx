@@ -52,9 +52,12 @@ export default function Social() {
     let changed = []
     mutate(db => { changed = sweep(db.socialEvents || [], Date.now()) })
     changed.forEach(({ ev, to }) => {
+      // l'expéditeur est l'espace de l'événement — une formation d'enseignants
+      // n'écrit pas au nom de l'« Espace parents »
+      const spaceLabel = SPACES[ev.space || 'parent'].label
       if (to === 'echoue') {
-        notify({ to: ev.by, kind: 'info', actor: 'Espace parents', title: 'Activité annulée', body: `« ${ev.title} » n'a pas réuni ${ev.minParticipants} participants. Personne n'a été débité.`, link: '/app/social' })
-        ev.participants.forEach(p => p.userId !== ev.by && notify({ to: p.userId, kind: 'info', actor: 'Espace parents', title: 'Activité annulée', body: `« ${ev.title} » est annulée faute de participants. Vous n'avez rien à payer.`, link: '/app/social' }))
+        notify({ to: ev.by, kind: 'info', actor: spaceLabel, title: 'Activité annulée', body: `« ${ev.title} » n'a pas réuni ${ev.minParticipants} participants. Personne n'a été débité.`, link: '/app/social' })
+        ev.participants.forEach(p => p.userId !== ev.by && notify({ to: p.userId, kind: 'info', actor: spaceLabel, title: 'Activité annulée', body: `« ${ev.title} » est annulée faute de participants. Vous n'avez rien à payer.`, link: '/app/social' }))
       }
       if (to === 'soumis') {
         // La chaîne commence à l'Administration ; la Direction tranchera ensuite.
@@ -152,7 +155,7 @@ export default function Social() {
       promoted = promoteFromWaitlist(e)
       sweep([e])
     })
-    promoted.forEach(p => notify({ to: p.userId, kind: 'info', actor: 'Espace parents', title: 'Une place s\'est libérée', body: `Vous participez maintenant à « ${ev.title} ».`, link: '/app/social' }))
+    promoted.forEach(p => notify({ to: p.userId, kind: 'info', actor: SPACES[ev.space || 'parent'].label, title: 'Une place s\'est libérée', body: `Vous participez maintenant à « ${ev.title} ».`, link: '/app/social' }))
     toast.success(late ? 'Désistement enregistré — pensez à prévenir l\'organisateur, c\'est tardif' : 'Vous ne participez plus')
     refresh()
   }

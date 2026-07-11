@@ -30,6 +30,7 @@ const PORTALS = [
   ['admin',Users,'Administration : élèves, présence, examens et opérations du quotidien.'],
   ['teacher',GraduationCap,'Enseignant : la classe de l’instant à l’écran, évaluation en un geste.'],
   ['supervisor',Eye,'Surveillant : présence, incidents et discipline sur le terrain.'],
+  ['security',ShieldCheck,'Sécurité : portail, registre des visiteurs, rondes et soirées à couvrir.'],
   ['parent',HeartHandshake,'Parent : notes, présence, paiements et messages de l’école.'],
 ]
 const PRICING = [
@@ -91,7 +92,7 @@ export default function Landing(){
         {/* stats */}
         <div className="mx-auto max-w-[1120px] px-5 pb-14">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[['30 s','pour évaluer une classe'],['6','portails par rôle'],['14+','modules intégrés'],['100%','système tunisien']].map(([n,l])=>(
+            {[['30 s','pour évaluer une classe'],['7','portails par rôle'],['14+','modules intégrés'],['100%','système tunisien']].map(([n,l])=>(
               <div key={l} className="card p-5 text-center"><div className="text-3xl font-extrabold" style={{color:A}}>{n}</div><div className="text-xs text-muted mt-1">{l}</div></div>
             ))}
           </div>

@@ -11,11 +11,8 @@ module.exports = defineConfig([
       'react/no-unescaped-entities': 'off',
       // @core est un alias Metro (metro.config.js) qu'ESLint ne connaît pas.
       'import/no-unresolved': ['error', { ignore: ['^@core/'] }],
-      // Règles du React Compiler (non utilisé ici) : conseils, pas des erreurs.
-      'react-hooks/purity': 'warn',
-      'react-hooks/static-components': 'warn',
-      'react-hooks/preserve-manual-memoization': 'warn',
-      'react-hooks/set-state-in-effect': 'warn',
+      // (Les règles React-Compiler ont été retirées : eslint-plugin-react-hooks
+      // v5 — celui du SDK 54 — ne les connaît pas et ESLint plantait.)
       // Faux positif sur le patron d'icônes (import * as L + L[name]).
       'import/namespace': 'off',
     },

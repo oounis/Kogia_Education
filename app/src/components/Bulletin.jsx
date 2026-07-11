@@ -1,4 +1,4 @@
-import { db, classById } from '@core/db.js'
+import { db, classById, settings } from '@core/db.js'
 import { bulletinFor, mentionFor } from '@core/results.js'
 import { Btn, Avatar, STATUS } from './ui.jsx'
 import { Dialog } from '@headlessui/react'
@@ -7,12 +7,13 @@ import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Ic } from '../icons.jsx'
 
-const ANNEE = '2025–2026'
-
 export default function Bulletin({ student, onClose }){
   if(!student) return null
   const d=db(); const b=bulletinFor(d, student.id)
   const cls=classById(student.classId)
+  // identité de l'établissement : depuis les Paramètres (« appliqué partout »),
+  // plus de « École Al-Nour · 2025–2026 » codé en dur sur le bulletin.
+  const sc=settings()
   const print=()=>window.print()
 
   return (
@@ -34,8 +35,8 @@ export default function Bulletin({ student, onClose }){
             <div className="flex items-start justify-between gap-4 border-b-2 border-ink pb-4 mb-5">
               <div>
                 <div className="text-xs font-semibold text-muted">République Tunisienne · Ministère de l'Éducation</div>
-                <div className="text-2xl font-extrabold mt-1">École Al-Nour</div>
-                <div className="text-sm text-muted">Tunis · Année scolaire {ANNEE}</div>
+                <div className="text-2xl font-extrabold mt-1">{sc.schoolName}</div>
+                <div className="text-sm text-muted">{sc.city} · Année scolaire {sc.year}</div>
               </div>
               <div className="text-right">
                 <div className="text-xs uppercase tracking-wide text-muted font-bold">Bulletin</div>

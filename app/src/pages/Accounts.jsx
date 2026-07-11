@@ -7,7 +7,10 @@ import { PageHead, Table, Avatar, Btn, Modal, Field, Input, Select, Section } fr
 import Attach from '../components/Attach.jsx'
 import { UserPlus, ShieldCheck, KeyRound, Ban, Check, Paperclip } from 'lucide-react'
 import toast from 'react-hot-toast'
-const BLANK={role:'teacher',name:'',email:'',pw:'',cin:'',gender:'Garçon',governorate:'Tunis',position:'Instituteur',phone:'',address:'',occupation:'',subject:'',childIds:[],attachments:[]}
+// Civilité ADULTE : « Homme »/« Femme » — les activités réservées aux mères ou aux
+// pères (social.js) comparent user.gender à ces valeurs ; « Garçon »/« Fille »
+// aurait bloqué l'inscription de tout compte créé ici.
+const BLANK={role:'teacher',name:'',email:'',pw:'',cin:'',gender:'Homme',governorate:'Tunis',position:'Instituteur',phone:'',address:'',occupation:'',subject:'',childIds:[],attachments:[]}
 export default function Accounts(){
   const [,force]=useState(0); const [open,setOpen]=useState(false); const [view,setView]=useState(null); const [f,setF]=useState(BLANK)
   const d=db()
@@ -58,7 +61,7 @@ export default function Accounts(){
       </Section>
       <Section title="Identité (Tunisie)">
         <Field label="CIN (8 chiffres)"><Input value={f.cin} onChange={e=>setF({...f,cin:e.target.value})} placeholder="12345678" maxLength={8}/></Field>
-        <Field label="Genre"><Select value={f.gender} onChange={e=>setF({...f,gender:e.target.value})}><option>Garçon</option><option>Fille</option></Select></Field>
+        <Field label="Civilité"><Select value={f.gender} onChange={e=>setF({...f,gender:e.target.value})}><option>Homme</option><option>Femme</option></Select></Field>
         <Field label="Gouvernorat"><Select value={f.governorate} onChange={e=>setF({...f,governorate:e.target.value})}>{GOVERNORATES.map(g=><option key={g}>{g}</option>)}</Select></Field>
       </Section>
       {isStaff && <Section title="Fonction" cols={2}>
