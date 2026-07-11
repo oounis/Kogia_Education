@@ -82,10 +82,11 @@ logique** — toute info saisie d'un côté apparaît immédiatement de l'autre.
 3. Ce backend débloque AUSSI les prérequis « vraie école » : plaintext passwords,
    escalade de rôle côté client, multi-onglets (voir §Rappels).
 
-### B. Mobile — reste à faire (les écrans principaux sont FAITS)
-1. Écrans secondaires encore « Bientôt sur mobile » : Élèves, Enseignants, Personnel,
-   Comptes, Écoles, Suivi élèves (admin), Frais & Finances, Poste de sécurité,
-   Incidents, Demandes, Paramètres (le Shell les liste déjà, plaquette automatique).
+### B. Mobile — reste à faire
+1. Session du 2026-07-11 : Élèves, Enseignants, Personnel, Suivi élèves, Frais &
+   Finances, Incidents, Demandes, Poste de sécurité sont désormais NATIFS (22 écrans).
+   Encore « Bientôt sur mobile » : Comptes, Écoles (owner), Paramètres — faible
+   valeur démo, à faire avec le backend.
 2. Test sur vrai téléphone (Expo Go, `npx expo start --tunnel` depuis WSL).
 3. Polices : le web utilise Nunito/Plus Jakarta — brancher expo-font quand on voudra
    une parité typographique.

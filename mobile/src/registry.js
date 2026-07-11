@@ -14,6 +14,14 @@ import Evaluate from './screens/Evaluate.js'
 import Attendance from './screens/Attendance.js'
 import Timetable from './screens/Timetable.js'
 import Pointage from './screens/Pointage.js'
+import Students from './screens/Students.js'
+import Teachers from './screens/Teachers.js'
+import Staff from './screens/Staff.js'
+import Results from './screens/Results.js'
+import Finance from './screens/Finance.js'
+import Incidents from './screens/Incidents.js'
+import Requests from './screens/Requests.js'
+import Security from './screens/Security.js'
 
 export const SCREENS = {
   '/app': Dashboard,
@@ -28,6 +36,14 @@ export const SCREENS = {
   '/app/attendance': Attendance,
   '/app/timetable': Timetable,
   '/app/pointage': Pointage,
+  '/app/students': Students,
+  '/app/teachers': Teachers,
+  '/app/staff': Staff,
+  '/app/results': Results,
+  '/app/finance': Finance,
+  '/app/incidents': Incidents,
+  '/app/requests': Requests,
+  '/app/security': Security,
   // Écrans mobiles sans route web directe (préfixe ~ : pas de garde d'accès web)
   '~bulletin': Bulletin,
 }
