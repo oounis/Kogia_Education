@@ -34,7 +34,7 @@ const ago = at => {
 function Sheet({ title, onClose, children, footer }) {
   return (
     <Modal visible transparent animationType="slide" onRequestClose={onClose}>
-      <View style={{ flex: 1, backgroundColor: '#10162B66', justifyContent: 'flex-end' }}>
+      <View style={{ flex: 1, backgroundColor: '#0E213566', justifyContent: 'flex-end' }}>
         <View style={{ backgroundColor: '#fff', borderTopLeftRadius: 26, borderTopRightRadius: 26, maxHeight: '92%' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', padding: 18, paddingBottom: 8 }}>
             <Text style={{ flex: 1, fontSize: 18, fontWeight: '800', color: C.ink }} numberOfLines={2}>{title}</Text>

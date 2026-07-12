@@ -27,6 +27,7 @@
 //  • ANNULATION. Quorum manqué, refus de la Direction, ou annulation par
 //    l'organisateur : dans les trois cas, aucun paiement n'est dû.
 
+import { STATUS, BRAND } from './tokens.js'
 export const MIN_LEAD_DAYS = 3        // délai minimum entre la proposition et l'événement
 export const RSVP_WINDOW_H = 24       // fenêtre d'inscription
 export const DEFAULT_MIN = 8          // quorum par défaut (un match de foot : 8 joueurs)
@@ -56,15 +57,15 @@ export const joinButtonLabel = ev => (ev.pricePerPerson || 0) > 0
 // echoue     : échéance passée sans le quorum → annulation automatique
 // termine    : la date est passée
 export const STATES = {
-  collecte: { label: 'Inscriptions ouvertes', color: '#0E7FB8' },
-  quorum:   { label: 'Quorum atteint',        color: '#12946F' },
-  soumis:   { label: "En attente de l'Administration", color: '#C97C1E' },
-  vise:     { label: 'Visé — en attente de la Direction', color: '#7C5CD6' },
-  approuve: { label: 'Approuvé',              color: '#12946F' },
-  refuse:   { label: 'Refusé',                color: '#DC4B54' },
-  annule:   { label: 'Annulé',                color: '#94A3B8' },
-  echoue:   { label: 'Quorum non atteint',    color: '#94A3B8' },
-  termine:  { label: 'Terminé',               color: '#94A3B8' },
+  collecte: { label: 'Inscriptions ouvertes', color: STATUS.info },
+  quorum:   { label: 'Quorum atteint',        color: STATUS.ok },
+  soumis:   { label: "En attente de l'Administration", color: STATUS.warn },
+  vise:     { label: 'Visé — en attente de la Direction', color: BRAND.indigo },
+  approuve: { label: 'Approuvé',              color: STATUS.ok },
+  refuse:   { label: 'Refusé',                color: STATUS.danger },
+  annule:   { label: 'Annulé',                color: STATUS.neutral },
+  echoue:   { label: 'Quorum non atteint',    color: STATUS.neutral },
+  termine:  { label: 'Terminé',               color: STATUS.neutral },
 }
 export const isLive = s => s === 'collecte' || s === 'quorum'
 export const isDead = s => s === 'refuse' || s === 'annule' || s === 'echoue'

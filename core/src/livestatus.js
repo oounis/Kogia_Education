@@ -2,6 +2,7 @@
 // and the parent dashboard live widget.
 import { PERIODS, timetableFor } from './data.js'
 import { isDemoLive, now as appNow, SCHOOL_OPEN, SCHOOL_CLOSE } from './clock.js'
+import { BRAND, SERIES, STATUS, N } from './tokens.js'
 
 // Chemin des photos d'ambiance : la base d'assets est injectée par la
 // plateforme (le web pose import.meta.env.BASE_URL dans main.jsx — Metro ne
@@ -10,11 +11,12 @@ let assetBase = '/'
 export const setAssetBase = b => { assetBase = b || '/' }
 export const room = n => `${assetBase}rooms/${n}.jpg`
 export const AREAS = {
-  class:      { label:'Salle de classe',   color:'#6366F1', img:'class' },
-  infirmerie: { label:'Infirmerie',         color:'#FF6B81', img:'infirmerie' },
-  cour:       { label:'Cour de récréation', color:'#22C55E', img:'cour' },
-  cantine:    { label:'Cantine',            color:'#F59E0B', img:'cantine' },
-  entree:     { label:'Entrée / Sortie',    color:'#8A93A6', img:'entree' },
+  // Les lieux sont des MARQUES (pastille, liseré) : palette canonique, ordre fixe.
+  class:      { label:'Salle de classe',   color:BRAND.indigo,  img:'class' },
+  infirmerie: { label:'Infirmerie',         color:STATUS.danger, img:'infirmerie' },
+  cour:       { label:'Cour de récréation', color:SERIES[5],     img:'cour' },
+  cantine:    { label:'Cantine',            color:SERIES[4],     img:'cantine' },
+  entree:     { label:'Entrée / Sortie',    color:N.slate,       img:'entree' },
 }
 export const KIND_AREA = { class:'class', cour:'cour', cantine:'cantine', free:'class' }
 

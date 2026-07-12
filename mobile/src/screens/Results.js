@@ -117,7 +117,7 @@ export default function Results({ user, params, nav }) {
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
             <Tile icon="ClipboardCheck" color={accent} label="Évaluations" value={String(evals.length)} />
             <Tile icon="Gauge" color="#2BD9A8" label="Moyenne générale" value={overall != null ? `${overall}/100` : '—'} />
-            <Tile icon="Users" color="#36C5F0" label="Élèves évalués" value={String(ranked.length)} />
+            <Tile icon="Users" color="#22D3EE" label="Élèves évalués" value={String(ranked.length)} />
             <Tile icon="LifeBuoy" color="#FF6B81" label="En difficulté" sub="moy. < 40" value={String(struggling)} />
           </View>
 

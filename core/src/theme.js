@@ -1,18 +1,63 @@
-// v2 « Le Cachalot » : chaque portail = un accent + un dégradé (accent → accent2)
-export const ROLE={
-  owner:{label:'Plateforme',color:'#0D9488',color2:'#14B8A6',soft:'#DFF4F3'},   // compte Kogia Group (fournisseur SaaS)
-  schooladmin:{label:'Direction',color:'#6366F1',color2:'#8B5CF6',soft:'#EEF2FF'},
-  admin:{label:'Administration',color:'#36C5F0',color2:'#22D3EE',soft:'#E4F7FE'},
-  teacher:{label:'Enseignant',color:'#2BD9A8',color2:'#34D399',soft:'#E2FBF3'},
-  supervisor:{label:'Surveillant',color:'#FFA62B',color2:'#FBBF24',soft:'#FFF1DD'},
-  security:{label:'Sécurité',color:'#475569',color2:'#0E7FB8',soft:'#EEF1F6'},   // agent de sécurité : portail, visiteurs, soirées
-  parent:{label:'Parent',color:'#FF6B81',color2:'#FB7185',soft:'#FFE8EC'},
+// ============================================================================
+// Les portails et leur accent — Kogia Harmony.
+//
+// POURQUOI CETTE TABLE A CHANGÉ. L'accent d'un rôle sert de FOND à un bouton qui
+// porte du texte blanc (`accent-bg`, `Btn` natif) ET de couleur de TEXTE sur du
+// blanc. Une couleur d'accent doit donc être « réversible » : lisible dans les
+// deux sens. L'ancienne table ne l'était pas — le cyan de l'Administration donnait
+// 1.9:1 en blanc dessus, l'orange du Surveillant 1.8:1 : illisible.
+//
+// C'est exactement le raisonnement du livre de marque (§3.2) qui a fait choisir
+// l'indigo #4F57DE plutôt que l'ancien : UNE couleur qui fait les deux métiers.
+// On l'a appliqué aux sept portails. Chaque accent ci-dessous est :
+//   • tiré du jeu canonique (aucun hexadécimal inventé) ;
+//   • réversible : ≥ 4.5:1 en texte sur blanc ET en blanc sur lui ;
+//   • ≥ 4.5:1 en texte sur son propre aplat (aplat dérivé, pas inventé) ;
+//   • distinct des six autres.
+//
+// Les statuts (ok/warn/danger/info) ne sont JAMAIS repris comme accent de rôle :
+// le livre de marque les réserve. C'est pourquoi « Surveillant » n'est plus orange.
+// Source : brand/KOGIA_HARMONY.md §3.2, §3.3, §3.5
+// ============================================================================
+import { BRAND, N, SERIES, TERRA, soften } from './tokens.js'
+
+const role = (label, color) => ({ label, color, soft: soften(color) })
+
+export const ROLE = {
+  // Le compte Kogia Group (fournisseur SaaS) : le bleu profond de la série 1,
+  // voisin de l'indigo du groupe sans se confondre avec la Direction.
+  owner:       role('Plateforme',     SERIES[0]),   // #4361D0
+  // La Direction porte la voie de Coreon Edu : l'indigo, LA primaire.
+  schooladmin: role('Direction',      BRAND.indigo),// #4F57DE
+  // L'Administration : l'ardoise. Sobre, clérical — c'est un métier de registre.
+  admin:       role('Administration', N.slate),     // #5B6B7D
+  // L'Enseignant : le vert de la série 6. La classe.
+  teacher:     role('Enseignant',     SERIES[5]),   // #2F8050
+  // Le Surveillant : la terre profonde. La cour, le terrain.
+  supervisor:  role('Surveillant',    TERRA.ink),   // #7C2D12
+  // La Sécurité : l'encre. Sobre, sans couleur — l'autorité ne crie pas.
+  security:    role('Sécurité',       N.ink),       // #0E2135
+  // Le Parent : la terre. La seule chaleur du produit — « la chaleur en dessous »
+  // (loi 4). C'est le portail humain, il devait être le portail chaud.
+  parent:      role('Parent',         TERRA.deep),  // #C2410C
 }
-// Le web peint l'accent dans des variables CSS ; Android n'a pas de :root, il lit
-// la palette retournée. Les deux appellent la même fonction et obtiennent le même
-// couple de couleurs — d'où le `return r`.
-export function applyAccent(role){const r=ROLE[role]||ROLE.admin
-  if(typeof document==='undefined') return r
-  const st=document.documentElement.style
-  st.setProperty('--accent',r.color); st.setProperty('--accent-2',r.color2||r.color); st.setProperty('--accent-soft',r.soft)
-  return r}
+
+/**
+ * Le web peint l'accent dans des variables CSS ; le natif n'a pas de :root, il lit
+ * la palette retournée. Les deux appellent la même fonction et obtiennent le même
+ * couple de couleurs — d'où le `return r`.
+ *
+ * `--accent-2` n'est PAS une seconde couleur de rôle : c'est le violet de la voie
+ * Coreon, réservé aux grandes surfaces décoratives (héros, tuiles) où aucun petit
+ * texte ne se pose. Les boutons, eux, s'assombrissent vers l'encre — un dégradé
+ * qui ne peut que faire MONTER le contraste du texte blanc (voir index.css).
+ */
+export function applyAccent(role) {
+  const r = ROLE[role] || ROLE.admin
+  if (typeof document === 'undefined') return r
+  const st = document.documentElement.style
+  st.setProperty('--accent', r.color)
+  st.setProperty('--accent-2', BRAND.violet)
+  st.setProperty('--accent-soft', r.soft)
+  return r
+}

@@ -1,5 +1,6 @@
 import { QUESTIONS, BUCKETS, BADGES } from './data.js'
 import { studentById } from './db.js'
+import { STATUS, BRAND } from './tokens.js'
 export const bucketOf=k=>BUCKETS.find(b=>b.key===k)
 export const badgeOf =k=>BADGES.find(b=>b.key===k)
 export function bucketTotals(ev){
@@ -26,14 +27,16 @@ export function evaluationHistory(allEvals, sid){
     .sort((a,b)=>b.at-a.at)
 }
 
-// Mention textuelle selon la moyenne /100 (système tunisien simplifié)
+// Mention textuelle selon la moyenne /100 (système tunisien simplifié).
+// Une mention est un STATUT, pas une série : elle porte les couleurs réservées du
+// livre de marque, et toujours avec son libellé — jamais la couleur seule.
 export function mentionFor(score){
-  if(score==null) return {label:'—',color:'#8A93A6'}
-  if(score>=85) return {label:'Excellent',color:'#10B981'}
-  if(score>=70) return {label:'Très bien',color:'#0BA5D8'}
-  if(score>=55) return {label:'Bien',color:'#6366F1'}
-  if(score>=40) return {label:'Passable',color:'#E59A12'}
-  return {label:'Insuffisant',color:'#EF4444'}
+  if(score==null) return {label:'—',color:STATUS.neutral}
+  if(score>=85) return {label:'Excellent',color:STATUS.ok}
+  if(score>=70) return {label:'Très bien',color:STATUS.info}
+  if(score>=55) return {label:'Bien',color:BRAND.indigo}
+  if(score>=40) return {label:'Passable',color:STATUS.warn}
+  return {label:'Insuffisant',color:STATUS.danger}
 }
 
 // Agrège toutes les évaluations + la présence d'un élève pour le bulletin

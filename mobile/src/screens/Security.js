@@ -36,7 +36,7 @@ const fmtLong = iso => frDateLabel(new Date(iso + 'T00:00:00'))
 function Sheet({ title, onClose, children, footer }) {
   return (
     <Modal visible transparent animationType="slide" onRequestClose={onClose}>
-      <View style={{ flex: 1, backgroundColor: '#10162B66', justifyContent: 'flex-end' }}>
+      <View style={{ flex: 1, backgroundColor: '#0E213566', justifyContent: 'flex-end' }}>
         <View style={{ backgroundColor: '#fff', borderTopLeftRadius: 26, borderTopRightRadius: 26, maxHeight: '92%' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', padding: 18, paddingBottom: 8 }}>
             <Text style={{ flex: 1, fontSize: 18, fontWeight: '800', color: C.ink }} numberOfLines={2}>{title}</Text>
@@ -525,7 +525,7 @@ export default function Security({ user, params, nav }) {
   return (
     <Screen title="Poste de sécurité" sub={`${settings().schoolName} · portail, visiteurs, rondes et soirées`}>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-        <Tile icon="CalendarClock" color="#5B6EE1" label="Ce soir" sub={tonight.length ? 'à couvrir' : 'rien de prévu'} value={String(tonight.length)} />
+        <Tile icon="CalendarClock" color="#4F57DE" label="Ce soir" sub={tonight.length ? 'à couvrir' : 'rien de prévu'} value={String(tonight.length)} />
         <Tile icon="UserCheck" color="#7C5CD6" label="Visiteurs dans l'école" value={String(insideNow)} />
         <Tile icon="Flashlight" color={INFO} label="Rondes aujourd'hui" value={String(roundsToday)} />
         <Tile icon="AlertTriangle" color={DANGER} label="Incidents ouverts" value={String(openIncidents)} />

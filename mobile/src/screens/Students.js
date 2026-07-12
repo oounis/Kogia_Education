@@ -11,11 +11,11 @@ import { ROLE } from '@core/theme.js'
 import { Ic } from '../icons.js'
 import { Screen, Card, Chip, Avatar, Row, Btn, Input, EmptyState, C, tap } from '../components.js'
 
-const CYCLE_COLOR = { Primaire: '#6366F1' } // même table que le web
+const CYCLE_COLOR = { Primaire: '#4F57DE' } // même table que le web
 
 export default function Students({ user, params, nav }) {
   const d = db()
-  const accent = ROLE[user.role]?.color || '#6366F1'
+  const accent = ROLE[user.role]?.color || '#4F57DE'
   const [q, setQ] = useState('')
   const [sel, setSel] = useState(null)                      // classe filtrée (null = toutes)
   const [openId, setOpenId] = useState(params?.openStudent || null) // fiche dépliée

@@ -112,7 +112,7 @@ export default function Evaluate(){
   if(step===6) return (
     <div className="max-w-[640px] mx-auto pt-8 relative">
       <div className="confetti" aria-hidden="true">{Array.from({length:26}).map((_,i)=>
-        <i key={i} style={{left:`${(i*37)%100}%`,background:['#6366F1','#22D3EE','#FBBF24','#FB7185','#34D399','#8B5CF6'][i%6],animationDelay:`${(i%9)*0.14}s`}}/>)}</div>
+        <i key={i} style={{left:`${(i*37)%100}%`,background:['#4F57DE','#22D3EE','#FBBF24','#FB7185','#34D399','#8B5CF6'][i%6],animationDelay:`${(i%9)*0.14}s`}}/>)}</div>
       <div className="text-center">
         <div className="floaty mx-auto w-fit"><Whale size={54}/></div>
         <div className="w-12 h-12 -mt-3 rounded-full grid place-items-center text-white mx-auto accent-bg pop relative"><Check size={24}/></div>

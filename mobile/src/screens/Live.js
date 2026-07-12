@@ -158,11 +158,11 @@ export default function Live({ user }) {
 
   const pill = liveNow ? { txt: `EN DIRECT · ${fmt(min)}`, bg: '#E5484D' }
     : simulated ? { txt: `Journée type · ${fmt(min)}`, bg: '#F59E0B' }
-    : exploring ? { txt: `Aperçu · ${fmt(min)}`, bg: '#8A93A6' }
+    : exploring ? { txt: `Aperçu · ${fmt(min)}`, bg: C.muted }
     : phase === 'after' ? { txt: 'Journée terminée', bg: '#8B5CF6' }
     : phase === 'before' ? { txt: `Ouvre à ${fmt(open)}`, bg: '#0BA5D8' }
-    : phase === 'weekend' ? { txt: 'Week-end · journée type', bg: '#8A93A6' }
-    : { txt: `Aperçu · ${fmt(min)}`, bg: '#8A93A6' }
+    : phase === 'weekend' ? { txt: 'Week-end · journée type', bg: C.muted }
+    : { txt: `Aperçu · ${fmt(min)}`, bg: C.muted }
 
   const stops = [
     { kind: 'entree', label: 'Arrivée', sub: `Cours à ${fmt(open)}`, time: open },

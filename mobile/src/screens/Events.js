@@ -12,7 +12,7 @@ import { Ic } from '../icons.js'
 import { Screen, Card, Section, Chip, Btn, Input, EmptyState, C, confirmAsk } from '../components.js'
 
 const TYPES = [
-  { k: 'Événement', c: '#6366F1' }, { k: 'Réunion', c: '#0E7FB8' }, { k: 'Examen', c: '#DC4B54' },
+  { k: 'Événement', c: '#4F57DE' }, { k: 'Réunion', c: '#0E7FB8' }, { k: 'Examen', c: '#DC4B54' },
   { k: 'Vacances', c: '#12946F' }, { k: 'Sortie', c: '#C97C1E' },
 ]
 const tint = t => (TYPES.find(x => x.k === t) || TYPES[0]).c
@@ -188,7 +188,7 @@ export default function Events({ user, params, nav }) {
       {/* ── Ajouter — l'événement se crée sur le jour sélectionné ── */}
       {open && (
         <Modal visible transparent animationType="slide" onRequestClose={() => setOpen(false)}>
-          <View style={{ flex: 1, backgroundColor: '#10162B66', justifyContent: 'flex-end' }}>
+          <View style={{ flex: 1, backgroundColor: '#0E213566', justifyContent: 'flex-end' }}>
             <View style={{ backgroundColor: '#fff', borderTopLeftRadius: 26, borderTopRightRadius: 26, maxHeight: '90%' }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', padding: 18, paddingBottom: 8 }}>
                 <View style={{ flex: 1 }}>

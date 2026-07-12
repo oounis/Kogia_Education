@@ -1,47 +1,47 @@
 // ── Langage visuel des graphiques ───────────────────────────────────────────
 //
 // Une seule source pour les couleurs, la grille, les axes et les infobulles :
-// tous les graphiques de l'application doivent se lire comme un même système,
-// clair, doux, reposant pour les yeux.
+// tous les graphiques de l'application doivent se lire comme un même système.
 //
-// Les palettes ci-dessous ont été VALIDÉES (bande de clarté, plancher de chroma,
-// séparation daltonisme, contraste sur le fond), pas choisies à l'œil :
-//   catégorielle : pire paire adjacente ΔE 18.1 (deutan) · 18.6 (tritan) — contraste ≥ 3:1
-//   statuts       : ΔE 26.9 (deutan) · 30.6 (tritan) — contraste ≥ 3:1
-//   niveaux       : ΔE 26.9 (deutan) · 10.8 (tritan) → la séparation tritan est dans la
-//                   bande plancher : elle n'est acceptable QUE parce que chaque niveau
-//                   porte aussi une icône et un libellé (jamais la couleur seule).
+// Les valeurs ne sont plus décidées ici : elles viennent de tokens.js, qui recopie
+// KOGIA_HARMONY.md §3.4. La palette a été VALIDÉE (bande de clarté, plancher de
+// chroma, séparation daltonisme, contraste) — pas choisie à l'œil.
 //
 // Règles tenues ici :
 //  • les teintes catégorielles sont attribuées dans un ORDRE FIXE, jamais recyclées ;
+//  • la 7ᵉ série n'existe pas : on regroupe en « Autre » ;
 //  • la couleur suit l'entité, pas son rang (un filtre ne repeint pas les survivants) ;
 //  • jamais deux axes Y ; jamais d'arc-en-ciel pour une échelle de grandeur ;
-//  • le texte porte les couleurs de texte, jamais celle de la série ;
-//  • grille et axes sont discrets ; les marques sont fines.
+//  • LE TEXTE PORTE LES COULEURS DE TEXTE, jamais celle de la série ;
+//  • les statuts ne servent JAMAIS de couleur de série.
+import { SERIES as S, STATUS, N, GRID as G, BRAND } from './tokens.js'
 
 // Ordre fixe. La 7ᵉ série n'existe pas : on regroupe en « Autre ».
-export const SERIES = ['#5B6EE1', '#0E9488', '#C97C1E', '#DC4B54', '#7C5CD6', '#0E7FB8']
+export const SERIES = S
+export const OTHER_LABEL = 'Autre'
 
 // Statuts réservés — jamais réutilisés comme « série 4 ».
-export const OK = '#12946F'
-export const WARN = '#C97C1E'
-export const DANGER = '#DC4B54'
-export const INFO = '#0E7FB8'
-export const NEUTRAL = '#94A3B8'
+export const OK = STATUS.ok
+export const WARN = STATUS.warn
+export const DANGER = STATUS.danger
+export const INFO = STATUS.info
+export const NEUTRAL = STATUS.neutral
 
-// Niveaux d'évaluation, du meilleur au plus faible (toujours accompagnés d'une icône).
+// Niveaux d'évaluation, du meilleur au plus faible (toujours accompagnés d'une icône :
+// la séparation tritan est en bande plancher, la couleur seule ne suffit jamais).
 export const LEVELS = [OK, INFO, WARN, DANGER]
 
 // Fonds très pâles, pour les pastilles et les aplats.
 export const SOFT = {
-  [OK]: '#E7F5F0', [WARN]: '#FBF1E3', [DANGER]: '#FBEBEC', [INFO]: '#E6F1F8', [NEUTRAL]: '#F1F4F8',
+  [OK]: STATUS.okSoft, [WARN]: STATUS.warnSoft, [DANGER]: STATUS.dangerSoft,
+  [INFO]: STATUS.infoSoft, [NEUTRAL]: STATUS.neutralSoft,
 }
 
 // ── Éléments récessifs ──────────────────────────────────────────────────────
-export const INK = '#1E2433'
-export const MUTED = '#7C879B'
-export const GRID = '#EEF1F6'
-export const SURFACE = '#FFFFFF'
+export const INK = N.ink
+export const MUTED = STATUS.neutral   // #7C879B — le gris de texte secondaire des graphiques
+export const GRID = G
+export const SURFACE = N.surface
 
 // À étaler sur les composants Recharts : axes sans ligne, graduations discrètes.
 export const axis = {
@@ -55,16 +55,16 @@ export const grid = {
   strokeDasharray: '0',
   vertical: false,
 }
-// Infobulle douce : coins arrondis, ombre légère, pas de bordure dure.
+// Infobulle douce : coins arrondis (16 = rayon « carte »), ombre sh-2, pas de bordure dure.
 export const tooltip = {
-  cursor: { fill: 'rgba(91,110,225,.05)' },
+  cursor: { fill: BRAND.indigo + '0D' },
   contentStyle: {
-    borderRadius: 14,
+    borderRadius: 16,
     border: `1px solid ${GRID}`,
     background: SURFACE,
     fontSize: 12,
     padding: '8px 12px',
-    boxShadow: '0 10px 30px -12px rgba(30,36,51,.18)',
+    boxShadow: '0 10px 30px -12px rgb(14 33 53 / .12)',
   },
   labelStyle: { color: MUTED, fontWeight: 600, marginBottom: 2 },
   itemStyle: { color: INK, fontWeight: 700 },

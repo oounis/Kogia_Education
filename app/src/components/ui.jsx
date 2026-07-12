@@ -1,25 +1,42 @@
 import { Dialog } from '@headlessui/react'
-import { X, Search } from 'lucide-react'
+import { X, Search, RotateCw } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { STATUS as K, BRAND, N, SERIES, TERRA, soften, deepen } from '@core/tokens.js'
+import { VIEWBOX, BODY, EYE, CRESCENT, SMILE, FIN, SPOUT, SKIN } from '@core/mark.js'
 
-// Aplats très pâles + encre lisible. Chaque couple a été vérifié : l'encre garde
-// un contraste ≥ 3:1 sur le blanc, l'aplat reste assez clair pour ne pas fatiguer.
-const TINTS={brand:['#EEF1FE','#5B6EE1'],sky:['#E6F1F8','#0E7FB8'],butter:['#FBF1E3','#C97C1E'],mint:['#E7F5F0','#12946F'],coral:['#FBEBEC','#DC4B54'],grape:['#F1EDFB','#7C5CD6'],slate:['#F1F4F8','#64748B']}
-// ── Semantic status colours — the ONLY hexes pages may use for state. ──
-// Teintes adoucies (moins saturées, plus reposantes) mais toujours ≥ 3:1 sur blanc,
-// et séparées pour les daltonismes (ΔE 26.9 deutan / 30.6 tritan sur la pire paire).
-// Les statuts ne servent JAMAIS de couleur de série dans un graphique.
-export const STATUS={ ok:'#12946F', okSoft:'#E7F5F0', warn:'#C97C1E', warnSoft:'#FBF1E3', danger:'#DC4B54', dangerSoft:'#FBEBEC', info:'#0E7FB8', infoSoft:'#E6F1F8', neutral:'#94A3B8', neutralSoft:'#F1F4F8', live:'#E11D48' }
+// ── Statuts — les SEULES couleurs d'état du produit. ────────────────────────
+// Elles viennent de core/src/tokens.js (KOGIA_HARMONY.md §3.3), plus d'ici : le
+// fichier avait sa propre échelle et index.css en avait une AUTRE (#EF4444 /
+// #E59A12 / #10B981). Il n'y en a plus qu'une, partagée avec le mobile.
+// Un statut ne sert JAMAIS de couleur de série dans un graphique, et il arrive
+// toujours avec une icône ou un mot — jamais la couleur seule.
+export const STATUS = {
+  ...K,
+  // « En direct » porte du texte blanc : le rouge de danger seul ne donne que
+  // 4.06:1. On l'assombrit vers l'encre (5.35:1) — c'est la MÊME couleur, plus
+  // profonde, pas une sixième couleur inventée.
+  live: deepen(K.danger),
+}
+
+// Aplats très pâles + encre lisible, tous canoniques. L'aplat porte l'ICÔNE
+// (≥ 3:1 suffit pour une marque) ; le texte, lui, reste en encre.
+const TINTS = {
+  brand:  [soften(BRAND.indigo), BRAND.indigo],
+  sky:    [K.infoSoft,           K.info],
+  butter: [K.warnSoft,           K.warn],
+  mint:   [K.okSoft,             K.ok],
+  coral:  [K.dangerSoft,         K.danger],
+  grape:  [soften(BRAND.violet), BRAND.violet],
+  slate:  [K.neutralSoft,        K.neutral],
+}
 
 export function Card({ className='', children }){ return <div className={`card ${className}`}>{children}</div> }
 export function StatCard({ label, value, sub, tint='brand', icon, to, onClick }){
-  // utilise la table partagée : la copie locale oubliait `slate` et `neutral`,
-  // qui retombaient silencieusement sur la couleur de marque.
   const [bg,fg]=TINTS[tint]||TINTS.brand
   const inner=<><span className="w-12 h-12 rounded-2xl grid place-items-center shrink-0" style={{background:bg,color:fg}}>{icon}</span>
     <div className="min-w-0"><div className="text-2xl font-extrabold leading-none">{value}</div><div className="text-xs text-muted mt-1 truncate">{label}{sub&&<span className="ml-1">· {sub}</span>}</div></div></>
-  if(to) return <Link to={to} className="card p-4 flex items-center gap-3 hover:shadow-lg hover:-translate-y-0.5 transition">{inner}</Link>
-  if(onClick) return <button onClick={onClick} className="card p-4 flex items-center gap-3 hover:shadow-lg hover:-translate-y-0.5 transition text-left w-full">{inner}</button>
+  if(to) return <Link to={to} className="card p-4 flex items-center gap-3 k-lift">{inner}</Link>
+  if(onClick) return <button onClick={onClick} className="card p-4 flex items-center gap-3 k-lift k-press text-left w-full">{inner}</button>
   return <div className="card p-4 flex items-center gap-3">{inner}</div>
 }
 export function Badge({ status }){
@@ -28,9 +45,11 @@ export function Badge({ status }){
   const [bg,fg,label]=m[status]||[STATUS.neutralSoft,STATUS.neutral,status]
   return <span className="text-[12px] font-bold px-2.5 py-1 rounded-full" style={{background:bg,color:fg}}>{label}</span>
 }
-// ── Initials avatar: THE one avatar style of the product. Deterministic soft
-// tint + matching text colour from the person's id/name — no raster images. ──
-const AVATAR_TINTS=[['#EEF2FF','#6366F1'],['#E4F7FE','#0BA5D8'],['#FFF4DD','#E59A12'],['#E2FBF3','#10B981'],['#FFE8EC','#F43F5E'],['#F1ECFE','#8B5CF6'],['#DFF4F3','#0D9488'],['#E8F0FF','#4F84E0'],['#FDECF3','#DB2777']]
+// ── Avatar à initiales : LE seul style d'avatar du produit. Aplat déterministe
+// tiré du nom, jamais une image. Les sept teintes sont canoniques ET réversibles
+// (≥ 4.5:1 en initiales sur leur propre aplat) — vérifié, pas estimé. ──
+const AVATAR_HUES=[BRAND.indigo, SERIES[0], SERIES[5], N.slate, N.ink, TERRA.deep, TERRA.ink]
+const AVATAR_TINTS=AVATAR_HUES.map(c=>[soften(c),c])
 const hashSeed=s=>{let x=0;for(const c of String(s))x=(x*31+c.charCodeAt(0))>>>0;return x}
 export const avatarTint=seed=>AVATAR_TINTS[hashSeed(seed)%AVATAR_TINTS.length]
 export function Avatar({ name, initials, seed, size=36, ring, className='' }){
@@ -40,9 +59,9 @@ export function Avatar({ name, initials, seed, size=36, ring, className='' }){
     style={{width:size,height:size,fontSize:Math.max(10,Math.round(size*0.36)),background:bg,color:fg,boxShadow:ring?`0 0 0 2px ${ring}`:undefined}}>{i}</span>
 }
 export function Btn({ children, variant='primary', size='md', className='', ...p }){
-  const base="inline-flex items-center justify-center gap-1.5 rounded-xl font-semibold transition disabled:opacity-50 disabled:pointer-events-none"
+  const base="inline-flex items-center justify-center gap-1.5 rounded-xl font-semibold transition k-press disabled:opacity-50 disabled:pointer-events-none"
   const s=size==='sm'?"text-[13px] px-3 py-2":size==='lg'?"text-sm px-5 py-3":"text-sm px-4 py-2.5"
-  const v=variant==='primary'?"text-white accent-bg shadow-sm hover:opacity-90 active:scale-[.98]":variant==='soft'?"accent-soft accent-text hover:brightness-95":variant==='danger'?"bg-white border border-line text-coral hover:bg-coral-soft":variant==='ghost'?"text-muted hover:text-ink hover:bg-canvas":"bg-white border border-line hover:bg-canvas active:scale-[.98]"
+  const v=variant==='primary'?"text-white accent-bg shadow-sm hover:opacity-90":variant==='soft'?"accent-soft accent-text hover:brightness-95":variant==='danger'?"bg-white border border-line text-coral hover:bg-coral-soft":variant==='ghost'?"text-muted hover:text-ink hover:bg-canvas":"bg-white border border-line hover:bg-canvas"
   return <button className={`${base} ${s} ${v} ${className}`} {...p}>{children}</button>
 }
 export function Field({ label, children, hint }){ return <label className="block"><span className="text-xs font-semibold text-muted">{label}</span><div className="mt-1">{children}</div>{hint&&<span className="text-[11px] text-muted">{hint}</span>}</label> }
@@ -54,7 +73,6 @@ export function Section({ title, children, cols=2 }){
     <div className={`grid gap-3 ${cols===2?'sm:grid-cols-2':cols===3?'sm:grid-cols-3':''}`}>{children}</div></div>
 }
 export function Modal({ open, onClose, title, children, footer, size='lg' }){
-  // toute taille non prévue donnait `undefined` → boîte sans largeur maximale
   const w={sm:'max-w-sm',md:'max-w-md',lg:'max-w-lg',xl:'max-w-2xl','2xl':'max-w-3xl'}[size]||'max-w-lg'
   return (
     <Dialog open={open} onClose={onClose} className="relative z-50">
@@ -77,12 +95,10 @@ export function Table({ head, children }){
 export function PageHead({ title, sub, action }){
   return <div className="flex items-end justify-between gap-3 mb-5 flex-wrap"><div><h1 className="text-2xl font-extrabold">{title}</h1>{sub&&<p className="text-muted mt-0.5">{sub}</p>}</div>{action}</div>
 }
-// ── Colored rounded icon container (stat cards, list rows, section headers) ──
 export function IconTile({ icon, tint='brand', size=44, radius='rounded-2xl', className='' }){
   const [bg,fg]=TINTS[tint]||TINTS.brand
   return <span className={`${radius} grid place-items-center shrink-0 ${className}`} style={{width:size,height:size,background:bg,color:fg}}>{icon}</span>
 }
-// ── Card with a standard header (icon + title/sub + action) and padded body ──
 export function SectionCard({ title, sub, action, icon, tint='brand', children, className='', bodyClass='p-5', headless=false }){
   return <div className={`card overflow-hidden ${className}`}>
     {!headless && (title||action) && <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-line">
@@ -95,23 +111,97 @@ export function SectionCard({ title, sub, action, icon, tint='brand', children, 
     {children!=null && <div className={bodyClass}>{children}</div>}
   </div>
 }
-// ── Consistent empty state with optional CTA ──
+
+// ════════════════════════════════════════════════════════════════════════════
+// LA MARQUE — un seul dessin, partagé avec le mobile (core/src/mark.js).
+// Avant : le web dessinait un sourire et une nageoire que le mobile n'avait pas,
+// et l'œil avait quatre couleurs selon l'écran. Il n'y a plus qu'un tracé.
+// ════════════════════════════════════════════════════════════════════════════
+
+/** LA MARQUE : corps + œil + croissant. Logos, en-têtes, favicon, tuiles. */
+export function Mark({ size=34, from=SKIN.from, to=SKIN.to, className='' }){
+  const id='km'+String(from+to).replace(/[^a-zA-Z0-9]/g,'')
+  return (<svg viewBox={VIEWBOX} width={size*1.32} height={size} aria-hidden="true" className={className}>
+    <defs><linearGradient id={id} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor={from}/><stop offset="1" stopColor={to}/></linearGradient></defs>
+    <path fill={`url(#${id})`} d={BODY}/>
+    <circle cx={EYE.cx} cy={EYE.cy} r={EYE.r} fill={EYE.fill}/>
+    {/* LE CROISSANT DE KOGIA — la fausse branchie. Notre unique signature. */}
+    <path d={CRESCENT.d} fill="none" stroke={CRESCENT.stroke} strokeWidth={CRESCENT.width} strokeLinecap="round" opacity={CRESCENT.opacity}/>
+  </svg>)
+}
+
+/** LA MASCOTTE : + sourire, nageoire et jet. États vides, héros, succès.
+ *  Jamais dans un tableau dense, jamais à la place de la MARQUE dans un logo. */
+export function Mascot({ size=46, from=SKIN.from, to=SKIN.to, className='' }){
+  const id='kx'+String(from+to).replace(/[^a-zA-Z0-9]/g,'')
+  return (<svg viewBox={VIEWBOX} width={size*1.32} height={size} aria-hidden="true" className={className}>
+    <defs><linearGradient id={id} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor={from}/><stop offset="1" stopColor={to}/></linearGradient></defs>
+    {/* Le jet : cyan, la lumière au-dessus de l'eau. Décoratif — jamais du sens. */}
+    {SPOUT.d.map((d,i)=><path key={i} d={d} fill="none" stroke={SPOUT.stroke} strokeWidth={SPOUT.width} strokeLinecap="round" opacity={SPOUT.opacity}/>)}
+    <path fill={`url(#${id})`} d={BODY}/>
+    <circle cx={EYE.cx} cy={EYE.cy} r={EYE.r} fill={EYE.fill}/>
+    <path d={CRESCENT.d} fill="none" stroke={CRESCENT.stroke} strokeWidth={CRESCENT.width} strokeLinecap="round" opacity={CRESCENT.opacity}/>
+    {/* Le sourire s'arrête AVANT le croissant : les deux traits ne se croisent jamais. */}
+    <path d={SMILE.d} fill="none" stroke={SMILE.stroke} strokeWidth={SMILE.width} strokeLinecap="round" opacity={SMILE.opacity}/>
+    <path d={FIN.d} fill={from} opacity={FIN.opacity}/>
+  </svg>)
+}
+/** Compat : les pages appelaient `Whale`. C'est la mascotte. */
+export const Whale = Mascot
+
+/** Attente en ligne : c'est le CROISSANT qui tourne, pas un anneau générique (§7).
+ *  La viewBox est serrée autour de l'arc (centre 43.5 / 50.5) pour qu'il tourne
+ *  autour de LUI-MÊME et non autour du coin de la baleine. */
+export function Crescent({ size=20, color='var(--accent)', className='' }){
+  return <svg viewBox="30 37 27 27" width={size} height={size} className={`k-crescent ${className}`} aria-hidden="true">
+    <path d={CRESCENT.d} fill="none" stroke={color} strokeWidth={CRESCENT.width*1.5} strokeLinecap="round"/>
+  </svg>
+}
+/** Attente en ligne, avec un mot. Jamais « Chargement… » tout seul sur une page. */
+export function Spinner({ label='Un instant…', className='' }){
+  return <div role="status" aria-live="polite" className={`flex items-center gap-2 text-sm text-muted ${className}`}>
+    <Crescent size={18}/><span>{label}</span></div>
+}
+
+// ── Les cinq états (§8 du livre de marque). Un écran n'est pas conçu tant que
+//    les cinq n'existent pas. Ce n'est pas un conseil, c'est une condition. ──
+
+/** VIDE — la mascotte, qui flotte, une phrase en français clair, une action.
+ *  Jamais un cul-de-sac. Jamais le mot « Aucune donnée ». */
 export function EmptyState({ icon, title, sub, action, className='' }){
   return <div className={`flex flex-col items-center text-center py-12 px-6 ${className}`}>
-    <div className="relative mb-3 floaty" aria-hidden="true">
-      <Whale size={46} from="var(--accent)" to="var(--accent-2, var(--accent))"/>
-      <span className="bub" style={{left:'-14px',top:'6px'}}/>
-      <span className="bub" style={{right:'-10px',bottom:'2px',animationDelay:'.9s'}}/>
-    </div>
+    <div className="mb-3 floaty" aria-hidden="true"><Mascot size={54}/></div>
     <div className="font-bold text-ink">{title}</div>
     {sub && <p className="text-sm text-muted mt-1 max-w-sm">{sub}</p>}
     {action && <div className="mt-4">{action}</div>}
   </div>
 }
-// ── Loading skeletons ──
+/** ERREUR — dire ce qui s'est passé et quoi faire ensuite. Jamais un code, jamais « Oups ». */
+export function ErrorState({ title='La page n’a pas pu se charger.', sub='Vérifiez votre connexion, puis réessayez. Si cela recommence, prévenez la Direction.', onRetry, className='' }){
+  return <div role="alert" className={`flex flex-col items-center text-center py-12 px-6 ${className}`}>
+    <div className="w-14 h-14 rounded-2xl grid place-items-center mb-3" style={{background:STATUS.dangerSoft,color:STATUS.danger}} aria-hidden="true"><X size={26}/></div>
+    <div className="font-bold text-ink">{title}</div>
+    <p className="text-sm text-muted mt-1 max-w-sm">{sub}</p>
+    {onRetry && <Btn className="mt-4" onClick={onRetry}><RotateCw size={15}/> Réessayer</Btn>}
+  </div>
+}
+/** SUCCÈS — bref, chaleureux, et il s'efface tout seul. */
+export function SuccessState({ title='C’est enregistré.', sub, action, className='' }){
+  return <div role="status" className={`flex flex-col items-center text-center py-12 px-6 ${className}`}>
+    <div className="mb-3 floaty" aria-hidden="true"><Mascot size={54}/></div>
+    <div className="font-bold text-ink">{title}</div>
+    {sub && <p className="text-sm text-muted mt-1 max-w-sm">{sub}</p>}
+    {action && <div className="mt-4">{action}</div>}
+  </div>
+}
+
+// ── CHARGEMENT — des squelettes à la forme du contenu réel, jamais un rond au
+//    milieu d'une page vide. ──
 export function Skeleton({ className='', w, h }){ return <div className={`skeleton ${className}`} style={{width:w,height:h}}/> }
-export function SkeletonList({ rows=4 }){ return <div className="space-y-2.5">{Array.from({length:rows}).map((_,i)=><div key={i} className="card p-4 flex items-center gap-3"><Skeleton w={40} h={40} className="rounded-xl"/><div className="flex-1 space-y-2"><Skeleton h={12} className="w-1/3"/><Skeleton h={10} className="w-1/2"/></div></div>)}</div> }
-// ── Search input with leading icon ──
+export function SkeletonList({ rows=4 }){ return <div className="space-y-2.5" aria-hidden="true">{Array.from({length:rows}).map((_,i)=><div key={i} className="card p-4 flex items-center gap-3"><Skeleton w={40} h={40} className="rounded-xl"/><div className="flex-1 space-y-2"><Skeleton h={12} className="w-1/3"/><Skeleton h={10} className="w-1/2"/></div></div>)}</div> }
+/** Squelette d'une grille de tuiles (tableau de bord) — même forme que le vrai. */
+export function SkeletonStats({ n=4 }){ return <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-hidden="true">{Array.from({length:n}).map((_,i)=><div key={i} className="card p-4 flex items-center gap-3"><Skeleton w={48} h={48} className="rounded-2xl"/><div className="flex-1 space-y-2"><Skeleton h={16} className="w-1/2"/><Skeleton h={10} className="w-2/3"/></div></div>)}</div> }
+
 export function SearchInput({ value, onChange, placeholder='Rechercher…', className='' }){
   return <div className={`relative ${className}`}>
     <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted pointer-events-none"/>
@@ -119,9 +209,7 @@ export function SearchInput({ value, onChange, placeholder='Rechercher…', clas
       className="w-full rounded-xl border border-line bg-white pl-9 pr-3 py-2.5 text-sm accent-ring"/>
   </div>
 }
-// ── Toolbar row for search + filters + actions ──
 export function Toolbar({ children, className='' }){ return <div className={`flex items-center gap-2 flex-wrap mb-4 ${className}`}>{children}</div> }
-// ── Segmented tabs ──
 export function Tabs({ tabs, value, onChange, className='' }){
   // flex-wrap + max-w-full : cinq onglets (Poste de sécurité) débordaient de 33 px
   // sur un écran de 390 px et créaient un défilement horizontal de toute la page.
@@ -132,11 +220,9 @@ export function Tabs({ tabs, value, onChange, className='' }){
     })}
   </div>
 }
-// ── Filter pill ──
 export function Chip({ children, active, onClick, className='' }){
   return <button onClick={onClick} className={`px-3 py-1.5 rounded-full text-xs font-bold border transition ${active?'accent-bg text-white border-transparent':'bg-white border-line text-muted hover:text-ink'} ${className}`}>{children}</button>
 }
-// ── Avatar + name/meta block, standardized everywhere a person is shown ──
 export function UserCard({ name, seed, meta, size=44, action, className='' }){
   return <div className={`flex items-center gap-3 min-w-0 ${className}`}>
     <Avatar name={name} seed={seed} size={size}/>
@@ -144,16 +230,3 @@ export function UserCard({ name, seed, meta, size=44, action, className='' }){
     {action}
   </div>
 }
-// ── Le Cachalot : la marque Kogia v2 (colorway Education indigo→violet) ──
-export function Whale({ size=40, from='#6366F1', to='#8B5CF6', className='' }){
-  const id='kw'+String(from).replace(/[^a-zA-Z0-9]/g,'')
-  return (<svg viewBox="0 0 132 96" width={size*1.32} height={size} aria-hidden="true" className={className}>
-    <defs><linearGradient id={id} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor={from}/><stop offset="1" stopColor={to}/></linearGradient></defs>
-    <path fill={'url(#'+id+')'} d="M12 54 C12 34 28 22 52 22 C74 22 88 32 91 46 C94 38 99 30 107 25 C105 32 104 38 105 43 C110 41 117 41 124 44 C117 48 111 50 106 50 C102 62 92 70 76 73 C58 76 34 74 22 68 C14 64 12 60 12 54 Z"/>
-    <circle cx="34" cy="45" r="4.2" fill="#0F172A"/>
-    <path d="M22 57 q11 7 26 5" stroke="#fff" strokeWidth="3.6" fill="none" strokeLinecap="round" opacity=".9"/>
-    <path d="M56 62 q6 8 16 8 q-10 4 -20 -2 Z" fill={from} opacity=".45"/>
-    <path d="M42 12 q-1 -7 5 -9 M50 12 q4 -6 11 -6" stroke={to} strokeWidth="3.4" fill="none" strokeLinecap="round"/>
-  </svg>)
-}
-export function Mark({ size=34 }){ return <Whale size={size}/> }

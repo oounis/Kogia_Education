@@ -15,7 +15,7 @@ export function DemoLiveButton({ className = '' }) {
     <button
       onClick={() => { setDemoLive(true); location.reload() }}
       className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full ${className}`}
-      style={{ background: '#EEF2FF', color: '#4F46E5' }}
+      style={{ background: '#EEF2FF', color: '#4F57DE' }}
       title="Simule une journée de classe pour découvrir le produit hors période scolaire">
       <PlayCircle size={13} /> Voir en mode journée de classe
     </button>

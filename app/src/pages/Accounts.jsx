@@ -3,7 +3,7 @@ import { db, mutate, uid, setParentChildren } from '@core/db.js'
 import { ROLE } from '@core/theme.js'
 import { notify } from '@core/notify.js'
 import { STAFF_POSITIONS, GOVERNORATES, docTypesFor, validCIN } from '@core/tunisia.js'
-import { PageHead, Table, Avatar, Btn, Modal, Field, Input, Select, Section } from '../components/ui.jsx'
+import { PageHead, Table, Avatar, Btn, Modal, Field, Input, Select, Section, STATUS } from '../components/ui.jsx'
 import Attach from '../components/Attach.jsx'
 import { UserPlus, ShieldCheck, KeyRound, Ban, Check, Paperclip } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -85,7 +85,7 @@ export default function Accounts(){
         <div className="text-xs font-bold uppercase text-muted mb-2">Pièces jointes</div>
         {(view.attachments||[]).length? <div className="space-y-1">{view.attachments.map((a,i)=><div key={i} className="flex justify-between text-sm border border-line rounded-lg px-3 py-1.5"><span className="text-muted">{a.type}</span><span className="font-medium inline-flex items-center gap-1.5"><Paperclip size={13} className="text-muted"/>{a.name}</span></div>)}</div> : <div className="text-sm text-muted">Aucune pièce.</div>}
         {view.role!=='owner' && <div className="mt-5 pt-4 border-t border-line flex flex-wrap gap-2 items-center">
-          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${view.disabled?'bg-canvas text-muted':''}`} style={view.disabled?{}:{background:'#E2FBF3',color:'#10B981'}}>{view.disabled?'● Désactivé':'● Actif'}</span>
+          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${view.disabled?'bg-canvas text-muted':''}`} style={view.disabled?{}:{background:STATUS.okSoft,color:STATUS.ok}}>{view.disabled?'● Désactivé':'● Actif'}</span>
           <div className="flex-1"/>
           <Btn variant="ghost" onClick={()=>resetPw(view)}><KeyRound size={15}/> Réinitialiser le mot de passe</Btn>
           {view.disabled? <Btn onClick={()=>toggleActive(view)}><Check size={15}/> Réactiver</Btn> : <Btn variant="danger" onClick={()=>toggleActive(view)}><Ban size={15}/> Désactiver</Btn>}

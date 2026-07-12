@@ -191,7 +191,7 @@ export default function Dashboard(){
             label={openInc?`${openInc} incident${openInc>1?'s':''} ouvert${openInc>1?'s':''}`:'Aucun incident'}/>
           <BriefChip to="/app/requests" icon={<FileText size={14}/>} color={pendReq?STATUS.info:STATUS.ok}
             label={pendReq?`${pendReq} demande${pendReq>1?'s':''} à traiter`:'Demandes à jour'}/>
-          <BriefChip to="/app/events" icon={<CalendarDays size={14}/>} color={eventsToday.length?'#6366F1':STATUS.neutral}
+          <BriefChip to="/app/events" icon={<CalendarDays size={14}/>} color={eventsToday.length?'#4F57DE':STATUS.neutral}
             label={eventsToday.length?`Aujourd'hui : ${eventsToday[0].title}${eventsToday.length>1?` +${eventsToday.length-1}`:''}`:"Aucun événement aujourd'hui"}/>
         </div>
       </div>
@@ -258,7 +258,7 @@ function PlatformDashboard({ d, greet }){
   const mrr=actives.reduce((n,s)=>n+s.price,0)
   const totalStudents=schools.filter(s=>s.status!=='suspended').reduce((n,s)=>n+count(s),0)
   const planPie=[
-    {name:'Plan Pro',value:actives.filter(s=>s.plan==='Pro').length,color:'#6366F1'},
+    {name:'Plan Pro',value:actives.filter(s=>s.plan==='Pro').length,color:'#4F57DE'},
     {name:'Plan Essentiel',value:actives.filter(s=>s.plan==='Essentiel').length,color:'#0BA5D8'},
     {name:'En essai',value:trials.length,color:STATUS.warn},
   ].filter(x=>x.value>0)
@@ -324,7 +324,7 @@ function ParentDashboard({u,d,greet}){
   if(!child) return <Card><EmptyState icon={<Users size={26}/>} title="Aucun enfant associé" sub="Demandez à la direction de lier votre compte à votre enfant."/></Card>
   return (<><PageHead title={greet} sub="Votre enfant, en un coup d'œil."
       action={kids.length>1&&<select value={child.id} onChange={e=>setPickedId(e.target.value)} className="rounded-xl border border-line bg-white px-3 py-2 text-sm font-semibold">{kids.map(k=><option key={k.id} value={k.id}>{k.name}</option>)}</select>}/>
-    {child&&live&&<Link to="/app/live" className="relative block rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition mb-5 group text-white" style={{background:`linear-gradient(120deg, ${larea.color} 0%, #10162B 100%)`}}>
+    {child&&live&&<Link to="/app/live" className="relative block rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition mb-5 group text-white" style={{background:`linear-gradient(120deg, ${larea.color} 0%, #0E2135 100%)`}}>
       <div className="relative flex items-center gap-4 p-5 min-h-[124px]">
         <div className="min-w-0">
           <div className="flex items-center gap-2 text-[12px] font-bold">

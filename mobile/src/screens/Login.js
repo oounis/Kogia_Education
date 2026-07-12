@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { SKIN, EYE } from '@core/mark.js'
 import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform, Animated, Easing, StyleSheet } from 'react-native'
 import Svg, { Rect, Defs, LinearGradient, Stop } from 'react-native-svg'
 import { db } from '@core/db.js'
@@ -8,8 +9,9 @@ import { C, S, F, tap } from '../components.js'
 import { Whale } from '../whale.js'
 
 // La marque : indigo → violet, la voix du cachalot.
-const BRAND = '#6366F1'
-const BRAND2 = '#8B5CF6'
+// La voie de Coreon Edu vient du cœur — plus de marque recopiée à la main ici.
+const BRAND = SKIN.from
+const BRAND2 = SKIN.to
 
 // Même contrat que la page web : e-mail + mot de passe, et les boutons de
 // connexion rapide de la démo (un par rôle). À la venue du backend, seul
@@ -78,7 +80,7 @@ export default function Login({ onLogin }) {
             </Svg>
             {/* View englobante : position relative → peint AU-DESSUS du dégradé absolu (web). */}
             <View style={{ marginTop: 2 }}>
-              <Whale size={46} color="#FFFFFF" eye="#7360F3" />
+              <Whale size={46} color="#FFFFFF" eye={EYE.fill} />
             </View>
           </View>
           <Text style={[S.h1, { marginTop: 14 }]}>coreon <Text style={{ color: BRAND }}>edu</Text></Text>

@@ -110,7 +110,7 @@ export default function Pointage({ user, params, nav }) {
 
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 14 }}>
         <Tile icon="CalendarCheck" color="#2BD9A8" label="Jours pointés" sub={MOIS[nowD.getMonth()]} value={String(days)} />
-        <Tile icon="Timer" color="#36C5F0" label="Heures travaillées" value={fmtH(minutes)} />
+        <Tile icon="Timer" color="#22D3EE" label="Heures travaillées" value={fmtH(minutes)} />
         <Tile icon="Clock" color="#FFA62B" label="Retards" value={String(lates)} />
         <Tile icon="Plane" color="#8B5CF6" label="Congé annuel restant" value={`${Math.max(0, QUOTA - used)} j`} />
       </View>

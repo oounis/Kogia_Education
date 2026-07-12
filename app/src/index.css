@@ -1,80 +1,163 @@
 @import "tailwindcss";
+
+/* ============================================================================
+   Kogia Harmony — Coreon Edu (web)
+   Source de vérité : KogiaGroup/brand/KOGIA_HARMONY.md + core/src/tokens.js.
+   Aucune couleur ne se décide ici : ce fichier RECOPIE les jetons canoniques.
+   (Tailwind v4 exige des littéraux dans @theme — d'où la copie, commentée.)
+
+   Ce qui a été supprimé ici : la seconde encre (#0E2135), le second canvas, la
+   seconde ligne, et la seconde échelle sémantique. Il n'y en a plus qu'une, et
+   c'est la même que sur mobile (core/src/tokens.js).
+   ========================================================================= */
 @theme {
-  --color-ink: #1E2433;
-  /* #8A93A6 ne donnait que 2.9:1 sur le fond : illisible pour beaucoup de monde.
-     #66707F passe à 4.7:1 — le texte secondaire reste discret, mais se lit. */
-  --color-muted: #66707F;
-  --color-line: #EDEFF5;
-  --color-canvas: #F6F7FB;
-  /* brand + pastel palette (beautiful, soft) */
-  --color-brand: #6366F1;        --color-brand-soft: #EEF2FF;
-  --color-sky: #36C5F0;          --color-sky-soft: #E4F7FE;
-  --color-butter: #FFC24B;       --color-butter-soft: #FFF4DD;
-  --color-mint: #2BD9A8;         --color-mint-soft: #E2FBF3;
-  --color-coral: #FF6B81;        --color-coral-soft: #FFE8EC;
-  --color-grape: #A78BFA;        --color-grape-soft: #F1ECFE;
-  --color-success: #10B981;  --color-success-soft: #E2FBF3;
-  --color-warn: #E59A12;      --color-warn-soft: #FFF4DD;
-  --color-danger: #EF4444;    --color-danger-soft: #FFE8EC;
-  --color-info: #0BA5D8;      --color-info-soft: #E4F7FE;
-  --font-sans: "Nunito Variable", "Inter Variable", system-ui, sans-serif;
-  --font-display: "Plus Jakarta Sans Variable", "Nunito Variable", system-ui, sans-serif;
-  /* premium, soft, layered elevation (Linear/Stripe style) */
-  --shadow-xs: 0 1px 2px rgba(16,24,40,.05);
-  --shadow-sm: 0 1px 3px rgba(16,24,40,.06), 0 1px 2px rgba(16,24,40,.04);
-  --shadow-md: 0 6px 16px rgba(16,24,40,.07), 0 2px 5px rgba(16,24,40,.04);
-  --shadow-lg: 0 14px 32px rgba(16,24,40,.10), 0 5px 10px rgba(16,24,40,.05);
-}
-/* Typographie : un cran plus grand et un peu plus gras qu'avant. À 14 px et en
-   graisse 400, le texte se lisait mal sur un écran d'école ; 15 px en graisse 500
-   reste dense mais confortable, y compris pour un directeur qui lit vite. */
-html{scroll-behavior:smooth;font-size:15px}
-body{font-family:var(--font-sans);color:var(--color-ink);-webkit-font-smoothing:antialiased;
-  font-weight:500;line-height:1.55;letter-spacing:-0.004em;
-  background:linear-gradient(180deg,color-mix(in srgb,var(--accent,#6366F1) 4%,var(--color-canvas)) 0%,var(--color-canvas) 320px)}
-h1,h2,h3,h4{font-family:var(--font-display);letter-spacing:-0.022em;font-weight:800}
-/* le texte secondaire garde sa discrétion par la couleur, plus par la maigreur */
-.text-muted{font-weight:500}
-b,strong{font-weight:700}
-/* les chiffres s'alignent dans les tableaux et les compteurs */
-.tabular-nums{font-variant-numeric:tabular-nums}
-.card{background:linear-gradient(180deg,#fff,#FDFDFF);border:1px solid var(--color-line);border-radius:1rem;
-  box-shadow:var(--shadow-sm),inset 0 1px 0 rgba(255,255,255,.9);transition:box-shadow .2s,transform .2s}
-/* one consistent, accessible focus ring for every interactive element */
-:where(button,a,input,select,textarea,[tabindex]):focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent,#6366F1) 32%,transparent)}
-/* premium loading skeleton */
-@keyframes shimmer{100%{background-position:-200% 0}}
-.skeleton{background:linear-gradient(90deg,#EEF0F5 25%,#F6F7FB 37%,#EEF0F5 63%);background-size:200% 100%;animation:shimmer 1.4s ease infinite;border-radius:.6rem}
-@media (prefers-reduced-motion:reduce){.skeleton{animation:none}}
-.accent-bg{background:linear-gradient(135deg,var(--accent),var(--accent-2,var(--accent)))} .accent-text{color:var(--accent)} .accent-soft{background:var(--accent-soft)}
-.accent-ring:focus{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent)}
-.drop-hot{outline:2px dashed var(--accent);outline-offset:2px;background:var(--accent-soft)}
-.no-select{user-select:none;-webkit-user-select:none}
-@keyframes pop{0%{transform:scale(.92);opacity:0}100%{transform:scale(1);opacity:1}}
-.pop{animation:pop .18s ease}
-.scroll-thin::-webkit-scrollbar{width:8px;height:8px}.scroll-thin::-webkit-scrollbar-thumb{background:#E2E6EF;border-radius:8px}
-@media (prefers-reduced-motion:reduce){.pop{animation:none}}
-/* ── mascotte : le cachalot flotte (marketing/empty/success uniquement) ── */
-@keyframes floaty{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-7px) rotate(1.5deg)}}
-.floaty{animation:floaty 4.5s ease-in-out infinite}
-.bub{position:absolute;width:8px;height:8px;border-radius:50%;background:color-mix(in srgb,var(--accent) 22%,#fff);border:1px solid color-mix(in srgb,var(--accent) 35%,#fff);animation:bubf 4s ease-in-out infinite}
-@keyframes bubf{0%,100%{transform:translateY(0);opacity:.9}50%{transform:translateY(-9px);opacity:.4}}
-/* ── confettis de célébration (écran de succès) ── */
-.confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none}
-.confetti i{position:absolute;top:-12px;width:8px;height:12px;border-radius:2px;opacity:.95;animation:cfall 2.8s ease-in forwards}
-@keyframes cfall{0%{transform:translateY(-10px) rotate(0)}100%{transform:translateY(72vh) rotate(560deg);opacity:0}}
-@media (prefers-reduced-motion:reduce){.floaty,.bub,.confetti i{animation:none}}
-/* Impression : n'imprimer que le bulletin */
-@media print{
-  body{background:#fff}
-  body *{visibility:hidden}
-  #bulletin-print, #bulletin-print *{visibility:visible}
-  #bulletin-print{position:absolute;left:0;top:0;width:100%;padding:0 !important}
-  .print\:hidden{display:none !important}
-  @page{margin:14mm}
+  /* ── L'eau : les neutres. Identiques dans tous les produits Kogia. ── */
+  --color-ink:     #0E2135;   /* 16.3:1 sur blanc */
+  --color-muted:   #5B6B7D;   /* 5.46:1 sur blanc, 5.08:1 sur canvas — du vrai texte */
+  --color-line:    #DCE3EB;
+  --color-canvas:  #F4F7FA;   /* marine et froid, jamais un gris neutre */
+  --color-pearl:   #FDF6F0;   /* la seule surface CHAUDE (loi 4 : « la chaleur en dessous ») */
+
+  /* ── La marque : le corps vu à travers l'eau ── */
+  --color-brand:   #4F57DE;   /* LA primaire : 5.60:1 en texte ET en blanc-sur-elle */
+  --color-brand-soft: #EEF0FE;
+  --color-violet:  #8B5CF6;   /* 4.23:1 — grands textes, aplats, dégradés */
+  --color-cyan:    #22D3EE;   /* 1.81:1 — DÉCORATIF. Jamais du texte. */
+
+  /* ── Statuts : réservés. Jamais une couleur de marque, jamais une série. ── */
+  --color-success: #12946F;  --color-success-soft: #E7F5F0;
+  --color-warn:    #C97C1E;  --color-warn-soft:    #FBF1E3;
+  --color-danger:  #DC4B54;  --color-danger-soft:  #FBEBEC;
+  --color-info:    #0E7FB8;  --color-info-soft:    #E6F1F8;
+  --color-neutral: #7C879B;  --color-neutral-soft: #F1F4F8;
+  /* alias historiques encore utilisés dans les pages — même valeur canonique */
+  --color-coral:   #DC4B54;  --color-coral-soft:   #FBEBEC;
+  --color-mint:    #12946F;  --color-mint-soft:    #E7F5F0;
+
+  /* ── Type : Sora partout (le fil du groupe), Nunito pour lire (Coreon) ── */
+  --font-sans:    "Nunito Variable", system-ui, sans-serif;
+  --font-display: "Sora Variable", "Nunito Variable", system-ui, sans-serif;
+
+  /* ── Élévation : une seule lumière, au-dessus de l'eau. Trois marches. ── */
+  --shadow-xs: 0 1px 2px rgb(14 33 53 / .05);
+  --shadow-sm: 0 1px 2px rgb(14 33 53 / .05);
+  --shadow-md: 0 10px 30px -12px rgb(14 33 53 / .12);
+  --shadow-lg: 0 24px 50px -20px rgb(14 33 53 / .20);
+
+  /* ── Mouvement : une seule courbe pour tout l'écosystème. ── */
+  --ease-kogia: cubic-bezier(.2, .8, .2, 1);
 }
 
-/* cloche : petite sonnerie périodique tant qu'il reste du non-lu */
-@keyframes bellring{0%,88%,100%{transform:rotate(0)}90%{transform:rotate(14deg)}93%{transform:rotate(-12deg)}96%{transform:rotate(8deg)}98%{transform:rotate(-4deg)}}
-.bell-ring{animation:bellring 3.5s ease-in-out infinite;transform-origin:top center}
-@media (prefers-reduced-motion:reduce){.bell-ring{animation:none}}
+/* La voie de Coreon Edu. `--accent` est repeint par rôle (core/src/theme.js) ;
+   il vaut toujours une couleur RÉVERSIBLE, donc le texte blanc dessus passe l'AA. */
+:root {
+  --accent: #4F57DE;
+  --accent-2: #8B5CF6;
+  --accent-soft: #EEF0FE;
+  --t-micro: 160ms; --t-standard: 220ms; --t-deliberate: 320ms;
+}
+
+/* Typographie : 15 px en graisse 500 — un cran plus gras que le défaut, dans tous
+   les produits Kogia. C'est un petit détail qui fait que tout paraît fabriqué exprès. */
+html { scroll-behavior: smooth; font-size: 15px }
+body {
+  font-family: var(--font-sans); color: var(--color-ink); -webkit-font-smoothing: antialiased;
+  font-weight: 500; line-height: 1.55; letter-spacing: -0.004em;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 4%, var(--color-canvas)) 0%, var(--color-canvas) 320px);
+}
+h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.02em; line-height: 1.15; font-weight: 800 }
+.text-muted { font-weight: 500 }
+b, strong { font-weight: 700 }
+.tabular-nums { font-variant-numeric: tabular-nums }
+
+/* Carte : rayon 16 (« carte »), une bordure OU une ombre — jamais les deux fortes. */
+.card {
+  background: #fff; border: 1px solid var(--color-line); border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--t-micro) var(--ease-kogia), transform var(--t-micro) var(--ease-kogia);
+}
+
+/* Un seul anneau de focus, accessible, sur tout ce qui est interactif. */
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 32%, transparent);
+}
+
+/* ── L'accent ──────────────────────────────────────────────────────────────
+   `accent-bg` porte du TEXTE BLANC. Le dégradé va donc de l'accent vers l'ENCRE :
+   l'extrémité sombre ne peut que faire MONTER le contraste du blanc. (L'ancien
+   dégradé partait vers une couleur plus claire — c'est ainsi qu'un bouton
+   « Surveillant » finissait en blanc sur orange à 1.8:1.)                     */
+.accent-bg { background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 82%, #0E2135)) }
+.accent-text { color: var(--accent) }
+.accent-soft { background: var(--accent-soft) }
+.accent-ring:focus { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent) }
+.drop-hot { outline: 2px dashed var(--accent); outline-offset: 2px; background: var(--accent-soft) }
+/* Le dégradé de la VOIE Coreon (indigo → violet) : grandes surfaces décoratives
+   seulement — jamais sous un petit texte. */
+.edu-grad { background: linear-gradient(150deg, #4F57DE, #8B5CF6) }
+.no-select { user-select: none; -webkit-user-select: none }
+
+/* ── Chargement : squelettes à la forme du contenu réel ───────────────────── */
+@keyframes shimmer { 100% { background-position: -200% 0 } }
+.skeleton {
+  background: linear-gradient(90deg, #EEF1F6 25%, #F4F7FA 37%, #EEF1F6 63%);
+  background-size: 200% 100%; animation: shimmer 1.4s ease infinite; border-radius: 12px;
+}
+
+/* ── Mouvement : « l'immobilité est l'état de repos » (loi 2) ────────────────
+   Une seule courbe, trois durées. Tout cède à prefers-reduced-motion.        */
+@keyframes pop { 0% { transform: scale(.96); opacity: 0 } 100% { transform: scale(1); opacity: 1 } }
+.pop { animation: pop var(--t-standard) var(--ease-kogia) }
+
+/* La flottaison : ±4 px sur 6 s. La SEULE animation perpétuelle autorisée. */
+@keyframes k-float { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-4px) } }
+.floaty { animation: k-float 6s ease-in-out infinite }
+
+/* Attente en ligne : c'est le CROISSANT qui tourne — pas un anneau générique. */
+@keyframes k-crescent { to { transform: rotate(360deg) } }
+.k-crescent { animation: k-crescent 900ms linear infinite; transform-origin: 50% 50% }
+
+/* Apparition : 22 px vers le haut, décalée sur 3 éléments au plus. */
+@keyframes k-reveal { from { opacity: 0; transform: translateY(22px) } to { opacity: 1; transform: none } }
+.k-reveal { animation: k-reveal 700ms var(--ease-kogia) both }
+.k-reveal.d1 { animation-delay: 80ms } .k-reveal.d2 { animation-delay: 160ms } .k-reveal.d3 { animation-delay: 240ms }
+
+/* Survol : -2 px et une marche d'élévation. Jamais d'agrandissement. */
+.k-lift { transition: transform var(--t-micro) var(--ease-kogia), box-shadow var(--t-micro) var(--ease-kogia) }
+.k-lift:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg) }
+.k-press:active { transform: scale(.98) }
+
+.scroll-thin::-webkit-scrollbar { width: 8px; height: 8px }
+.scroll-thin::-webkit-scrollbar-thumb { background: var(--color-line); border-radius: 999px }
+
+/* Confettis de célébration (écran de succès) — brefs, puis ils s'effacent. */
+.confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none }
+.confetti i { position: absolute; top: -12px; width: 8px; height: 12px; border-radius: 2px; opacity: .95; animation: cfall 2.8s ease-in forwards }
+@keyframes cfall { 0% { transform: translateY(-10px) rotate(0) } 100% { transform: translateY(72vh) rotate(560deg); opacity: 0 } }
+
+/* Cloche : petite sonnerie périodique tant qu'il reste du non-lu. */
+@keyframes bellring { 0%, 88%, 100% { transform: rotate(0) } 90% { transform: rotate(14deg) } 93% { transform: rotate(-12deg) } 96% { transform: rotate(8deg) } 98% { transform: rotate(-4deg) } }
+.bell-ring { animation: bellring 3.5s ease-in-out infinite; transform-origin: top center }
+
+/* ── Ceci n'est pas optionnel (loi 2 / §7 du livre de marque). ────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .floaty, .k-crescent, .k-reveal, .skeleton, .pop, .bell-ring, .confetti i { animation: none !important }
+  .k-lift:hover { transform: none }
+  .k-press:active { transform: none }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Impression : n'imprimer que le bulletin */
+@media print {
+  body { background: #fff }
+  body * { visibility: hidden }
+  #bulletin-print, #bulletin-print * { visibility: visible }
+  #bulletin-print { position: absolute; left: 0; top: 0; width: 100%; padding: 0 !important }
+  .print\:hidden { display: none !important }
+  @page { margin: 14mm }
+}

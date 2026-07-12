@@ -2,6 +2,8 @@
 // Fond indigo→violet (dégradé SVG : expo-linear-gradient n'est pas installé),
 // le cachalot blanc entre en scène, la marque se pose, puis on passe à Login.
 import { useEffect, useRef } from 'react'
+import { BRAND } from '@core/tokens.js'
+import { SKIN, EYE } from '@core/mark.js'
 import { View, Text, Pressable, Animated, Easing, Platform, StyleSheet, Dimensions } from 'react-native'
 import Svg, { Rect, Circle, Defs, LinearGradient, RadialGradient, Stop } from 'react-native-svg'
 import { getItem, setItem } from '@core/storage.js'
@@ -67,14 +69,14 @@ export default function Welcome({ onDone }) {
   const { width, height } = Dimensions.get('window')
 
   return (
-    <Animated.View style={{ flex: 1, opacity: screenO, backgroundColor: '#6366F1' }}>
+    <Animated.View style={{ flex: 1, opacity: screenO, backgroundColor: BRAND.indigo }}>
       {/* Le sol : indigo profond → violet, avec un halo derrière la marque. */}
       <Svg width="100%" height="100%" style={StyleSheet.absoluteFill} preserveAspectRatio="none">
         <Defs>
           <LinearGradient id="ground" x1="0" y1="0" x2="0.6" y2="1">
-            <Stop offset="0" stopColor="#4F46E5" />
-            <Stop offset="0.5" stopColor="#6366F1" />
-            <Stop offset="1" stopColor="#8B5CF6" />
+            <Stop offset="0" stopColor={BRAND.indigo} />
+            <Stop offset="0.5" stopColor={SKIN.from} />
+            <Stop offset="1" stopColor={SKIN.to} />
           </LinearGradient>
           <RadialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
             <Stop offset="0" stopColor="#FFFFFF" stopOpacity="0.16" />
@@ -90,7 +92,7 @@ export default function Welcome({ onDone }) {
 
         <Animated.View style={{ opacity: whaleO, transform: [{ translateY: floatY }, { scale: whaleS }] }}>
           <View style={{ width: WHALE_W, height: WHALE_W * 96 / 132 }}>
-            <WhaleBody size={WHALE_W} color="#FFFFFF" eye="#6D60F2" style={StyleSheet.absoluteFill} />
+            <WhaleBody size={WHALE_W} color="#FFFFFF" eye={EYE.fill} style={StyleSheet.absoluteFill} />
             <Animated.View style={[StyleSheet.absoluteFill, { opacity: sprayO }]}>
               <WhaleSpray size={WHALE_W} color="#FFFFFF" />
             </Animated.View>
@@ -120,7 +122,7 @@ export default function Welcome({ onDone }) {
               backgroundColor: '#FFFFFF', borderRadius: 999, paddingVertical: 14, paddingHorizontal: 44,
               opacity: pressed ? 0.88 : 1,
             })}>
-            <Text style={{ fontFamily: F.bold, fontWeight: '700', fontSize: 16, color: '#6366F1' }}>Commencer</Text>
+            <Text style={{ fontFamily: F.bold, fontWeight: '700', fontSize: 16, color: BRAND.indigo }}>Commencer</Text>
           </Pressable>
         </Animated.View>
       </View>

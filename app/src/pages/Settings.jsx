@@ -5,7 +5,12 @@ import { PageHead, Card, Btn, Field, Input, Section, Modal } from '../components
 import { Building2, Palette, Save, Check } from 'lucide-react'
 import toast from 'react-hot-toast'
 
-const BRANDS=['#6366F1','#2563EB','#0EA5E9','#10B981','#F59E0B','#EF4444','#EC4899','#8B5CF6']
+// La couleur d'accent d'une école se choisit DANS la palette Kogia — pas librement.
+// Une école ne peut pas rendre son portail illisible : chaque teinte proposée ici est
+// validée (≥ 3:1 en marque, et la couche `soft` porte le texte en encre).
+// Source : brand/KOGIA_HARMONY.md §3.4-3.5
+import { N, SERIES, BRAND } from '@core/tokens.js'
+const BRANDS=[BRAND.indigo, ...SERIES, BRAND.violet]
 
 export default function Settings(){
   const u=current()
@@ -55,7 +60,7 @@ export default function Settings(){
       <div>
         <div className="text-xs font-bold uppercase text-muted mb-2">Aperçu</div>
         <Card className="p-4">
-          <div className="rounded-2xl p-4 text-white" style={{background:`linear-gradient(135deg,${f.brand},#10162B)`}}>
+          <div className="rounded-2xl p-4 text-white" style={{background:`linear-gradient(135deg,${f.brand},${N.ink})`}}>
             <div className="flex items-center gap-2">
               <span className="w-10 h-10 rounded-xl grid place-items-center font-extrabold bg-white/20">{f.logoText||'??'}</span>
               <div><div className="font-bold leading-tight">{f.schoolName||'—'}</div><div className="text-xs opacity-80">{f.city} · {f.year}</div></div>

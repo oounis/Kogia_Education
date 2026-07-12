@@ -17,6 +17,7 @@
 // donc « plan d'évacuation » et « consignes », pas « PPMS ».
 
 // ── Numéros d'urgence tunisiens ─────────────────────────────────────────────
+import { STATUS, BRAND, N } from './tokens.js'
 export const URGENCES = [
   { k: 'protection', label: 'Protection civile', num: '198', hint: 'Incendie, secours, évacuation' },
   { k: 'samu', label: 'SAMU', num: '190', hint: 'Urgence médicale' },
@@ -27,7 +28,7 @@ export const URGENCES = [
 // ── Consignes (procédures d'urgence) ────────────────────────────────────────
 export const CONSIGNES = [
   {
-    k: 'evacuation', label: 'Évacuation — incendie', icon: '🔥', color: '#DC4B54',
+    k: 'evacuation', label: 'Évacuation — incendie', icon: '🔥', color: STATUS.danger,
     steps: [
       "Donner l'alarme et prévenir la Direction.",
       'Appeler la Protection civile (198) — adresse, nature du sinistre, nombre de personnes.',
@@ -39,7 +40,7 @@ export const CONSIGNES = [
     ],
   },
   {
-    k: 'confinement', label: 'Confinement / mise à l’abri', icon: '🚪', color: '#7C5CD6',
+    k: 'confinement', label: 'Confinement / mise à l’abri', icon: '🚪', color: BRAND.violet,
     steps: [
       'Fermer et verrouiller le portail et toutes les portes extérieures.',
       'Faire rentrer immédiatement tout le monde depuis la cour.',
@@ -49,7 +50,7 @@ export const CONSIGNES = [
     ],
   },
   {
-    k: 'intrusion', label: 'Intrusion', icon: '🛑', color: '#C97C1E',
+    k: 'intrusion', label: 'Intrusion', icon: '🛑', color: STATUS.warn,
     steps: [
       'Ne pas s’interposer physiquement.',
       'Alerter la Direction et la Police secours (197) ; décrire la personne.',
@@ -59,7 +60,7 @@ export const CONSIGNES = [
     ],
   },
   {
-    k: 'malaise', label: 'Malaise / accident', icon: '🚑', color: '#0E7FB8',
+    k: 'malaise', label: 'Malaise / accident', icon: '🚑', color: STATUS.info,
     steps: [
       'Ne pas déplacer la personne, sauf danger immédiat.',
       'Appeler le SAMU (190) ; suivre les instructions du régulateur.',
@@ -69,7 +70,7 @@ export const CONSIGNES = [
     ],
   },
   {
-    k: 'bombe', label: 'Alerte à la bombe', icon: '☎️', color: '#475569',
+    k: 'bombe', label: 'Alerte à la bombe', icon: '☎️', color: N.slate,
     steps: [
       'Ne pas raccrocher ; faire parler, noter mot à mot, heure et voix.',
       'Ne toucher à aucun objet suspect ; ne pas utiliser de radio à proximité.',
@@ -98,14 +99,14 @@ export const checkpointOf = k => CHECKPOINTS.find(c => c.k === k) || CHECKPOINTS
 // Le journal de bord de l'agent : prise et fin de service, rondes, visiteurs,
 // anomalies, alarmes, consignes reçues. Il fait foi ; on n'y efface rien.
 export const LOG_KINDS = {
-  prise:     { label: 'Prise de service',   icon: '🟢', color: '#12946F' },
-  fin:       { label: 'Fin de service',     icon: '🔴', color: '#475569' },
-  ronde:     { label: 'Ronde',              icon: '🔦', color: '#0E7FB8' },
-  visiteur:  { label: 'Visiteur',           icon: '🪪', color: '#7C5CD6' },
-  evenement: { label: 'Événement',          icon: '📅', color: '#5B6EE1' },
-  anomalie:  { label: 'Anomalie',           icon: '⚠️', color: '#C97C1E' },
-  alarme:    { label: 'Alarme',             icon: '🚨', color: '#DC4B54' },
-  consigne:  { label: 'Consigne',           icon: '📋', color: '#475569' },
+  prise:     { label: 'Prise de service',   icon: '🟢', color: STATUS.ok },
+  fin:       { label: 'Fin de service',     icon: '🔴', color: N.slate },
+  ronde:     { label: 'Ronde',              icon: '🔦', color: STATUS.info },
+  visiteur:  { label: 'Visiteur',           icon: '🪪', color: BRAND.violet },
+  evenement: { label: 'Événement',          icon: '📅', color: BRAND.indigo },
+  anomalie:  { label: 'Anomalie',           icon: '⚠️', color: STATUS.warn },
+  alarme:    { label: 'Alarme',             icon: '🚨', color: STATUS.danger },
+  consigne:  { label: 'Consigne',           icon: '📋', color: N.slate },
 }
 export const logKindOf = k => LOG_KINDS[k] || LOG_KINDS.consigne
 

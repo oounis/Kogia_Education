@@ -1,6 +1,8 @@
 // Clé STABLE : la version du schéma est stockée dans la base elle-même (`_v`) et
 // les évolutions passent par migrate(). Voir db() plus bas.
 import { getItem, setItem, removeItem } from './storage.js'
+import { subjectHue } from './subjects.js'
+import { BRAND } from './tokens.js'
 const KEY="coreon_db"
 const SCHEMA=21
 const LEGACY_KEYS=Array.from({length:18},(_,i)=>`coreon_db_v${18-i}`)
@@ -13,7 +15,10 @@ export const CYCLES=[
 ]
 export const GRADES=CYCLES.flatMap(c=>c.grades)
 // ── timetable seed helpers (kept here to avoid a data.js↔db.js import cycle) ──
-export const TT_SUBJECTS=[['Arabe','#6366F1'],['Français','#36C5F0'],['Mathématiques','#FF6B81'],['Éveil scientifique','#2BD9A8'],['Éducation islamique','#FFA62B'],['Éducation civique','#0BA5D8'],['Sport','#10B981'],['Musique','#A78BFA'],['Arts plastiques','#E59A12'],['Informatique','#8B5CF6']]
+// La couleur d'une matière n'est plus écrite ici : elle vient de subjects.js, la
+// table partagée avec le web ET le natif (avant, les deux n'étaient pas d'accord).
+export const TT_SUBJECT_NAMES=['Arabe','Français','Mathématiques','Éveil scientifique','Éducation islamique','Éducation civique','Sport','Musique','Arts plastiques','Informatique']
+export const TT_SUBJECTS=TT_SUBJECT_NAMES.map(n=>[n,subjectHue(n)])
 const TT_ROOMS=['Salle 12','Salle 8','Salle 21','Labo','Gymnase','Salle Info']
 function h32(s){let h=0;for(const c of String(s))h=(h*31+c.charCodeAt(0))>>>0;return h}
 function genTimetables(classes){
@@ -269,7 +274,7 @@ function seed(){
   }
   const settings={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026',
     director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis',
-    brand:'#6366F1', logoText:'AN', currency:'DT' }
+    brand:BRAND.indigo, logoText:'AN', currency:'DT' }
   // ── écoles clientes de la plateforme (console Kogia Group). Al-Nour est
   // l'école de démo « vivante » ; les autres sont des abonnements clients. ──
   const schools=[
@@ -330,7 +335,7 @@ function seed(){
 
   return {classes,students,teachers,users,payments,evaluations,incidents,requests,books,routes,homework,events,socialEvents,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,visitors,rounds,logbook,timetables:genTimetables(classes),settings,schools}
 }
-export const DEFAULT_SETTINGS={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026', director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis', brand:'#6366F1', logoText:'AN', currency:'DT' }
+export const DEFAULT_SETTINGS={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026', director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis', brand:BRAND.indigo, logoText:'AN', currency:'DT' }
 export const settings=()=>({...DEFAULT_SETTINGS, ...(db().settings||{})})
 export function saveSettings(patch){ return mutate(d=>{ d.settings={...DEFAULT_SETTINGS, ...(d.settings||{}), ...patch} }) }
 // ── Chargement + MIGRATION ──────────────────────────────────────────────────

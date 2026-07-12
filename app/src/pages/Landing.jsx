@@ -15,8 +15,8 @@ const BTN="inline-flex items-center justify-center gap-1.5 rounded-xl font-semib
 const BTN_MD=`${BTN} text-sm px-4 py-2.5`, BTN_LG=`${BTN} text-sm px-5 py-3`
 
 const MODULES = [
-  [ClipboardCheck,'Évaluation express','Notez toute la classe en 30 s par glisser-déposer — 5 questions, des badges, une note. Partagé en direct.','#6366F1'],
-  [CalendarCheck,'Présence','Appel en un tap, retards et absences suivis, alertes automatiques aux parents.','#36C5F0'],
+  [ClipboardCheck,'Évaluation express','Notez toute la classe en 30 s par glisser-déposer — 5 questions, des badges, une note. Partagé en direct.','#4F57DE'],
+  [CalendarCheck,'Présence','Appel en un tap, retards et absences suivis, alertes automatiques aux parents.','#22D3EE'],
   [Wallet,'Frais & paiements','Frais de scolarité mensuels, reçus, relances et suivi des impayés — clair pour la direction et les parents.',STATUS.ok],
   [BookOpen,'Devoirs & examens','Devoirs, calendrier des examens, bulletins imprimables — enseignants, élèves et parents alignés.',STATUS.warn],
   [ShieldAlert,'Incidents & discipline','Signalements, suivi et résolution — la vie scolaire tracée et transparente.','#FF6B81'],
@@ -47,7 +47,7 @@ const FAQ = [
 
 export default function Landing(){
   const nav=useNavigate(); const [faq,setFaq]=useState(0)
-  const A='#6366F1'
+  const A='#4F57DE'
   return (
     <div className="bg-white text-ink">
       {/* NAV */}
@@ -222,7 +222,7 @@ export default function Landing(){
 
       {/* CTA */}
       <section className="mx-auto max-w-[1120px] px-5 pb-16">
-        <motion.div {...up} className="rounded-3xl p-10 md:p-14 text-center text-white relative overflow-hidden" style={{background:'linear-gradient(135deg,#6366F1,#36C5F0)'}}>
+        <motion.div {...up} className="rounded-3xl p-10 md:p-14 text-center text-white relative overflow-hidden" style={{background:'linear-gradient(135deg,#4F57DE,#22D3EE)'}}>
           <h2 className="text-3xl md:text-4xl font-extrabold">Prêt à moderniser votre école ?</h2>
           <p className="mt-3 text-white/85 max-w-[52ch] mx-auto">Testez Coreon Edu gratuitement — choisissez un rôle et découvrez la plateforme en un clic.</p>
           <button onClick={()=>nav('/login')} className={`${BTN_LG} mt-7 bg-white shadow-sm hover:opacity-90`} style={{color:A}}>Démarrer la démo <ArrowRight size={18}/></button>
@@ -243,7 +243,7 @@ export default function Landing(){
 
 // --- small product mock (drag-drop evaluation preview) ---
 function EvalMock({ compact }){
-  const A='#6366F1'
+  const A='#4F57DE'
   const buckets=[['Excellent',STATUS.ok,STATUS.okSoft,['AB','YT']],['Bien',STATUS.info,STATUS.infoSoft,['LK','SM']],['Moyen',STATUS.warn,STATUS.warnSoft,['HB']],['Insuffisant',STATUS.danger,STATUS.dangerSoft,['NJ']]]
   return (
     <div className="card p-4 shadow-2xl" style={{boxShadow:'0 30px 60px -25px rgba(108,92,231,.45)'}}>

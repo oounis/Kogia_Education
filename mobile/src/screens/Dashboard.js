@@ -42,8 +42,8 @@ function ParentBody({ u, d, nav }) {
       )}
 
       {live && (
-        <Pressable onPress={() => nav.navigate('/app/live')} style={{ borderRadius: 18, overflow: 'hidden', marginBottom: 14, backgroundColor: area?.color || '#10162B' }}>
-          <View style={{ backgroundColor: '#10162Bcc', padding: 16 }}>
+        <Pressable onPress={() => nav.navigate('/app/live')} style={{ borderRadius: 18, overflow: 'hidden', marginBottom: 14, backgroundColor: area?.color || '#0E2135' }}>
+          <View style={{ backgroundColor: '#0E2135cc', padding: 16 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
               <Ic n="Radio" size={12} color="#fff" />
               <Text style={{ color: '#fff', fontWeight: '800', fontSize: 11 }}>{pill} · SUIVI EN DIRECT</Text>
@@ -65,7 +65,7 @@ function ParentBody({ u, d, nav }) {
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
         <Tile icon="Star" color="#2BD9A8" label="Moyenne générale" sub={b?.mention?.label}
           value={b?.overall != null ? `${b.overall}/100` : '—'} onPress={() => nav.navigate('~bulletin', { childId: child.id })} />
-        <Tile icon="CreditCard" color="#36C5F0" label="Mois payés" value={`${paid}/${months.length}`} onPress={() => nav.navigate('/app/payments')} />
+        <Tile icon="CreditCard" color="#22D3EE" label="Mois payés" value={`${paid}/${months.length}`} onPress={() => nav.navigate('/app/payments')} />
         <Tile icon="CalendarCheck" color="#8B5CF6" label="Présence" value={b?.attRate != null ? `${b.attRate}%` : '—'} />
         <Tile icon="Bell" color="#FFA62B" label="Non lues" value={String(unread)} onPress={() => nav.navigate('/app/notifications')} />
       </View>
@@ -94,7 +94,7 @@ function ParentBody({ u, d, nav }) {
 // Les autres rôles : les chiffres du jour + raccourcis vers leurs onglets.
 function StaffBody({ u, d, nav }) {
   const stats = [
-    ['Users', '#6366F1', 'Élèves', d.students.length, '/app/students'],
+    ['Users', '#4F57DE', 'Élèves', d.students.length, '/app/students'],
     ['GraduationCap', '#2BD9A8', 'Classes', d.classes.length, null],
     ['ClipboardCheck', '#FFA62B', 'Évaluations', d.evaluations.length, u.role === 'teacher' ? '/app/evaluate' : null],
     ['Megaphone', '#FF6B81', 'Annonces', (d.notices || []).length, '/app/notices'],

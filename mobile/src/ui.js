@@ -5,7 +5,7 @@ import { StyleSheet } from 'react-native'
 export const C = {
   canvas: '#F7F8FC',
   card: '#FFFFFF',
-  ink: '#10162B',
+  ink: '#0E2135',
   muted: '#6B7280',
   line: '#E5E7EB',
   danger: '#E5484D',

@@ -24,7 +24,7 @@ export default function Messages({ user, params, nav }) {
   const me = user
   const [, force] = useReducer(x => x + 1, 0)
   const d = db()
-  const accent = ROLE[me.role]?.color || '#6366F1'
+  const accent = ROLE[me.role]?.color || '#4F57DE'
 
   const mine = d.messages.filter(m => m.from === me.id || m.to === me.id)
   const partnerIds = [...new Set(mine.map(m => (m.from === me.id ? m.to : m.from)))]

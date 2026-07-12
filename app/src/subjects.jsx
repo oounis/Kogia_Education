@@ -1,39 +1,36 @@
-// ── The single source of truth for subject & place iconography. ──
-// Every module that shows a subject or a school place (live map, timetable,
-// evaluation, homework…) uses these lucide icons + colours, so the whole
-// product speaks one visual language. No raster images.
+// ── Les matières, côté web : un simple ADAPTATEUR ───────────────────────────
+//
+// La table des matières (regex → icône → teinte) vit UNE seule fois, dans
+// core/src/subjects.js, partagée mot pour mot par le web et le natif. Avant, la
+// teinte d'une matière était décidée ici ET dans db.js, et les deux n'étaient pas
+// d'accord : « Mathématiques » n'avait pas la même couleur au web et sur mobile.
+//
+// Ce fichier ne fait plus qu'une chose : traduire la clé d'icône du cœur en
+// composant lucide-react. Aucune couleur ne se décide ici.
+// Source : brand/KOGIA_HARMONY.md §3.4
 import { Calculator, FlaskConical, BookOpen, BookText, Languages, Music, Palette, Monitor,
   Dumbbell, MoonStar, Landmark, UtensilsCrossed, Trees, LogIn, LogOut, NotebookPen } from 'lucide-react'
+import { subjectMeta as coreSubjectMeta, PLACES as CORE_PLACES } from '@core/subjects.js'
 
-const RULES=[
-  [/math/,               Calculator,   '#6366F1'],
-  [/scien|éveil|eveil/,  FlaskConical, '#10B981'],
-  [/fran/,               BookOpen,     '#4F84E0'],
-  [/arabe/,              BookText,     '#E59A12'],
-  [/angl/,               Languages,    '#0BA5D8'],
-  [/musi/,               Music,        '#DB2777'],
-  [/art|dessin/,         Palette,      '#F43F5E'],
-  [/info|techno/,        Monitor,      '#0D9488'],
-  [/sport|physique|gym/, Dumbbell,     '#F97316'],
-  [/islam|coran/,        MoonStar,     '#8B5CF6'],
-  [/civi/,               Landmark,     '#64748B'],
-]
-export function subjectMeta(label=''){
-  const l=String(label).toLowerCase()
-  for(const [re,Icon,color] of RULES) if(re.test(l)) return {Icon,color}
-  return {Icon:NotebookPen,color:'#6366F1'}
+const ICONS = { Calculator, FlaskConical, BookOpen, BookText, Languages, Music, Palette,
+  Monitor, Dumbbell, MoonStar, Landmark, UtensilsCrossed, Trees, LogIn, LogOut, NotebookPen }
+
+/** {Icon, color} — la teinte vient du cœur, jamais d'ici. */
+export function subjectMeta(label = '') {
+  const { icon, color } = coreSubjectMeta(label)
+  return { Icon: ICONS[icon] || NotebookPen, color }
 }
-// Places of the school day (arrival, recess, canteen…) — same visual family.
-export const PLACES={
-  arrivee:{Icon:LogIn,            color:'#7C8698'},
-  sortie: {Icon:LogOut,           color:'#7C8698'},
-  recre:  {Icon:Trees,            color:'#22C55E'},
-  cantine:{Icon:UtensilsCrossed,  color:'#F59E0B'},
-  etude:  {Icon:NotebookPen,      color:'#6366F1'},
-}
-// Small colour-coded icon tile for a subject (lists, grids, timetable cells).
-export function SubjectDot({ label, size=36, iconSize=17, radius='rounded-xl', className='' }){
-  const {Icon,color}=subjectMeta(label)
+
+export const PLACES = Object.fromEntries(
+  Object.entries(CORE_PLACES).map(([k, { icon, color }]) =>
+    [k, { Icon: ICONS[icon] || NotebookPen, color }])
+)
+
+// La pastille d'une matière. La teinte est une MARQUE (fond + icône), jamais du
+// texte : le libellé se compose en encre. C'est ce qui permet d'utiliser la palette
+// catégorielle validée sans casser l'AA.
+export function SubjectDot({ label, size = 36, iconSize = 17, radius = 'rounded-xl', className = '' }) {
+  const { Icon, color } = subjectMeta(label)
   return <span className={`${radius} grid place-items-center shrink-0 ${className}`}
-    style={{width:size,height:size,background:color+'16',color}}><Icon size={iconSize}/></span>
+    style={{ width: size, height: size, background: color + '16', color }}><Icon size={iconSize} /></span>
 }

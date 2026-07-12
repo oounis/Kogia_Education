@@ -1,14 +1,16 @@
 import { db, studentsOfClass } from './db.js'
 import { now as appNow, isWeekend, isDemoLive } from './clock.js'
+import { STATUS } from './tokens.js'
+import { subjectHue } from './subjects.js'
 // Les icônes sont NOMMÉES, pas importées : le web les résout dans `lucide-react`,
 // Android dans `lucide-react-native`. Le cœur ne connaît aucune des deux.
 // Niveaux : la couleur n'est jamais le seul indice — chaque niveau porte une icône
 // et son libellé (indispensable, la séparation tritan de cette échelle est au plancher).
 export const BUCKETS=[
-  {key:"excellent",label:"Excellent",color:"#12946F",soft:"#E7F5F0",icon:"Star"},
-  {key:"good",label:"Bien",color:"#0E7FB8",soft:"#E6F1F8",icon:"ThumbsUp"},
-  {key:"average",label:"Moyen",color:"#C97C1E",soft:"#FBF1E3",icon:"Minus"},
-  {key:"weak",label:"Insuffisant",color:"#DC4B54",soft:"#FBEBEC",icon:"TriangleAlert"},
+  {key:"excellent",label:"Excellent",color:STATUS.ok,soft:STATUS.okSoft,icon:"Star"},
+  {key:"good",label:"Bien",color:STATUS.info,soft:STATUS.infoSoft,icon:"ThumbsUp"},
+  {key:"average",label:"Moyen",color:STATUS.warn,soft:STATUS.warnSoft,icon:"Minus"},
+  {key:"weak",label:"Insuffisant",color:STATUS.danger,soft:STATUS.dangerSoft,icon:"TriangleAlert"},
 ]
 export const QUESTIONS=[
   {id:"q1",text:"Participation en classe aujourd'hui"},
@@ -67,6 +69,6 @@ export function teacherTimetable(teacher){
     const cid=classes[h32('t'+di+pi)%Math.max(classes.length,1)]
     if(!cid||((di===2||di===4)&&pi>=4)||h32(cid+di+pi+'x')%3===0) return null
     const cls=db().classes.find(c=>c.id===cid)
-    return {subject:teacher.subject||'Cours',color:'#6366F1',room:ROOMS[h32(cid+di+pi)%ROOMS.length],className:cls?.name||cid}
+    return {subject:teacher.subject||'Cours',color:subjectHue(teacher.subject||'Cours'),room:ROOMS[h32(cid+di+pi)%ROOMS.length],className:cls?.name||cid}
   })}))
 }

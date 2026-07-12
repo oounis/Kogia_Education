@@ -20,7 +20,7 @@ const ago = at => {
 
 const AUD_FR = { parent: 'aux parents', teacher: 'aux enseignants', supervisor: 'aux surveillants' }
 const AUDIENCES = [['parent', 'Parents'], ['teacher', 'Enseignants'], ['supervisor', 'Surveillants']]
-const BRAND = '#6366F1'
+const BRAND = '#4F57DE'
 
 export default function Notices({ user, params, nav }) {
   const u = user

@@ -1,3 +1,4 @@
+import { STATUS } from '../components/ui.jsx'
 import { db } from '@core/db.js'
 import { current } from '@core/auth.js'
 import { PageHead, StatCard, SectionCard, EmptyState, Btn, Avatar } from '../components/ui.jsx'
@@ -43,7 +44,7 @@ function RouteCard({ r, mine }){
   const n=seq.length, idx=Math.min(n-1, Math.floor(prog*(n-1))+1)
   const nextStop=seq[idx], eta=Math.max(1, Math.round((idx/(n-1)-prog)*42))
   const statusPill = live
-    ? <span className="flex items-center gap-1.5 text-[12px] font-bold px-2.5 py-1 rounded-full text-white" style={{background:'#10B981'}}><span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"/>EN DIRECT</span>
+    ? <span className="flex items-center gap-1.5 text-[12px] font-bold px-2.5 py-1 rounded-full text-white" style={{background:STATUS.live}}><span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"/>EN DIRECT</span>
     : <span className="text-[12px] font-bold px-2.5 py-1 rounded-full bg-canvas text-muted">Aperçu</span>
   return (
     <SectionCard icon={<Bus size={16}/>} tint="butter" title={r.name} sub={`Bus ${r.bus} · ${r.students} élèves`} action={statusPill}

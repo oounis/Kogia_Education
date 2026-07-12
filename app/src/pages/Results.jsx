@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { N } from '@core/tokens.js'
 import { db, classById } from '@core/db.js'
 import { BUCKETS } from '@core/data.js'
 import { studentSummary, mentionFor, lessonBreakdown } from '@core/results.js'
@@ -195,7 +196,7 @@ function RankRow({ x, i, onOpen, best }){
   return (
     <button onClick={onOpen} className="w-full flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-canvas text-left">
       <span className="w-7 h-7 rounded-full grid place-items-center text-xs font-extrabold shrink-0"
-        style={medal?{background:['#FFF4DD','#EEF1F6','#FCEEE2'][i],color:['#E59A12','#64748B','#B45309'][i]}:{background:'#EEF1F6',color:'#64748B'}}>{i+1}</span>
+        style={medal?{background:['#FFF4DD','#EEF1F6','#FCEEE2'][i],color:[STATUS.warn,N.slate,STATUS.warn][i]}:{background:STATUS.neutralSoft,color:N.slate}}>{i+1}</span>
       <Avatar name={x.s.name} seed={x.s.id} size={34}/>
       <span className="min-w-0 flex-1"><span className="block font-semibold truncate leading-tight">{x.s.name}</span>
         <span className="block text-[12px] text-muted">{classById(x.s.classId)?.name} · {x.count} évaluation{x.count>1?'s':''}</span></span>

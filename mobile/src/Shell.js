@@ -79,7 +79,7 @@ export default function Shell({ user, onLogout }) {
   const tabs = TABS[user.role] || TABS.default
   const Comp = top.route === '/more' ? More : SCREENS[top.route]
   const item = navItem(top.route)
-  const accent = ROLE[user.role]?.color || '#6366F1'
+  const accent = ROLE[user.role]?.color || '#4F57DE'
 
   return (
     <View style={{ flex: 1, backgroundColor: C.canvas }}>
@@ -92,7 +92,7 @@ export default function Shell({ user, onLogout }) {
             flexDirection: 'row', alignItems: 'center', gap: 6,
             backgroundColor: '#fff', borderWidth: 1, borderColor: C.line, borderRadius: 999,
             paddingVertical: 9, paddingHorizontal: 14,
-            shadowColor: '#10162B', shadowOpacity: 0.12, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 4,
+            shadowColor: '#0E2135', shadowOpacity: 0.12, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 4,
           }}>
             <Ic n="ArrowLeft" size={16} color={C.ink} />
             <Text style={{ color: C.ink, fontFamily: F.bold, fontWeight: '700', fontSize: 13 }}>Retour</Text>
