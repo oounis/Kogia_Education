@@ -4,7 +4,7 @@
 // veut expo-router, seul ce fichier change — les écrans reçoivent déjà
 // ({ user, params, nav }) comme contrat stable.
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
-import { View, Text, Pressable, Animated } from 'react-native'
+import { View, Text, Pressable, Animated, Platform } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { NAV } from '@core/nav.js'
 import { canAccess } from '@core/access.js'
@@ -73,7 +73,7 @@ export default function Shell({ user, onLogout }) {
   const anim = useRef(new Animated.Value(1)).current
   useEffect(() => {
     anim.setValue(0)
-    Animated.timing(anim, { toValue: 1, duration: 180, useNativeDriver: true }).start()
+    Animated.timing(anim, { toValue: 1, duration: 180, useNativeDriver: Platform.OS !== 'web' }).start()
   }, [top.route, anim])
 
   const tabs = TABS[user.role] || TABS.default
