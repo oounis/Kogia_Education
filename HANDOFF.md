@@ -118,10 +118,10 @@ Coffre **hors de tout repo** : `/mnt/c/Current LAB/_Private/Kogia/KOGIA_credenti
 
 ---
 
-## QA détaillée du 2026-07-11/12 (3 agents, web + mobile + Yeddi)
+## QA détaillée du 2026-07-11/12 (3 agents, web + mobile + Kogia Job)
 Couverture : web 25 pages × 7 rôles × 2 modes ; mobile 6 rôles × tous les écrans × 2
 modes + ~75 assertions de flux. **0 erreur console partout.** 21 corrections livrées
-(commits e96a0dc, 95c9b7c, d2471c8 côté Yeddi) — dont fuites de tableau de bord,
+(commits e96a0dc, 95c9b7c, d2471c8 côté Kogia Job) — dont fuites de tableau de bord,
 civilité adulte qui bloquait les activités genrées, Alert.alert muet sur web,
 numéro de visiteur affiché en entier, bouton retour qui recouvrait les actions.
 
@@ -134,7 +134,7 @@ numéro de visiteur affiché en entier, bouton retour qui recouvrait les actions
 3. Annonces/Événements ne peuvent pas cibler le rôle Sécurité (listes d'audience).
 4. Données de démo (core/db.js) : enseignants adultes avec civilité
    « Garçon/Fille », évaluations de t1 sur des matières qu'il n'enseigne pas.
-5. Yeddi : les filtres de l'accueil se réinitialisent au retour d'une tâche
+5. Kogia Job : les filtres de l'accueil se réinitialisent au retour d'une tâche
    (le Shell ne rend que le sommet de la pile — correction structurelle).
 
 ---
