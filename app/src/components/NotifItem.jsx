@@ -4,7 +4,7 @@ import { fr } from 'date-fns/locale'
 import { Avatar, STATUS } from './ui.jsx'
 export const KIND={
   request:{tint:STATUS.info,Icon:FileText}, incident:{tint:STATUS.danger,Icon:ShieldAlert},
-  payment:{tint:STATUS.warn,Icon:CreditCard}, notice:{tint:'#4F57DE',Icon:Megaphone},
+  payment:{tint:STATUS.warn,Icon:CreditCard}, notice:{tint:'#7539E4',Icon:Megaphone},
   message:{tint:STATUS.ok,Icon:MessageSquare}, evaluation:{tint:'#8B5CF6',Icon:Star},
   info:{tint:STATUS.neutral,Icon:CalendarCheck},
 }

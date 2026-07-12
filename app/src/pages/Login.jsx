@@ -13,7 +13,7 @@ export default function Login(){
   const quick=db().users.filter(u=>['schooladmin','admin','teacher','supervisor','security','parent'].includes(u.role)).filter((u,i,a)=>a.findIndex(x=>x.role===u.role)===i)
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
-      <div className="hidden lg:flex flex-col justify-between p-12 text-white" style={{background:'linear-gradient(150deg,#4F57DE,#8B5CF6)'}}>
+      <div className="hidden lg:flex flex-col justify-between p-12 text-white" style={{background:'linear-gradient(150deg,#7539E4,#8B5CF6)'}}>
         <div className="flex items-center gap-2 font-extrabold text-lg"><span className="w-9 h-9 rounded-xl grid place-items-center bg-white/20" style={{padding:4}}><svg viewBox="0 0 132 96" width="30" height="22"><path fill="white" d="M12 54 C12 34 28 22 52 22 C74 22 88 32 91 46 C94 38 99 30 107 25 C105 32 104 38 105 43 C110 41 117 41 124 44 C117 48 111 50 106 50 C102 62 92 70 76 73 C58 76 34 74 22 68 C14 64 12 60 12 54 Z"/><circle cx="34" cy="45" r="4.2" fill="#0E2135"/><path d="M44 42 q7 9 -1 17" fill="none" stroke="#FDF6F0" strokeWidth="3.2" strokeLinecap="round" opacity=".75"/><path d="M42 12 q-1 -7 5 -9 M50 12 q4 -6 11 -6" stroke="white" stroke-width="3.4" fill="none" stroke-linecap="round" opacity=".85"/></svg></span> coreon edu</div>
         <div><div className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1 rounded-full bg-white/15 mb-4"><Zap size={13}/> Pas un ERP scolaire de plus</div>
           <h1 className="text-4xl font-extrabold leading-tight max-w-[16ch]">L'école qu'on a envie d'ouvrir.</h1>

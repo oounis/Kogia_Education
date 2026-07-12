@@ -16,7 +16,7 @@ import { Ic } from '../icons.js'
 import { Screen, Card, Chip, Badge, EmptyState, C } from '../components.js'
 
 // Couleur d'une séance : la palette TT_SUBJECTS du cœur, sinon celle de la case.
-const colorOf = cell => (TT_SUBJECTS.find(([n]) => n === cell.subject) || [])[1] || cell.color || '#4F57DE'
+const colorOf = cell => (TT_SUBJECTS.find(([n]) => n === cell.subject) || [])[1] || cell.color || '#7539E4'
 
 export default function Timetable({ user, params, nav }) {
   const d = db()

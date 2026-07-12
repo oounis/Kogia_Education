@@ -3,12 +3,12 @@
 // le cachalot blanc entre en scène, la marque se pose, puis on passe à Login.
 import { useEffect, useRef } from 'react'
 import { BRAND } from '@core/tokens.js'
-import { SKIN, EYE } from '@core/mark.js'
+import { PURPLE } from '@core/tokens.js'
 import { View, Text, Pressable, Animated, Easing, Platform, StyleSheet, Dimensions } from 'react-native'
 import Svg, { Rect, Circle, Defs, LinearGradient, RadialGradient, Stop } from 'react-native-svg'
 import { getItem, setItem } from '@core/storage.js'
 import { F, tap } from '../components.js'
-import { WhaleBody, WhaleSpray } from '../whale.js'
+import { KogiaMark } from '../kmark.js'
 
 const NATIVE = Platform.OS !== 'web'
 const WHALE_W = 168
@@ -74,9 +74,9 @@ export default function Welcome({ onDone }) {
       <Svg width="100%" height="100%" style={StyleSheet.absoluteFill} preserveAspectRatio="none">
         <Defs>
           <LinearGradient id="ground" x1="0" y1="0" x2="0.6" y2="1">
-            <Stop offset="0" stopColor={BRAND.indigo} />
-            <Stop offset="0.5" stopColor={SKIN.from} />
-            <Stop offset="1" stopColor={SKIN.to} />
+            <Stop offset="0" stopColor={PURPLE[700]} />
+            <Stop offset="0.5" stopColor={PURPLE[600]} />
+            <Stop offset="1" stopColor={PURPLE[500]} />
           </LinearGradient>
           <RadialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
             <Stop offset="0" stopColor="#FFFFFF" stopOpacity="0.16" />
@@ -92,9 +92,8 @@ export default function Welcome({ onDone }) {
 
         <Animated.View style={{ opacity: whaleO, transform: [{ translateY: floatY }, { scale: whaleS }] }}>
           <View style={{ width: WHALE_W, height: WHALE_W * 96 / 132 }}>
-            <WhaleBody size={WHALE_W} color="#FFFFFF" eye={EYE.fill} style={StyleSheet.absoluteFill} />
+            <KogiaMark size={WHALE_W} color="#FFFFFF" />
             <Animated.View style={[StyleSheet.absoluteFill, { opacity: sprayO }]}>
-              <WhaleSpray size={WHALE_W} color="#FFFFFF" />
             </Animated.View>
           </View>
         </Animated.View>

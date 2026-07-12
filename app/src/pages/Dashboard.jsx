@@ -192,7 +192,7 @@ export default function Dashboard(){
             label={openInc?`${openInc} incident${openInc>1?'s':''} ouvert${openInc>1?'s':''}`:'Aucun incident'}/>
           <BriefChip to="/app/requests" icon={<FileText size={14}/>} color={pendReq?STATUS.info:STATUS.ok}
             label={pendReq?`${pendReq} demande${pendReq>1?'s':''} à traiter`:'Demandes à jour'}/>
-          <BriefChip to="/app/events" icon={<CalendarDays size={14}/>} color={eventsToday.length?'#4F57DE':STATUS.neutral}
+          <BriefChip to="/app/events" icon={<CalendarDays size={14}/>} color={eventsToday.length?'#7539E4':STATUS.neutral}
             label={eventsToday.length?`Aujourd'hui : ${eventsToday[0].title}${eventsToday.length>1?` +${eventsToday.length-1}`:''}`:"Aucun événement aujourd'hui"}/>
         </div>
       </div>
@@ -259,7 +259,7 @@ function PlatformDashboard({ d, greet }){
   const mrr=actives.reduce((n,s)=>n+s.price,0)
   const totalStudents=schools.filter(s=>s.status!=='suspended').reduce((n,s)=>n+count(s),0)
   const planPie=[
-    {name:'Plan Pro',value:actives.filter(s=>s.plan==='Pro').length,color:'#4F57DE'},
+    {name:'Plan Pro',value:actives.filter(s=>s.plan==='Pro').length,color:'#7539E4'},
     {name:'Plan Essentiel',value:actives.filter(s=>s.plan==='Essentiel').length,color:'#0BA5D8'},
     {name:'En essai',value:trials.length,color:STATUS.warn},
   ].filter(x=>x.value>0)

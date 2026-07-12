@@ -67,7 +67,7 @@ export default function Pointage(){
 
     <div className="grid lg:grid-cols-[380px_1fr] gap-4 mb-4">
       <Card className="p-6 text-center">
-        <div className="floaty mx-auto w-fit mb-1"><Whale size={44} from="var(--accent)" to="var(--accent-2,var(--accent))"/></div>
+        <div className="floaty mx-auto w-fit mb-1"><Whale size={44} /></div>
         {isSummer() ? <>
           <div className="inline-flex items-center gap-1.5 text-[12px] font-bold px-3 py-1 rounded-full" style={{background:'#FEF3C7',color:'#92400E'}}>VACANCES D'ÉTÉ</div>
           <div className="text-lg font-extrabold mt-2">Badgeuse en pause</div>

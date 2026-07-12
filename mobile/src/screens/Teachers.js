@@ -9,11 +9,11 @@ import { Ic } from '../icons.js'
 import { Screen, Card, Avatar, Row, Input, EmptyState, C, tap } from '../components.js'
 
 // Couleur de matière : même palette que l'emploi du temps (core).
-const subjColor = s => (TT_SUBJECTS.find(([n]) => n === s) || [null, '#4F57DE'])[1]
+const subjColor = s => (TT_SUBJECTS.find(([n]) => n === s) || [null, '#7539E4'])[1]
 
 export default function Teachers({ user, params, nav }) {
   const d = db()
-  const accent = ROLE[user.role]?.color || '#4F57DE'
+  const accent = ROLE[user.role]?.color || '#7539E4'
   const [q, setQ] = useState('')
   const [openId, setOpenId] = useState(null)
 

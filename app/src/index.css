@@ -19,7 +19,7 @@
   --color-pearl:   #FDF6F0;   /* la seule surface CHAUDE (loi 4 : « la chaleur en dessous ») */
 
   /* ── La marque : le corps vu à travers l'eau ── */
-  --color-brand:   #4F57DE;   /* LA primaire : 5.60:1 en texte ET en blanc-sur-elle */
+  --color-brand:   #7539E4;   /* LA primaire : 5.60:1 en texte ET en blanc-sur-elle */
   --color-brand-soft: #EEF0FE;
   --color-violet:  #8B5CF6;   /* 4.23:1 — grands textes, aplats, dégradés */
   --color-cyan:    #22D3EE;   /* 1.81:1 — DÉCORATIF. Jamais du texte. */
@@ -51,7 +51,7 @@
 /* La voie de Coreon Edu. `--accent` est repeint par rôle (core/src/theme.js) ;
    il vaut toujours une couleur RÉVERSIBLE, donc le texte blanc dessus passe l'AA. */
 :root {
-  --accent: #4F57DE;
+  --accent: #7539E4;
   --accent-2: #8B5CF6;
   --accent-soft: #EEF0FE;
   --t-micro: 160ms; --t-standard: 220ms; --t-deliberate: 320ms;
@@ -94,7 +94,7 @@ b, strong { font-weight: 700 }
 .drop-hot { outline: 2px dashed var(--accent); outline-offset: 2px; background: var(--accent-soft) }
 /* Le dégradé de la VOIE Coreon (indigo → violet) : grandes surfaces décoratives
    seulement — jamais sous un petit texte. */
-.edu-grad { background: linear-gradient(150deg, #4F57DE, #8B5CF6) }
+.edu-grad { background: linear-gradient(150deg, #7539E4, #8B5CF6) }
 .no-select { user-select: none; -webkit-user-select: none }
 
 /* ── Chargement : squelettes à la forme du contenu réel ───────────────────── */

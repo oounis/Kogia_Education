@@ -12,7 +12,7 @@ import { Ic } from '../icons.js'
 import { Screen, Card, Section, Chip, Btn, Input, EmptyState, C, confirmAsk } from '../components.js'
 
 const TYPES = [
-  { k: 'Événement', c: '#4F57DE' }, { k: 'Réunion', c: '#0E7FB8' }, { k: 'Examen', c: '#DC4B54' },
+  { k: 'Événement', c: '#7539E4' }, { k: 'Réunion', c: '#0E7FB8' }, { k: 'Examen', c: '#DC4B54' },
   { k: 'Vacances', c: '#12946F' }, { k: 'Sortie', c: '#C97C1E' },
 ]
 const tint = t => (TYPES.find(x => x.k === t) || TYPES[0]).c

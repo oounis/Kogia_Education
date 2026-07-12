@@ -8,7 +8,7 @@
 // 1.9:1 en blanc dessus, l'orange du Surveillant 1.8:1 : illisible.
 //
 // C'est exactement le raisonnement du livre de marque (§3.2) qui a fait choisir
-// l'indigo #4F57DE plutôt que l'ancien : UNE couleur qui fait les deux métiers.
+// l'indigo #7539E4 plutôt que l'ancien : UNE couleur qui fait les deux métiers.
 // On l'a appliqué aux sept portails. Chaque accent ci-dessous est :
 //   • tiré du jeu canonique (aucun hexadécimal inventé) ;
 //   • réversible : ≥ 4.5:1 en texte sur blanc ET en blanc sur lui ;
@@ -28,7 +28,7 @@ export const ROLE = {
   // voisin de l'indigo du groupe sans se confondre avec la Direction.
   owner:       role('Plateforme',     SERIES[0]),   // #4361D0
   // La Direction porte la voie de Coreon Edu : l'indigo, LA primaire.
-  schooladmin: role('Direction',      BRAND.indigo),// #4F57DE
+  schooladmin: role('Direction',      BRAND.indigo),// #7539E4
   // L'Administration : l'ardoise. Sobre, clérical — c'est un métier de registre.
   admin:       role('Administration', N.slate),     // #5B6B7D
   // L'Enseignant : le vert de la série 6. La classe.

@@ -2,6 +2,7 @@
 // TOUTES les règles (quorum, fenêtres, chaîne Administration → Direction,
 // espaces, consentement au prix) viennent de core/src/social.js : cet écran
 // ne fait qu'afficher et appeler les mêmes mutations que le web.
+import { BRAND } from '@core/tokens.js'
 import { useEffect, useReducer, useState } from 'react'
 import { View, Text, Pressable, ScrollView, Modal } from 'react-native'
 import { db, mutate, uid } from '@core/db.js'
@@ -115,7 +116,7 @@ function EventCard({ ev, u, isDirection, seesAll, onJoin, onWithdraw, onCancel, 
   return (
     <Card style={{ marginBottom: 14, opacity: isDead(ev.status) || ev.status === 'termine' ? 0.72 : 1 }}>
       <View style={{ flexDirection: 'row', gap: 12 }}>
-        <Ic n={cat.icon} size={28} color={accent} />
+        <Ic n={cat.icon} size={28} color={BRAND.action} />
         <View style={{ flex: 1, minWidth: 0 }}>
           <Text style={{ fontWeight: '800', color: C.ink, fontSize: 15 }}>{ev.title}</Text>
           <Text style={{ color: C.muted, fontSize: 12, marginTop: 1 }}>proposé par {mine ? 'vous' : ev.byName}</Text>

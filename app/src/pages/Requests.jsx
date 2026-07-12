@@ -155,8 +155,8 @@ function docModel(r){
 }
 function OfficialDoc({ r }){ const m=docModel(r); return (
   <div className="bg-white p-2 text-sm">
-    <div className="flex items-center justify-between border-b-2 pb-3 mb-4" style={{borderColor:'#4F57DE'}}>
-      <div className="flex items-center gap-2"><svg viewBox="0 0 68 72" width="34" height="34"><defs><linearGradient id="al" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#4F57DE"/><stop offset="1" stopColor="#22D3EE"/></linearGradient></defs><path d="M34 62 C31 52 28 47 22 43 C15 38 10 31 7 22 C18 27 28 33 31 41 L34 46 L37 41 C40 33 50 27 61 22 C58 31 53 38 46 43 C40 47 37 52 34 62 Z" fill="url(#al)"/></svg><div><div className="font-extrabold">{m.sc.schoolName}</div><div className="text-xs text-muted">{m.sc.city}, Tunisie · Tél : {m.sc.phone}</div></div></div>
+    <div className="flex items-center justify-between border-b-2 pb-3 mb-4" style={{borderColor:'#7539E4'}}>
+      <div className="flex items-center gap-2"><svg viewBox="0 0 68 72" width="34" height="34"><defs><linearGradient id="al" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#7539E4"/><stop offset="1" stopColor="#22D3EE"/></linearGradient></defs><path d="M34 62 C31 52 28 47 22 43 C15 38 10 31 7 22 C18 27 28 33 31 41 L34 46 L37 41 C40 33 50 27 61 22 C58 31 53 38 46 43 C40 47 37 52 34 62 Z" fill="url(#al)"/></svg><div><div className="font-extrabold">{m.sc.schoolName}</div><div className="text-xs text-muted">{m.sc.city}, Tunisie · Tél : {m.sc.phone}</div></div></div>
       <div className="text-xs text-right text-muted">Réf : {m.ref}<br/>Tunis, le {m.today}</div></div>
     <h2 className="text-center text-xl font-extrabold uppercase my-4">{m.title}</h2>
     <p className="leading-7">{m.intro}</p>

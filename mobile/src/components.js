@@ -83,7 +83,7 @@ export const Badge = ({ label, icon, color = C.muted }) => (
   </View>
 )
 
-export const Avatar = ({ name = '?', color = '#4F57DE', size = 38 }) => (
+export const Avatar = ({ name = '?', color = '#7539E4', size = 38 }) => (
   <View style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: color + '22', alignItems: 'center', justifyContent: 'center' }}>
     <Text style={{ color, fontWeight: '800', fontSize: size * 0.38 }}>
       {String(name).split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()}
@@ -91,7 +91,7 @@ export const Avatar = ({ name = '?', color = '#4F57DE', size = 38 }) => (
   </View>
 )
 
-export const Tile = ({ icon, label, value, sub, color = '#4F57DE', onPress }) => (
+export const Tile = ({ icon, label, value, sub, color = '#7539E4', onPress }) => (
   <Card onPress={onPress} style={{ flexBasis: '47%', flexGrow: 1 }}>
     <View style={{ width: 34, height: 34, borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: color + '1A', marginBottom: 8 }}>
       <Ic n={icon} size={18} color={color} />
@@ -149,7 +149,7 @@ export const EmptyState = ({ icon = 'Inbox', title, sub }) => (
 )
 
 // Barre de progression fine (moyennes, quorums…)
-export const Bar = ({ pct = 0, color = '#4F57DE', height = 6 }) => (
+export const Bar = ({ pct = 0, color = '#7539E4', height = 6 }) => (
   <View style={{ height, borderRadius: height / 2, backgroundColor: C.canvas, overflow: 'hidden' }}>
     <View style={{ height, borderRadius: height / 2, width: `${Math.max(0, Math.min(100, pct))}%`, backgroundColor: color }} />
   </View>

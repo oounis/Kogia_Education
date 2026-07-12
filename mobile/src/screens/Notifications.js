@@ -14,7 +14,7 @@ const KIND = {
   request: { tint: '#0E7FB8', icon: 'FileText' },
   incident: { tint: '#DC4B54', icon: 'ShieldAlert' },
   payment: { tint: '#C97C1E', icon: 'CreditCard' },
-  notice: { tint: '#4F57DE', icon: 'Megaphone' },
+  notice: { tint: '#7539E4', icon: 'Megaphone' },
   message: { tint: '#12946F', icon: 'MessageSquare' },
   evaluation: { tint: '#8B5CF6', icon: 'Star' },
   info: { tint: '#94A3B8', icon: 'CalendarCheck' },

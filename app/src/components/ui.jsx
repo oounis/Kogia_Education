@@ -1,9 +1,8 @@
 import { Dialog } from '@headlessui/react'
-import { MARK_VIEWBOX, MARK_STEM, MARK_FLUKE } from '@core/mark.js'
+import { MARK_VIEWBOX, MARK_PATH } from '@core/mark.js'
 import { X, Search, RotateCw } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { STATUS as K, BRAND, N, SERIES, TERRA, soften, deepen } from '@core/tokens.js'
-import { VIEWBOX, BODY, EYE, CRESCENT, SMILE, FIN, SPOUT, SKIN } from '@core/mark.js'
 
 // ── Statuts — les SEULES couleurs d'état du produit. ────────────────────────
 // Elles viennent de core/src/tokens.js (KOGIA_HARMONY.md §3.3), plus d'ici : le
@@ -119,35 +118,28 @@ export function SectionCard({ title, sub, action, icon, tint='brand', children, 
 // et l'œil avait quatre couleurs selon l'écran. Il n'y a plus qu'un tracé.
 // ════════════════════════════════════════════════════════════════════════════
 
-/** LA MARQUE : corps + œil + croissant. Logos, en-têtes, favicon, tuiles. */
+/** LA MARQUE. Logos, en-têtes, favicon, tuiles — et toute illustration. */
 export function Mark({ size = 32, className = '' }) {
-  // LA MARQUE : le K-nageoire. Aplat, prend la couleur du contexte (currentColor).
-  // La baleine n'est PLUS le logo — c'est la mascotte (voir Whale()).
+  // Le K et le cachalot sont la MÊME silhouette, un seul tracé. Aplat,
+  // currentColor. L'œil est un TROU (evenodd), jamais un point blanc.
   return (
     <svg viewBox={MARK_VIEWBOX} width={size} height={size} className={className} aria-hidden="true">
-      <path d={MARK_STEM.d} stroke="currentColor" strokeWidth={MARK_STEM.width} strokeLinecap="round" fill="none"/>
-      <path d={MARK_FLUKE.d} fill="currentColor"/>
+      <path d={MARK_PATH.d} fillRule="evenodd" fill="currentColor"/>
     </svg>
   )
 }
 
-/** LA MASCOTTE : + sourire, nageoire et jet. États vides, héros, succès.
- *  Jamais dans un tableau dense, jamais à la place de la MARQUE dans un logo. */
-export function Mascot({ size=46, from=SKIN.from, to=SKIN.to, className='' }){
-  const id='kx'+String(from+to).replace(/[^a-zA-Z0-9]/g,'')
-  return (<svg viewBox={VIEWBOX} width={size*1.32} height={size} aria-hidden="true" className={className}>
-    <defs><linearGradient id={id} x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor={from}/><stop offset="1" stopColor={to}/></linearGradient></defs>
-    {/* Le jet : cyan, la lumière au-dessus de l'eau. Décoratif — jamais du sens. */}
-    {SPOUT.d.map((d,i)=><path key={i} d={d} fill="none" stroke={SPOUT.stroke} strokeWidth={SPOUT.width} strokeLinecap="round" opacity={SPOUT.opacity}/>)}
-    <path fill={`url(#${id})`} d={BODY}/>
-    <circle cx={EYE.cx} cy={EYE.cy} r={EYE.r} fill={EYE.fill}/>
-    <path d={CRESCENT.d} fill="none" stroke={CRESCENT.stroke} strokeWidth={CRESCENT.width} strokeLinecap="round" opacity={CRESCENT.opacity}/>
-    {/* Le sourire s'arrête AVANT le croissant : les deux traits ne se croisent jamais. */}
-    <path d={SMILE.d} fill="none" stroke={SMILE.stroke} strokeWidth={SMILE.width} strokeLinecap="round" opacity={SMILE.opacity}/>
-    <path d={FIN.d} fill={from} opacity={FIN.opacity}/>
-  </svg>)
+/** LA MASCOTTE DESSINÉE EST RETIRÉE.
+ *  Une baleine cartoon (dégradé, sourire, jet) à côté d'une marque géométrique
+ *  aplatie, c'étaient DEUX styles d'illustration pour UNE entreprise — exactement
+ *  ce qu'« une seule identité » interdit. Il n'y a plus qu'une illustration dans
+ *  tout l'écosystème : LA MARQUE.
+ *  `Mascot` / `Whale` restent exportés (beaucoup d'états vides les appellent) mais
+ *  dessinent la marque, teintée dans la famille du produit.
+ *  Source : brand/KOGIA_HARMONY.md §4.3 et §7 */
+export function Mascot({ size = 46, className = '' }) {
+  return <Mark size={size} className={`accent-text ${className}`} />
 }
-/** Compat : les pages appelaient `Whale`. C'est la mascotte. */
 export const Whale = Mascot
 
 /** Attente en ligne : c'est le CROISSANT qui tourne, pas un anneau générique (§7).

@@ -79,7 +79,7 @@ export default function Shell({ user, onLogout }) {
   const tabs = TABS[user.role] || TABS.default
   const Comp = top.route === '/more' ? More : SCREENS[top.route]
   const item = navItem(top.route)
-  const accent = ROLE[user.role]?.color || '#4F57DE'
+  const accent = ROLE[user.role]?.color || '#7539E4'
 
   return (
     <View style={{ flex: 1, backgroundColor: C.canvas }}>

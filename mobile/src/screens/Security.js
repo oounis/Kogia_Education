@@ -525,7 +525,7 @@ export default function Security({ user, params, nav }) {
   return (
     <Screen title="Poste de sécurité" sub={`${settings().schoolName} · portail, visiteurs, rondes et soirées`}>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-        <Tile icon="CalendarClock" color="#4F57DE" label="Ce soir" sub={tonight.length ? 'à couvrir' : 'rien de prévu'} value={String(tonight.length)} />
+        <Tile icon="CalendarClock" color="#7539E4" label="Ce soir" sub={tonight.length ? 'à couvrir' : 'rien de prévu'} value={String(tonight.length)} />
         <Tile icon="UserCheck" color="#7C5CD6" label="Visiteurs dans l'école" value={String(insideNow)} />
         <Tile icon="Flashlight" color={INFO} label="Rondes aujourd'hui" value={String(roundsToday)} />
         <Tile icon="AlertTriangle" color={DANGER} label="Incidents ouverts" value={String(openIncidents)} />

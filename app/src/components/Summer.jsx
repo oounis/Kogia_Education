@@ -15,7 +15,7 @@ export function DemoLiveButton({ className = '' }) {
     <button
       onClick={() => { setDemoLive(true); location.reload() }}
       className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full ${className}`}
-      style={{ background: '#EEF2FF', color: '#4F57DE' }}
+      style={{ background: '#EEF2FF', color: '#7539E4' }}
       title="Simule une journée de classe pour découvrir le produit hors période scolaire">
       <PlayCircle size={13} /> Voir en mode journée de classe
     </button>
@@ -53,7 +53,7 @@ export function SummerFreeze({ feature, detail, children }) {
   return (
     <div className="card p-8 text-center relative overflow-hidden">
       <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full" style={{ background: 'radial-gradient(circle,#FDE68A66,transparent 70%)' }} />
-      <div className="floaty mx-auto w-fit"><Whale size={52} from="#F59E0B" to="#FB7185" /></div>
+      <div className="floaty mx-auto w-fit"><Whale size={52} /></div>
       <div className="inline-flex items-center gap-1.5 text-[12px] font-bold px-3 py-1 rounded-full mt-2" style={{ background: '#FEF3C7', color: '#92400E' }}>
         <Sun size={12} /> VACANCES D'ÉTÉ</div>
       <h2 className="text-xl font-extrabold mt-2">{feature} reprend à la rentrée</h2>

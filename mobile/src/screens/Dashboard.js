@@ -94,7 +94,7 @@ function ParentBody({ u, d, nav }) {
 // Les autres rôles : les chiffres du jour + raccourcis vers leurs onglets.
 function StaffBody({ u, d, nav }) {
   const stats = [
-    ['Users', '#4F57DE', 'Élèves', d.students.length, '/app/students'],
+    ['Users', '#7539E4', 'Élèves', d.students.length, '/app/students'],
     ['GraduationCap', '#2BD9A8', 'Classes', d.classes.length, null],
     ['ClipboardCheck', '#FFA62B', 'Évaluations', d.evaluations.length, u.role === 'teacher' ? '/app/evaluate' : null],
     ['Megaphone', '#FF6B81', 'Annonces', (d.notices || []).length, '/app/notices'],

@@ -22,10 +22,28 @@ export const N = {
 }
 
 /** Le corps vu à travers l'eau : la marque. */
+export const PURPLE = {
+  50:'#F6F3FF',100:'#EDE7FE',200:'#DDD2FD',300:'#C4B0FB',400:'#A886F7',
+  500:'#8B5CF6',600:'#7539E4',700:'#6329C4',800:'#5324A0',900:'#452083',
+}
+// Coreon Edu possède UNE famille : le violet. La confiance du bleu + la chaleur du
+// rouge — exactement ce qu'est une école : une institution qu'on doit croire, qui
+// garde des enfants qu'on aime. Une école n'est pas une banque.
+//
+// LE CONTRAT DES PALIERS (identique dans les trois familles) :
+//   500 = LA MARQUE. Décoratif (>=3:1). PAS une couleur d'action :
+//         du blanc sur violet-500 ne fait que 4.23:1 — il échoue AA.
+//   600 = L'ACTION. Boutons, liens, focus. Texte sur blanc >=4.5:1 ET
+//         blanc sur lui >=4.5:1. Le seul palier qui fait les deux métiers.
+// Source : brand/KOGIA_HARMONY.md §3.4
 export const BRAND = {
-  indigo: '#4F57DE', // LA primaire. 5.60:1 en texte ET 5.60:1 en blanc-sur-elle
-  violet: '#8B5CF6', // 4.23:1 — grands textes, aplats, partenaire de dégradé
-  cyan:   '#22D3EE', // 1.81:1 — DÉCORATIF UNIQUEMENT. Jamais du texte.
+  mark:   PURPLE[500],  // 4.23:1 — décoratif
+  action: PURPLE[600],  // 6.07:1 dans les deux sens
+  hover:  PURPLE[700],
+  tint:   PURPLE[50],
+  indigo: PURPLE[600],  // compat : l'ancien nom pointe sur l'action
+  violet: PURPLE[500],
+  cyan:   '#22D3EE',    // DÉCOR UNIQUEMENT — 1.81:1, jamais du texte
 }
 
 /** Le nuage d'encre — la voie de Kogia Job. Coreon n'y touche que pour la chaleur. */
@@ -97,3 +115,10 @@ export const deepen = hex => mix(hex, 0.18, N.ink)
 
 /** Raccourci : la palette qu'un écran importe réellement. */
 export const C = { ...N, ...BRAND, ...STATUS }
+
+/** LA MARQUE : un seul tracé — le K et le cachalot sont la même silhouette. */
+export const MARK = {
+  viewBox: '0 0 64 64',
+  d: 'M18 10 a10 10 0 0 1 10 10 v8.5 L51 9 L55.5 13.5 Q43.5 25 40.5 32 Q43.5 39 55.5 50.5 L51 55 L28 35.5 V44 a10 10 0 0 1 -20 0 V20 A10 10 0 0 1 18 10 Z M18 17.5 a3.6 3.6 0 1 0 0 7.2 a3.6 3.6 0 0 0 0 -7.2 Z',
+  rule: 'evenodd',  // l'œil est un TROU, jamais un point blanc
+}

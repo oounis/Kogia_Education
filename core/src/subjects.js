@@ -24,7 +24,7 @@ const RULES = [
   [/art|dessin/,          'Palette',      SERIES[2]], // #D2603A terre
   [/info|techno/,         'Monitor',      N.slate],   // #5B6B7D ardoise
   [/sport|physique|gym/,  'Dumbbell',     TERRA.deep],// #C2410C terre profonde
-  [/islam|coran/,         'MoonStar',     BRAND.indigo], // #4F57DE
+  [/islam|coran/,         'MoonStar',     BRAND.indigo], // #7539E4
   [/civi/,                'Landmark',     N.ink],     // #0E2135 encre
 ]
 

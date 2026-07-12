@@ -73,7 +73,7 @@ export default function Staff({ user, params, nav }) {
   return (
     <Screen title="Personnel" sub="Présence, congés et fiabilité de l'équipe.">
       <View style={{ flexDirection: 'row', marginBottom: 14 }}>
-        <Chip label="Présence" icon="BriefcaseBusiness" color="#4F57DE" active={tab === 'presence'} onPress={() => { tap(); setTab('presence') }} />
+        <Chip label="Présence" icon="BriefcaseBusiness" color="#7539E4" active={tab === 'presence'} onPress={() => { tap(); setTab('presence') }} />
         <Chip label={pending.length ? `Congés · ${pending.length}` : 'Congés'} icon="Plane" color="#8B5CF6" active={tab === 'conges'} onPress={() => { tap(); setTab('conges') }} />
       </View>
 
