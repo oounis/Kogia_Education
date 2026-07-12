@@ -3,8 +3,8 @@
 // pour onglets + push/back, zéro dépendance native de plus, et le jour où on
 // veut expo-router, seul ce fichier change — les écrans reçoivent déjà
 // ({ user, params, nav }) comme contrat stable.
-import { useState, useCallback, useMemo } from 'react'
-import { View, Text, Pressable } from 'react-native'
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
+import { View, Text, Pressable, Animated } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { NAV } from '@core/nav.js'
 import { canAccess } from '@core/access.js'
@@ -69,6 +69,13 @@ export default function Shell({ user, onLogout }) {
     logout: () => { coreLogout(); onLogout() },
   }), [navigate, back, stack.length, onLogout])
 
+  // Transition discrète à chaque navigation : fondu + légère remontée (180 ms).
+  const anim = useRef(new Animated.Value(1)).current
+  useEffect(() => {
+    anim.setValue(0)
+    Animated.timing(anim, { toValue: 1, duration: 180, useNativeDriver: true }).start()
+  }, [top.route, anim])
+
   const tabs = TABS[user.role] || TABS.default
   const Comp = top.route === '/more' ? More : SCREENS[top.route]
   const item = navItem(top.route)
@@ -91,9 +98,11 @@ export default function Shell({ user, onLogout }) {
             <Text style={{ color: C.ink, fontFamily: F.bold, fontWeight: '700', fontSize: 13 }}>Retour</Text>
           </Pressable>
         )}
-        {Comp
-          ? <Comp user={user} params={top.params} nav={nav} />
-          : <ComingSoon title={item ? labelOf(item, user.role) : 'Écran'} />}
+        <Animated.View style={{ flex: 1, opacity: anim, transform: [{ translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) }] }}>
+          {Comp
+            ? <Comp user={user} params={top.params} nav={nav} />
+            : <ComingSoon title={item ? labelOf(item, user.role) : 'Écran'} />}
+        </Animated.View>
       </View>
 
       <View style={{ flexDirection: 'row', backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: C.line, paddingBottom: Math.max(insets.bottom, 10) + 4, paddingTop: 8 }}>

@@ -1,0 +1,7 @@
+{
+  "name": "@coreon/core",
+  "private": true,
+  "type": "module",
+  "description": "Cœur métier partagé Coreon Edu — JS pur, zéro dépendance. Testé avec node:test.",
+  "scripts": { "test": "node --test test/" }
+}
