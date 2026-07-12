@@ -3,13 +3,13 @@
 // les enseignants et les surveillants. Un membre ne supprime que SES événements ;
 // la Direction peut tout supprimer (même règle que le web).
 import { useMemo, useReducer, useState } from 'react'
-import { View, Text, Pressable, ScrollView, Modal, Alert } from 'react-native'
+import { View, Text, Pressable, ScrollView, Modal } from 'react-native'
 import { db, mutate, uid } from '@core/db.js'
 import { notify } from '@core/notify.js'
 import { ROLE } from '@core/theme.js'
 import { todayIso, frDateLabel } from '@core/clock.js'
 import { Ic } from '../icons.js'
-import { Screen, Card, Section, Chip, Btn, Input, EmptyState, C } from '../components.js'
+import { Screen, Card, Section, Chip, Btn, Input, EmptyState, C, confirmAsk } from '../components.js'
 
 const TYPES = [
   { k: 'Événement', c: '#6366F1' }, { k: 'Réunion', c: '#0E7FB8' }, { k: 'Examen', c: '#DC4B54' },
@@ -74,11 +74,12 @@ export default function Events({ user, params, nav }) {
 
   const del = ev => {
     if (!canDelete(ev)) return
-    Alert.alert('Supprimer cet événement ?', `« ${ev.title} » sera retiré du calendrier de l'école. Cette action est définitive.`,
-      [{ text: 'Annuler', style: 'cancel' }, {
-        text: 'Supprimer', style: 'destructive',
-        onPress: () => { mutate(d => { d.events = d.events.filter(e => e.id !== ev.id) }); force() },
-      }])
+    confirmAsk({
+      title: 'Supprimer cet événement ?',
+      message: `« ${ev.title} » sera retiré du calendrier de l'école. Cette action est définitive.`,
+      cancelLabel: 'Annuler', confirmLabel: 'Supprimer',
+      onConfirm: () => { mutate(d => { d.events = d.events.filter(e => e.id !== ev.id) }); force() },
+    })
   }
 
   const selList = (byDay[sel] || []).slice().sort((a, b) => (a.time || '').localeCompare(b.time || ''))

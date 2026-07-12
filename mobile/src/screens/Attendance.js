@@ -71,6 +71,7 @@ function MarkView({ user }) {
     notify({ role: 'schooladmin', kind: 'info', title: `Appel — ${cls.cls.name}`, body: `${counts.absent} absent(s), ${counts.late} retard(s)`, link: '/app/attendance' })
     flagged.forEach(s => { if (s.parentId) notify({ to: s.parentId, kind: 'info', title: `Présence de ${s.name.split(' ')[0]}`, body: `${s.name} a été marqué(e) ${FR[marks[s.id]].toLowerCase()} aujourd'hui (${cls.subject}).`, link: '/app' }) })
     setOkMsg('Appel enregistré · direction et parents notifiés')
+    setTimeout(() => setOkMsg(''), 5000)
     force(); setTimeout(() => setSaving(false), 600)
   }
 

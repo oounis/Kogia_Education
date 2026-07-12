@@ -1,7 +1,7 @@
 // Kit de composants natifs partagé par tous les écrans — même langage visuel
 // que le web (canvas doux, cartes blanches, encre sombre, accent par rôle).
 // Les écrans ne composent QUE ces briques + View/Text : cohérence garantie.
-import { View, Text, Pressable, ScrollView, TextInput, Platform } from 'react-native'
+import { View, Text, Pressable, ScrollView, TextInput, Platform, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import * as Haptics from 'expo-haptics'
 import { Ic } from './icons.js'
@@ -11,6 +11,21 @@ export { C, S, F }
 
 // Petit retour tactile sur les interactions clés (silencieux sur le web).
 export const tap = () => { if (Platform.OS !== 'web') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {}) }
+
+// Confirmation destructive multi-plateforme. Alert.alert est un no-op dans
+// react-native-web : sans ce détour par window.confirm, « Se désister »,
+// « Annuler l'activité » ou la suppression d'un événement seraient des boutons
+// morts sur le web. Sur natif, le comportement Alert reste inchangé.
+export const confirmAsk = ({ title, message, confirmLabel = 'Confirmer', cancelLabel = 'Annuler', onConfirm }) => {
+  if (Platform.OS === 'web') {
+    if (typeof window !== 'undefined' && window.confirm(`${title}\n\n${message}`)) onConfirm()
+    return
+  }
+  Alert.alert(title, message, [
+    { text: cancelLabel, style: 'cancel' },
+    { text: confirmLabel, style: 'destructive', onPress: onConfirm },
+  ])
+}
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 export function Screen({ title, sub, right, children, scroll = true }) {

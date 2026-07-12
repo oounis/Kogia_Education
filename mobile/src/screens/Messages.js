@@ -120,7 +120,8 @@ export default function Messages({ user, params, nav }) {
 
   // ── Liste des conversations ──────────────────────────────────────────────
   return (
-    <Screen title="Messages" sub="Échangez avec le personnel et les parents."
+    // Un parent n'écrit qu'au personnel — le sous-titre ne doit pas promettre plus.
+    <Screen title="Messages" sub={me.role === 'parent' ? "Échangez avec l'équipe de l'école." : 'Échangez avec le personnel et les parents.'}
       right={<Btn small icon="Plus" label="Nouveau" color={accent} onPress={() => setPicking(true)} />}>
       {partnerIds.length === 0
         ? <Card><EmptyState icon="MessageSquare" title="Aucune conversation" sub="Démarrez une nouvelle conversation pour la voir ici." /></Card>

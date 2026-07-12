@@ -3,7 +3,7 @@
 // espaces, consentement au prix) viennent de core/src/social.js : cet écran
 // ne fait qu'afficher et appeler les mêmes mutations que le web.
 import { useEffect, useReducer, useState } from 'react'
-import { View, Text, Pressable, ScrollView, Modal, Alert } from 'react-native'
+import { View, Text, Pressable, ScrollView, Modal } from 'react-native'
 import { db, mutate, uid } from '@core/db.js'
 import { notify } from '@core/notify.js'
 import { ROLE } from '@core/theme.js'
@@ -21,7 +21,7 @@ import {
   joinButtonLabel, needsSecurity, securityNeeds, securityNotice,
 } from '@core/social.js'
 import { Ic } from '../icons.js'
-import { Screen, Card, Section, Chip, Badge, Avatar, Tile, Row, Btn, Input, EmptyState, Bar, C } from '../components.js'
+import { Screen, Card, Section, Chip, Badge, Avatar, Tile, Row, Btn, Input, EmptyState, Bar, C, confirmAsk } from '../components.js'
 
 // Jetons d'état — mêmes teintes que STATUS côté web.
 const OK = '#12946F', WARN = '#C97C1E', DANGER = '#DC4B54', INFO = '#0E7FB8'
@@ -582,33 +582,37 @@ export default function Social({ user, params, nav }) {
 
   const withdraw = ev => {
     const late = isLateWithdrawal(ev)
-    Alert.alert('Se désister', late
-      ? `« ${ev.title} » a lieu dans moins de 48 h : votre désistement est tardif — pensez à prévenir l'organisateur.`
-      : `Vous ne participerez plus à « ${ev.title} ».`,
-      [{ text: 'Rester inscrit', style: 'cancel' }, {
-        text: 'Me désister', style: 'destructive', onPress: () => {
-          let promoted = []
-          mutate(db => {
-            const e = db.socialEvents.find(x => x.id === ev.id)
-            e.participants = e.participants.filter(p => p.userId !== u.id)
-            promoted = promoteFromWaitlist(e)
-            sweep([e])
-          })
-          promoted.forEach(p => notify({ to: p.userId, kind: 'info', actor: 'Espaces', title: "Une place s'est libérée", body: `Vous participez maintenant à « ${ev.title} ».`, link: '/app/social' }))
-          force()
-        },
-      }])
+    confirmAsk({
+      title: 'Se désister',
+      message: late
+        ? `« ${ev.title} » a lieu dans moins de 48 h : votre désistement est tardif — pensez à prévenir l'organisateur.`
+        : `Vous ne participerez plus à « ${ev.title} ».`,
+      cancelLabel: 'Rester inscrit', confirmLabel: 'Me désister',
+      onConfirm: () => {
+        let promoted = []
+        mutate(db => {
+          const e = db.socialEvents.find(x => x.id === ev.id)
+          e.participants = e.participants.filter(p => p.userId !== u.id)
+          promoted = promoteFromWaitlist(e)
+          sweep([e])
+        })
+        promoted.forEach(p => notify({ to: p.userId, kind: 'info', actor: 'Espaces', title: "Une place s'est libérée", body: `Vous participez maintenant à « ${ev.title} ».`, link: '/app/social' }))
+        force()
+      },
+    })
   }
 
   const cancelOwn = ev => {
-    Alert.alert("Annuler l'activité", `« ${ev.title} » sera annulée et les inscrits prévenus. Personne ne paie.`,
-      [{ text: 'Garder', style: 'cancel' }, {
-        text: "Annuler l'activité", style: 'destructive', onPress: () => {
-          mutate(db => { const e = db.socialEvents.find(x => x.id === ev.id); e.status = 'annule' })
-          ;(ev.participants || []).forEach(p => p.userId !== u.id && notify({ to: p.userId, kind: 'info', actor: ev.byName, title: 'Activité annulée', body: `« ${ev.title} » a été annulée par l'organisateur. Vous n'avez rien à payer.`, link: '/app/social' }))
-          force()
-        },
-      }])
+    confirmAsk({
+      title: "Annuler l'activité",
+      message: `« ${ev.title} » sera annulée et les inscrits prévenus. Personne ne paie.`,
+      cancelLabel: 'Garder', confirmLabel: "Annuler l'activité",
+      onConfirm: () => {
+        mutate(db => { const e = db.socialEvents.find(x => x.id === ev.id); e.status = 'annule' })
+        ;(ev.participants || []).forEach(p => p.userId !== u.id && notify({ to: p.userId, kind: 'info', actor: ev.byName, title: 'Activité annulée', body: `« ${ev.title} » a été annulée par l'organisateur. Vous n'avez rien à payer.`, link: '/app/social' }))
+        force()
+      },
+    })
   }
 
   /* ── Décision : Administration, puis Direction ── */

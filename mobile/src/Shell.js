@@ -78,8 +78,17 @@ export default function Shell({ user, onLogout }) {
     <View style={{ flex: 1, backgroundColor: C.canvas }}>
       <View style={{ flex: 1 }}>
         {stack.length > 1 && (
-          <Pressable onPress={back} style={{ position: 'absolute', top: Math.max(insets.top, 40) + 16, right: 20, zIndex: 10, backgroundColor: '#fff', borderWidth: 1, borderColor: C.line, borderRadius: 999, padding: 9 }}>
+          // Flottant en bas à gauche : en haut à droite il recouvrait l'action
+          // d'en-tête des écrans (« Signaler », « Proposer », pastille de rôle…).
+          <Pressable onPress={back} style={{
+            position: 'absolute', bottom: 14, left: 20, zIndex: 10,
+            flexDirection: 'row', alignItems: 'center', gap: 6,
+            backgroundColor: '#fff', borderWidth: 1, borderColor: C.line, borderRadius: 999,
+            paddingVertical: 9, paddingHorizontal: 14,
+            shadowColor: '#10162B', shadowOpacity: 0.12, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 4,
+          }}>
             <Ic n="ArrowLeft" size={16} color={C.ink} />
+            <Text style={{ color: C.ink, fontFamily: F.bold, fontWeight: '700', fontSize: 13 }}>Retour</Text>
           </Pressable>
         )}
         {Comp
@@ -96,7 +105,7 @@ export default function Shell({ user, onLogout }) {
             <Pressable key={to} onPress={() => switchTab(to)} style={{ flex: 1, alignItems: 'center', gap: 3 }}>
               <Ic n={it.icon} size={21} color={isActive ? accent : C.muted} />
               <Text numberOfLines={1} style={{ fontSize: 10, fontFamily: F.bold, fontWeight: '700', color: isActive ? accent : C.muted }}>
-                {to === '/more' ? 'Plus' : labelOf(it, user.role)}
+                {to === '/more' ? 'Plus' : to === '/app/social' ? it.label : labelOf(it, user.role)}
               </Text>
             </Pressable>
           )

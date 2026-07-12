@@ -26,6 +26,9 @@ const OK = '#12946F', WARN = '#C97C1E', DANGER = '#DC4B54', INFO = '#0E7FB8', NE
 // Heures & dates sans date-fns (interdit côté natif — cf. core/clock.js).
 const p2 = n => String(n).padStart(2, '0')
 const hm = d => `${p2(d.getHours())}:${p2(d.getMinutes())}`
+// La promesse du formulaire (« enregistré, jamais affiché en entier ») vaut
+// aussi à l'affichage : on masque tout ce qui dépasse 4 caractères.
+const maskId = n => { const s = String(n || ''); return s.length > 4 ? s.slice(0, 4) + '****' : s }
 const M3 = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.']
 const dayShort = d => `${d.getDate()} ${M3[d.getMonth()]}`
 const fmtLong = iso => frDateLabel(new Date(iso + 'T00:00:00'))
@@ -231,7 +234,7 @@ function VisitorsTab({ u, d, force, accent }) {
                   </View>
                   <Text style={{ color: C.muted, fontSize: 12, marginTop: 2 }} numberOfLines={2}>{v.purpose} · reçu par {v.hostName}{v.org ? ` · ${v.org}` : ''}</Text>
                   <Text style={{ color: C.muted, fontSize: 11, marginTop: 2 }}>
-                    {v.idType} {v.idNumber}{v.vehicle ? ` · ${v.vehicle}` : ''}
+                    {v.idType} {maskId(v.idNumber)}{v.vehicle ? ` · ${v.vehicle}` : ''}
                     {v.escort && <Text style={{ fontWeight: '800', color: WARN }}> · accompagné par {v.escortName}</Text>}
                   </Text>
                 </View>

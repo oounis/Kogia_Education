@@ -3,6 +3,7 @@ import { View, Text, Pressable } from 'react-native'
 import { db, studentById, classById } from '@core/db.js'
 import { bulletinFor } from '@core/results.js'
 import { unreadFor } from '@core/notify.js'
+import { canAccess } from '@core/access.js'
 import { ROLE } from '@core/theme.js'
 import { statusAt, nowState, schoolPhase, AREAS, fmt } from '@core/livestatus.js'
 import { rentreeLabel } from '@core/clock.js'
@@ -101,8 +102,10 @@ function StaffBody({ u, d, nav }) {
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
       {stats.map(([icon, color, label, value, to]) => (
+        // Un raccourci n'est cliquable que si le rôle a accès à l'écran visé :
+        // sans cette garde, la tuile « Élèves » était un bouton mort pour la Sécurité.
         <Tile key={label} icon={icon} color={color} label={label} value={String(value)}
-          onPress={to ? () => nav.navigate(to) : undefined} />
+          onPress={to && canAccess(u.role, to) ? () => nav.navigate(to) : undefined} />
       ))}
     </View>
   )

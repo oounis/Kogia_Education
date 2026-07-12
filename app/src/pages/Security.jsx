@@ -24,6 +24,9 @@ import { format, parseISO } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import toast from 'react-hot-toast'
 
+// Le formulaire promet « jamais affiché en entier » — on tient parole à l'écran.
+const maskId = n => { const x = String(n || ''); return x.length > 4 ? x.slice(0, 4) + '****' : x }
+
 const hm = d => format(d, 'HH:mm')
 
 export default function Security() {
@@ -235,7 +238,7 @@ function VisitorsTab({ u, d, refresh }) {
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-semibold truncate">{v.name} <span className="text-[11px] font-bold px-1.5 py-0.5 rounded-md ml-1" style={{ background: STATUS.neutralSoft, color: STATUS.neutral }}>{v.badge}</span></div>
                   <div className="text-[12px] text-muted truncate">{v.purpose} · reçu par {v.hostName}{v.org && ` · ${v.org}`}</div>
-                  <div className="text-[11px] text-muted">{v.idType} {v.idNumber}{v.vehicle && ` · ${v.vehicle}`}{v.escort && <span className="ml-1 font-bold" style={{ color: STATUS.warn }}>· accompagné par {v.escortName}</span>}</div>
+                  <div className="text-[11px] text-muted">{v.idType} {maskId(v.idNumber)}{v.vehicle && ` · ${v.vehicle}`}{v.escort && <span className="ml-1 font-bold" style={{ color: STATUS.warn }}>· accompagné par {v.escortName}</span>}</div>
                 </div>
                 <div className="text-right shrink-0">
                   <div className="text-[12px] tabular-nums"><b>{v.inAt}</b>{v.outAt ? ` → ${v.outAt}` : ''}</div>
