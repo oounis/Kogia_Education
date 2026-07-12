@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Ic } from '../icons.jsx'
 import { current } from '@core/auth.js'
 import { db, mutate, uid } from '@core/db.js'
 import { notify } from '@core/notify.js'
@@ -139,7 +140,7 @@ export default function Social() {
       else e.participants.push(p)
       sweep([e])
     })
-    if (rsvp === 'peut-etre') toast('Noté — « peut-être » ne compte pas dans le quorum', { icon: '🤔' })
+    if (rsvp === 'peut-etre') toast('Noté — « peut-être » ne compte pas dans le quorum')
     else if (wait) toast.success("Vous êtes en liste d'attente — une place se libère, vous êtes prévenu")
     else toast.success(price ? `Place réservée · ${money(amount)} à régler si l'école confirme` : 'Place réservée')
     if (ev.by !== u.id) notify({ to: ev.by, kind: 'info', actor: u.name, title: 'Nouvelle inscription', body: `${u.name} ${rsvp === 'oui' ? 'participe à' : 'hésite pour'} « ${ev.title} »`, link: '/app/social' })
@@ -251,7 +252,7 @@ export default function Social() {
           const clash = facilityClash(ev, d.events)
           return (
             <div key={ev.id} className="flex items-start gap-3 p-3 rounded-xl border border-line">
-              <span className="text-2xl leading-none mt-0.5">{catOf(ev.cat).icon}</span>
+              <span className="mt-0.5 accent-text"><Ic n={catOf(ev.cat).icon} size={22} /></span>
               <div className="min-w-0 flex-1">
                 <div className="font-semibold text-sm">{ev.title}</div>
                 <div className="text-[12px] text-muted mt-0.5">
@@ -307,7 +308,7 @@ function EventCard({ ev, u, isDirection, onJoin, onWithdraw, onCancel, onDecide,
   return (
     <Card className="p-5 flex flex-col gap-3">
       <div className="flex items-start gap-3">
-        <span className="text-3xl leading-none">{cat.icon}</span>
+        <span className="accent-text"><Ic n={cat.icon} size={28} /></span>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-extrabold truncate">{ev.title}</h3>
@@ -421,10 +422,10 @@ function ProposeModal({ open, onClose, f, setF, minDate, onSubmit, useIdea, spac
           <span className="text-sm font-bold">Quelle activité ? <span className="text-muted font-medium">Le reste se remplit tout seul.</span></span>
         </div>
         <div className="flex gap-1.5 flex-wrap mb-3">
-          {[{ k: 'tous', label: 'Tout', icon: '✨' }, ...cats].map(c => (
+          {[{ k: 'tous', label: 'Tout', icon: 'Sparkles' }, ...cats].map(c => (
             <button key={c.k} onClick={() => setFilter(c.k)} aria-pressed={filter === c.k}
               className={`text-[12px] font-bold px-2.5 py-1.5 rounded-full border transition ${filter === c.k ? 'border-transparent text-white' : 'border-line hover:bg-canvas'}`}
-              style={filter === c.k ? { background: 'var(--accent)' } : {}}>{c.icon} {c.label}</button>))}
+              style={filter === c.k ? { background: 'var(--accent)' } : {}}><Ic n={c.icon} size={14} /> {c.label}</button>))}
         </div>
         <div className="grid sm:grid-cols-2 gap-2 max-h-64 overflow-y-auto scroll-thin pr-1">
           {shown.map(i => {
@@ -433,7 +434,7 @@ function ProposeModal({ open, onClose, f, setF, minDate, onSubmit, useIdea, spac
               <button key={i.title} onClick={() => useIdea(i)} aria-pressed={on}
                 className={`text-left rounded-2xl border p-3 transition ${on ? 'border-transparent shadow-md' : 'border-line hover:bg-canvas hover:-translate-y-0.5'}`}
                 style={on ? { boxShadow: '0 0 0 2px var(--accent)', background: 'var(--accent-soft)' } : {}}>
-                <div className="text-sm font-bold flex items-center gap-2"><span className="text-xl leading-none">{catOf(i.cat).icon}</span>{i.title}</div>
+                <div className="text-sm font-bold flex items-center gap-2"><Ic n={catOf(i.cat).icon} size={16} className="accent-text" />{i.title}</div>
                 <div className="text-[12px] text-muted mt-1 flex flex-wrap gap-x-2.5">
                   <span className="inline-flex items-center gap-1"><MapPin size={11} />{i.place}</span>
                   <span className="inline-flex items-center gap-1"><Users size={11} />{audienceOf(i.audience).short} · {i.min}</span>
@@ -444,7 +445,7 @@ function ProposeModal({ open, onClose, f, setF, minDate, onSubmit, useIdea, spac
           <button onClick={() => setF({ ...BLANK(space), custom: true, date: f.date, time: f.time })} aria-pressed={!!f.custom}
             className={`text-left rounded-2xl border border-dashed p-3 transition ${f.custom ? 'border-transparent' : 'border-line hover:bg-canvas'}`}
             style={f.custom ? { boxShadow: '0 0 0 2px var(--accent)', background: 'var(--accent-soft)' } : {}}>
-            <div className="text-sm font-bold flex items-center gap-2"><span className="text-xl leading-none">✏️</span>Autre activité</div>
+            <div className="text-sm font-bold flex items-center gap-2"><Ic n="Pencil" size={16} />Autre activité</div>
             <div className="text-[12px] text-muted mt-1">Écrivez votre propre titre et réglez tout vous-même.</div>
           </button>
         </div>
@@ -453,11 +454,11 @@ function ProposeModal({ open, onClose, f, setF, minDate, onSubmit, useIdea, spac
       <div className="grid sm:grid-cols-2 gap-3">
         {f.custom && <div className="sm:col-span-2"><Field label="Titre *"><Input value={f.title} onChange={e => setF({ ...f, title: e.target.value })} placeholder="ex. Tournoi de tennis de table" /></Field></div>}
         {chosen && <div className="sm:col-span-2 rounded-xl px-3 py-2.5 flex items-center gap-2.5 text-sm" style={{ background: 'var(--accent-soft)' }}>
-          <span className="text-xl leading-none">{catOf(f.cat).icon}</span>
+          <span className="accent-text"><Ic n={catOf(f.cat).icon} size={18} /></span>
           <span className="font-bold flex-1">{f.title}</span>
           <button onClick={() => setF({ ...f, custom: true })} className="text-[12px] font-bold accent-text">renommer</button>
         </div>}
-        <Field label="Catégorie"><Select value={f.cat} onChange={e => setF({ ...f, cat: e.target.value })}>{cats.map(c => <option key={c.k} value={c.k}>{c.icon} {c.label}</option>)}</Select></Field>
+        <Field label="Catégorie"><Select value={f.cat} onChange={e => setF({ ...f, cat: e.target.value })}>{cats.map(c => <option key={c.k} value={c.k}>{c.label}</option>)}</Select></Field>
         <Field label="Lieu"><Select value={f.place} onChange={e => setF({ ...f, place: e.target.value })}>{PLACES.map(p => <option key={p}>{p}</option>)}</Select></Field>
         <Field label={`Date * (au plus tôt le ${minDate})`} hint={`L'école a besoin de ${MIN_LEAD_DAYS} jours pour réserver le lieu.`}>
           <Input type="date" min={minDate} value={f.date} onChange={e => setF({ ...f, date: e.target.value })} /></Field>
@@ -553,7 +554,7 @@ function DecideModal({ ev, clash, onClose, onSettle, role }) {
       footer={<><Btn variant="danger" onClick={() => onSettle(ev, false, note)}><X size={15} /> Refuser</Btn>
         <Btn onClick={() => onSettle(ev, true, note)}><Check size={15} /> {isFinal ? "Approuver & réserver" : "Viser & transmettre à la Direction"}</Btn></>}>
       <div className="space-y-2 text-sm">
-        <div className="font-extrabold text-base">{catOf(ev.cat).icon} {ev.title}</div>
+        <div className="font-extrabold text-base flex items-center gap-2"><Ic n={catOf(ev.cat).icon} size={17} className="accent-text" />{ev.title}</div>
         <div className="text-muted">{ev.desc}</div>
         <div className="grid sm:grid-cols-2 gap-2 pt-2">
           {[['Quand', `${format(parseISO(ev.date), 'EEEE d MMMM', { locale: fr })} · ${ev.time}`],

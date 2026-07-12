@@ -115,7 +115,7 @@ function EventCard({ ev, u, isDirection, seesAll, onJoin, onWithdraw, onCancel, 
   return (
     <Card style={{ marginBottom: 14, opacity: isDead(ev.status) || ev.status === 'termine' ? 0.72 : 1 }}>
       <View style={{ flexDirection: 'row', gap: 12 }}>
-        <Text style={{ fontSize: 30, lineHeight: 36 }}>{cat.icon}</Text>
+        <Ic n={cat.icon} size={28} color={accent} />
         <View style={{ flex: 1, minWidth: 0 }}>
           <Text style={{ fontWeight: '800', color: C.ink, fontSize: 15 }}>{ev.title}</Text>
           <Text style={{ color: C.muted, fontSize: 12, marginTop: 1 }}>proposé par {mine ? 'vous' : ev.byName}</Text>
@@ -259,8 +259,8 @@ function ProposeSheet({ f, setF, space, minDate, err, onSubmit, onClose, accent 
         <Text style={{ fontWeight: '800', color: C.ink, fontSize: 13 }}>Quelle activité ? <Text style={{ color: C.muted, fontWeight: '500' }}>Le reste se remplit tout seul.</Text></Text>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 10 }}>
-        {[{ k: 'tous', label: 'Tout', icon: '✨' }, ...cats].map(c => (
-          <Chip key={c.k} label={`${c.icon} ${c.label}`} color={accent} active={filter === c.k} onPress={() => setFilter(c.k)} />
+        {[{ k: 'tous', label: 'Tout', icon: 'Sparkles' }, ...cats].map(c => (
+          <Chip key={c.k} icon={c.icon} label={c.label} color={accent} active={filter === c.k} onPress={() => setFilter(c.k)} />
         ))}
       </ScrollView>
 
@@ -270,7 +270,7 @@ function ProposeSheet({ f, setF, space, minDate, err, onSubmit, onClose, accent 
           <Pressable key={i.title} onPress={() => pickIdea(i)}
             style={{ borderWidth: 2, borderColor: on ? accent : C.line, backgroundColor: on ? accent + '12' : '#fff', borderRadius: 16, padding: 12, marginBottom: 8 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Text style={{ fontSize: 20 }}>{catOf(i.cat).icon}</Text>
+              <Ic n={catOf(i.cat).icon} size={19} color={accent} />
               <Text style={{ flex: 1, fontWeight: '800', fontSize: 13, color: C.ink }}>{i.title}</Text>
             </View>
             <Text style={{ fontSize: 12, color: C.muted, marginTop: 3 }}>
@@ -281,7 +281,7 @@ function ProposeSheet({ f, setF, space, minDate, err, onSubmit, onClose, accent 
       })}
       <Pressable onPress={() => setF({ ...BLANK(space), custom: true, date: f.date, time: f.time })}
         style={{ borderWidth: 2, borderStyle: 'dashed', borderColor: f.custom ? accent : C.line, backgroundColor: f.custom ? accent + '12' : '#fff', borderRadius: 16, padding: 12, marginBottom: 8 }}>
-        <Text style={{ fontWeight: '800', fontSize: 13, color: C.ink }}>✏️  Autre activité</Text>
+        <Ic n="Pencil" size={15} color={C.ink} /><Text style={{ fontWeight: '800', fontSize: 13, color: C.ink }}>Autre activité</Text>
         <Text style={{ fontSize: 12, color: C.muted, marginTop: 3 }}>Écrivez votre propre titre et réglez tout vous-même.</Text>
       </Pressable>
 
@@ -289,7 +289,7 @@ function ProposeSheet({ f, setF, space, minDate, err, onSubmit, onClose, accent 
         <Lbl>Titre *</Lbl>
         <Input value={f.title} onChangeText={t => setF({ ...f, title: t })} placeholder="ex. Tournoi de tennis de table" />
         <Lbl>Catégorie</Lbl>
-        <Wrap>{cats.map(c => <Chip key={c.k} label={`${c.icon} ${c.label}`} color={accent} active={f.cat === c.k} onPress={() => setF({ ...f, cat: c.k })} />)}</Wrap>
+        <Wrap>{cats.map(c => <Chip key={c.k} icon={c.icon} label={c.label} color={accent} active={f.cat === c.k} onPress={() => setF({ ...f, cat: c.k })} />)}</Wrap>
         <Lbl>Lieu</Lbl>
         <Wrap>{PLACES.map(p => <Chip key={p} label={p} color={accent} active={f.place === p} onPress={() => setF({ ...f, place: p })} />)}</Wrap>
         <Lbl>Qui peut participer ?</Lbl>
@@ -698,7 +698,7 @@ export default function Social({ user, params, nav }) {
             {toDecide.map(ev => (
               <Row key={ev.id} avatar={<Text style={{ fontSize: 24 }}>{catOf(ev.cat).icon}</Text>}
                 title={ev.title}
-                sub={`${fmtShort(ev.date)} · ${ev.time} · ${ev.place} · par ${ev.byName}${facilityClash(ev, d.events) ? '  ⚠ lieu déjà pris ce jour-là' : ''}`}
+                sub={`${fmtShort(ev.date)} · ${ev.time} · ${ev.place} · par ${ev.byName}${facilityClash(ev, d.events) ? ' · lieu déjà pris ce jour-là' : ''}`}
                 right={<Btn small label="Examiner" color={accent} onPress={() => setDecide(ev.id)} />} />
             ))}
           </Card>

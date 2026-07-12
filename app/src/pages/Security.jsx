@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Ic } from '../icons.jsx'
 import { current } from '@core/auth.js'
 import { db, mutate, uid, settings } from '@core/db.js'
 import { notify } from '@core/notify.js'
@@ -87,7 +88,7 @@ function EventsTab({ u, d, toCover, refresh }) {
           <Card key={ev.id} className="p-5 flex flex-col gap-3">
             <div className="flex items-start gap-3">
               <span className="w-11 h-11 rounded-2xl grid place-items-center shrink-0" style={{ background: night ? '#EEF1F6' : STATUS.infoSoft }}>
-                {night ? '🌙' : '☀️'}</span>
+                <Ic n={night ? 'Moon' : 'Sun'} size={18} /></span>
               <div className="min-w-0 flex-1">
                 <div className="font-extrabold truncate">{ev.title}</div>
                 <div className="text-[12px] text-muted">{format(parseISO(ev.date), 'EEEE d MMMM', { locale: fr })} · {ev.time} · {ev.place}</div>
@@ -333,7 +334,7 @@ function RoundsTab({ u, d, refresh }) {
               {r.points.map(p => (
                 <span key={p.k} className="text-[11px] font-semibold px-2 py-1 rounded-full inline-flex items-center gap-1"
                   style={{ background: p.anomaly ? STATUS.warnSoft : STATUS.okSoft, color: p.anomaly ? STATUS.warn : STATUS.ok }}>
-                  {checkpointOf(p.k).label} · {p.at}{p.anomaly && ' ⚠'}</span>))}
+                  {checkpointOf(p.k).label} · {p.at}{p.anomaly && <Ic n="TriangleAlert" size={12} className="inline ml-1 align-[-1px]" />}</span>))}
             </div>
             {r.points.filter(p => p.anomaly).map(p => (
               <div key={p.k} className="text-[12px] mt-1.5 flex items-start gap-1.5" style={{ color: STATUS.warn }}>
@@ -375,7 +376,7 @@ function LogTab({ u, d, refresh }) {
             {log.map(l => { const k = logKindOf(l.kind)
               return (
                 <div key={l.id} className="flex items-start gap-3 p-2.5 rounded-xl border border-line">
-                  <span className="text-lg leading-none mt-0.5">{k.icon}</span>
+                  <span className="mt-0.5 shrink-0" style={{ color: k.color }}><Ic n={k.icon} size={17} /></span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: k.color + '1E', color: k.color }}>{k.label}</span>
@@ -396,7 +397,7 @@ function LogTab({ u, d, refresh }) {
       footer={<><Btn variant="ghost" onClick={() => setOpen(false)}>Annuler</Btn><Btn onClick={add}>Inscrire</Btn></>}>
       <div className="grid sm:grid-cols-2 gap-3">
         <Field label="Nature"><Select value={f.kind} onChange={e => setF({ ...f, kind: e.target.value })}>
-          {Object.entries(LOG_KINDS).filter(([k]) => !['prise', 'fin'].includes(k)).map(([k, v]) => <option key={k} value={k}>{v.icon} {v.label}</option>)}
+          {Object.entries(LOG_KINDS).filter(([k]) => !['prise', 'fin'].includes(k)).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
         </Select></Field>
         <Field label="Lieu"><Input value={f.place} onChange={e => setF({ ...f, place: e.target.value })} /></Field>
         <div className="sm:col-span-2"><Field label="Constat" hint="Faits, heure, personnes, actions menées.">
@@ -425,7 +426,7 @@ function ConsignesTab() {
       {CONSIGNES.map(c => (
         <Card key={c.k} className="p-5">
           <div className="flex items-center gap-2.5 mb-3">
-            <span className="text-2xl leading-none">{c.icon}</span>
+            <span style={{ color: c.color }}><Ic n={c.icon} size={22} /></span>
             <h3 className="font-extrabold" style={{ color: c.color }}>{c.label}</h3>
           </div>
           <ol className="space-y-1.5">

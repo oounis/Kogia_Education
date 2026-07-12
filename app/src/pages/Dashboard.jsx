@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Ic } from '../icons.jsx'
 import { Link } from 'react-router-dom'
 import { ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, AreaChart, Area } from 'recharts'
 import { SoftBars, SoftBarsH, Gauge, DistributionBar } from '../components/charts.jsx'
@@ -99,7 +100,7 @@ export default function Dashboard(){
           <p className="text-xs text-muted mb-3">Approuvés par la Direction — soirées, affluence, personnes extérieures</p>
           {toCover.length? <div className="space-y-2">{toCover.slice(0,5).map(e=>(
             <Link key={e.id} to="/app/security" className="flex items-center gap-3 text-sm border-b border-line pb-2 last:border-0 hover:bg-canvas rounded-lg px-1 transition">
-              <span className="text-lg">{isNightEvent(e)?'🌙':'☀️'}</span>
+              <span className="text-muted"><Ic n={isNightEvent(e) ? 'Moon' : 'Sun'} size={17} /></span>
               <span className="min-w-0 flex-1"><span className="block font-semibold truncate">{e.title}</span>
                 <span className="block text-xs text-muted">{e.date} · {e.time} · {e.place}</span></span>
               <ChevronRight size={15} className="text-muted"/>
@@ -402,7 +403,7 @@ function ParentDashboard({u,d,greet}){
     </Card>}
     <div className="flex gap-3 flex-wrap">
       <Link to="/app/payments" className={BTN_PRIMARY}>Voir les paiements</Link>
-      <Link to="/app/social" className={BTN_DEFAULT}>✨ Espace parents</Link>
+      <Link to="/app/social" className={BTN_DEFAULT}><Ic n="Sparkles" size={15} /> Espace parents</Link>
       <Link to="/app/notices" className={BTN_DEFAULT}>Annonces</Link>
     </div>
     <Bulletin student={bulletin} onClose={()=>setBulletin(null)}/>

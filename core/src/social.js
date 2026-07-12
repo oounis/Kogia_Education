@@ -106,16 +106,20 @@ export const seesAllSpaces = role => role === 'admin' || role === 'schooladmin'
 export const belongsToSpace = (space, role) => spaceOfRole(role) === (space || 'parent')
 
 // ── Catégories (par espace) ─────────────────────────────────────────────────
+// Icônes désignées par leur NOM lucide (contrat <Ic n="…"/>), jamais par un emoji.
+// Un emoji est dessiné par le SYSTÈME : le même caractère n'a pas le même style sur
+// Android, iOS, Windows et le web. C'est exactement ce qui donnait à Kogia une
+// iconographie différente sur chaque écran. Source : brand/KOGIA_HARMONY.md §6
 const CAT = {
-  sport:      { k: 'sport',      label: 'Sport',                icon: '⚽' },
-  atelier:    { k: 'atelier',    label: 'Atelier',              icon: '🎨' },
-  sortie:     { k: 'sortie',     label: 'Sortie',               icon: '🚌' },
-  rencontre:  { k: 'rencontre',  label: 'Rencontre',            icon: '☕' },
-  solidarite: { k: 'solidarite', label: 'Solidarité',           icon: '🤝' },
-  fete:       { k: 'fete',       label: 'Fête',                 icon: '🎉' },
-  formation:  { k: 'formation',  label: 'Formation',            icon: '📚' },
-  pedago:     { k: 'pedago',     label: 'Réunion pédagogique',  icon: '🧑‍🏫' },
-  reunion:    { k: 'reunion',    label: 'Réunion de service',   icon: '🗂️' },
+  sport:      { k: 'sport',      label: 'Sport',                icon: 'Volleyball' },
+  atelier:    { k: 'atelier',    label: 'Atelier',              icon: 'Palette' },
+  sortie:     { k: 'sortie',     label: 'Sortie',               icon: 'Bus' },
+  rencontre:  { k: 'rencontre',  label: 'Rencontre',            icon: 'Coffee' },
+  solidarite: { k: 'solidarite', label: 'Solidarité',           icon: 'HeartHandshake' },
+  fete:       { k: 'fete',       label: 'Fête',                 icon: 'PartyPopper' },
+  formation:  { k: 'formation',  label: 'Formation',            icon: 'GraduationCap' },
+  pedago:     { k: 'pedago',     label: 'Réunion pédagogique',  icon: 'Presentation' },
+  reunion:    { k: 'reunion',    label: 'Réunion de service',   icon: 'FolderKanban' },
 }
 export const CATEGORIES = Object.values(CAT)
 export const CATEGORIES_OF = {

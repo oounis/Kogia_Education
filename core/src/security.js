@@ -25,10 +25,14 @@ export const URGENCES = [
   { k: 'garde', label: 'Garde nationale', num: '193', hint: 'Hors périmètre urbain' },
 ]
 
+// Les icônes sont désignées par leur NOM lucide (contrat <Ic n="…"/>), jamais par
+// un emoji : un emoji change de dessin sur chaque plateforme (Android, iOS, Windows)
+// — c'est exactement ce qui faisait que Kogia n'avait pas UNE iconographie.
+// Source : brand/KOGIA_HARMONY.md §6
 // ── Consignes (procédures d'urgence) ────────────────────────────────────────
 export const CONSIGNES = [
   {
-    k: 'evacuation', label: 'Évacuation — incendie', icon: '🔥', color: STATUS.danger,
+    k: 'evacuation', label: 'Évacuation — incendie', icon: 'Flame', color: STATUS.danger,
     steps: [
       "Donner l'alarme et prévenir la Direction.",
       'Appeler la Protection civile (198) — adresse, nature du sinistre, nombre de personnes.',
@@ -40,7 +44,7 @@ export const CONSIGNES = [
     ],
   },
   {
-    k: 'confinement', label: 'Confinement / mise à l’abri', icon: '🚪', color: BRAND.violet,
+    k: 'confinement', label: 'Confinement / mise à l’abri', icon: 'DoorClosed', color: BRAND.violet,
     steps: [
       'Fermer et verrouiller le portail et toutes les portes extérieures.',
       'Faire rentrer immédiatement tout le monde depuis la cour.',
@@ -50,7 +54,7 @@ export const CONSIGNES = [
     ],
   },
   {
-    k: 'intrusion', label: 'Intrusion', icon: '🛑', color: STATUS.warn,
+    k: 'intrusion', label: 'Intrusion', icon: 'OctagonAlert', color: STATUS.warn,
     steps: [
       'Ne pas s’interposer physiquement.',
       'Alerter la Direction et la Police secours (197) ; décrire la personne.',
@@ -60,7 +64,7 @@ export const CONSIGNES = [
     ],
   },
   {
-    k: 'malaise', label: 'Malaise / accident', icon: '🚑', color: STATUS.info,
+    k: 'malaise', label: 'Malaise / accident', icon: 'Ambulance', color: STATUS.info,
     steps: [
       'Ne pas déplacer la personne, sauf danger immédiat.',
       'Appeler le SAMU (190) ; suivre les instructions du régulateur.',
@@ -70,7 +74,7 @@ export const CONSIGNES = [
     ],
   },
   {
-    k: 'bombe', label: 'Alerte à la bombe', icon: '☎️', color: N.slate,
+    k: 'bombe', label: 'Alerte à la bombe', icon: 'Phone', color: N.slate,
     steps: [
       'Ne pas raccrocher ; faire parler, noter mot à mot, heure et voix.',
       'Ne toucher à aucun objet suspect ; ne pas utiliser de radio à proximité.',
@@ -99,14 +103,14 @@ export const checkpointOf = k => CHECKPOINTS.find(c => c.k === k) || CHECKPOINTS
 // Le journal de bord de l'agent : prise et fin de service, rondes, visiteurs,
 // anomalies, alarmes, consignes reçues. Il fait foi ; on n'y efface rien.
 export const LOG_KINDS = {
-  prise:     { label: 'Prise de service',   icon: '🟢', color: STATUS.ok },
-  fin:       { label: 'Fin de service',     icon: '🔴', color: N.slate },
-  ronde:     { label: 'Ronde',              icon: '🔦', color: STATUS.info },
-  visiteur:  { label: 'Visiteur',           icon: '🪪', color: BRAND.violet },
-  evenement: { label: 'Événement',          icon: '📅', color: BRAND.indigo },
-  anomalie:  { label: 'Anomalie',           icon: '⚠️', color: STATUS.warn },
-  alarme:    { label: 'Alarme',             icon: '🚨', color: STATUS.danger },
-  consigne:  { label: 'Consigne',           icon: '📋', color: N.slate },
+  prise:     { label: 'Prise de service',   icon: 'LogIn', color: STATUS.ok },
+  fin:       { label: 'Fin de service',     icon: 'LogOut', color: N.slate },
+  ronde:     { label: 'Ronde',              icon: 'Flashlight', color: STATUS.info },
+  visiteur:  { label: 'Visiteur',           icon: 'IdCard', color: BRAND.violet },
+  evenement: { label: 'Événement',          icon: 'CalendarDays', color: BRAND.indigo },
+  anomalie:  { label: 'Anomalie',           icon: 'TriangleAlert', color: STATUS.warn },
+  alarme:    { label: 'Alarme',             icon: 'Siren', color: STATUS.danger },
+  consigne:  { label: 'Consigne',           icon: 'ClipboardList', color: N.slate },
 }
 export const logKindOf = k => LOG_KINDS[k] || LOG_KINDS.consigne
 

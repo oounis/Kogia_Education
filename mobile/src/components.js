@@ -75,8 +75,10 @@ export const Chip = ({ label, icon, color = C.muted, active, onPress }) => (
   </Pressable>
 )
 
-export const Badge = ({ label, color = C.muted }) => (
-  <View style={{ alignSelf: 'flex-start', backgroundColor: color + '1A', borderRadius: 999, paddingVertical: 3, paddingHorizontal: 9 }}>
+export const Badge = ({ label, icon, color = C.muted }) => (
+  <View style={{ alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: color + '1A', borderRadius: 999, paddingVertical: 3, paddingHorizontal: 9 }}>
+    {!!icon && <Ic n={icon} size={11} color={color} />}
     <Text style={{ color, fontWeight: '800', fontSize: 11 }}>{label}</Text>
   </View>
 )

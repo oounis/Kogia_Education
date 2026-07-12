@@ -71,7 +71,7 @@ function EventsTab({ u, toCover, force, accent }) {
         <Card key={ev.id} style={{ marginBottom: 14 }}>
           <View style={{ flexDirection: 'row', gap: 12, alignItems: 'flex-start' }}>
             <View style={{ width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: night ? '#EEF1F6' : INFO + '14' }}>
-              <Text style={{ fontSize: 20 }}>{night ? '🌙' : '☀️'}</Text>
+              <Ic n={night ? 'Moon' : 'Sun'} size={19} color={C.muted} />
             </View>
             <View style={{ flex: 1, minWidth: 0 }}>
               <Text style={{ fontWeight: '800', color: C.ink, fontSize: 15 }}>{ev.title}</Text>
@@ -358,7 +358,7 @@ function RoundsTab({ u, d, force, accent }) {
               </View>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
                 {r.points.map(p => (
-                  <Badge key={p.k} label={`${checkpointOf(p.k).label} · ${p.at}${p.anomaly ? ' ⚠' : ''}`} color={p.anomaly ? WARN : OK} />
+                  <Badge key={p.k} icon={p.anomaly ? 'TriangleAlert' : 'Check'} label={`${checkpointOf(p.k).label} · ${p.at}`} color={p.anomaly ? WARN : OK} />
                 ))}
               </View>
               {r.points.filter(p => p.anomaly).map(p => (
@@ -411,7 +411,7 @@ function LogTab({ u, d, force, accent }) {
           return (
             <Card key={l.id} style={{ marginBottom: 8 }}>
               <View style={{ flexDirection: 'row', gap: 10, alignItems: 'flex-start' }}>
-                <Text style={{ fontSize: 18, lineHeight: 24 }}>{k.icon}</Text>
+                <Ic n={k.icon} size={17} color={k.color} />
                 <View style={{ flex: 1, minWidth: 0 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                     <Badge label={k.label} color={k.color} />
@@ -441,7 +441,7 @@ function LogTab({ u, d, force, accent }) {
         <Lbl>Nature</Lbl>
         <Wrap>
           {Object.entries(LOG_KINDS).filter(([k]) => !['prise', 'fin'].includes(k)).map(([k, v]) => (
-            <Chip key={k} label={`${v.icon} ${v.label}`} color={v.color} active={f.kind === k} onPress={() => setF({ ...f, kind: k })} />
+            <Chip key={k} icon={v.icon} label={v.label} color={v.color} active={f.kind === k} onPress={() => setF({ ...f, kind: k })} />
           ))}
         </Wrap>
         <Lbl>Lieu</Lbl>
@@ -474,7 +474,7 @@ function ConsignesTab() {
       {CONSIGNES.map(cg => (
         <Card key={cg.k} style={{ marginBottom: 12 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9, marginBottom: 10 }}>
-            <Text style={{ fontSize: 22 }}>{cg.icon}</Text>
+            <Ic n={cg.icon} size={22} color={cg.color} />
             <Text style={{ fontWeight: '800', fontSize: 15, color: cg.color }}>{cg.label}</Text>
           </View>
           {cg.steps.map((s, i) => (
