@@ -136,3 +136,25 @@ numéro de visiteur affiché en entier, bouton retour qui recouvrait les actions
    « Garçon/Fille », évaluations de t1 sur des matières qu'il n'enseigne pas.
 5. Yeddi : les filtres de l'accueil se réinitialisent au retour d'une tâche
    (le Shell ne rend que le sommet de la pile — correction structurelle).
+
+---
+
+## Workflow de développement (depuis le 2026-07-12)
+
+**Le développement se fait dans `~/kogia/` (ext4, WSL)** — plus jamais dans
+`/mnt/c` (le système de fichiers Windows rend Metro/npm 8 à 30× plus lents ;
+c'était LA cause des chargements interminables sur téléphone).
+- `~/kogia/Kogia_Education` et `~/kogia/Kogia-job` : copies de travail (origin
+  = GitHub). Après chaque push, `git -C "/mnt/c/Current LAB/<repo>" pull
+  --ff-only` pour rafraîchir la copie visible côté Windows.
+- Mesures : npm ci 33 s (vs ~4 min), export web 9–18 s (vs 30–50 s),
+  bundle téléphone ~2 s une fois chaud.
+- Téléphone : Expo Go + tunnel (`npx expo start --tunnel`), liens **exps://**
+  uniquement (le chemin http des tunnels est détourné). SDK **54** obligatoire
+  (Apple gèle les mises à jour d'Expo Go depuis mai 2026).
+- Tests du cœur : `cd core && npm test` (node:test, 9 règles).
+- `eas-cli` installé globalement ; `eas.json` prêt (profil preview = APK).
+  Dès le JETON D'ACCÈS d'Othman (expo.dev → Access tokens) : `EXPO_TOKEN=…
+  eas init && eas update` → les apps s'ouvrent dans Expo Go SANS PC allumé,
+  partage testeurs/clients par lien permanent ; `eas build -p android
+  --profile preview` → APK installable.
