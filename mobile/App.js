@@ -12,6 +12,8 @@ export default function App() {
   const [ready, setReady] = useState(false)
   const [user, setUser] = useState(null)
   const [mods, setMods] = useState(null)
+  // Sans session, on ouvre par le rituel de marque (Welcome) avant Login.
+  const [welcomed, setWelcomed] = useState(false)
   // Nunito = la voix du web (index.css) ; chargée ici une fois pour toute l'app.
   const [fontsLoaded] = useFonts({ Nunito_600SemiBold, Nunito_700Bold, Nunito_800ExtraBold })
 
@@ -19,17 +21,18 @@ export default function App() {
     (async () => {
       await hydrate()
       // Les modules qui touchent db() ne sont chargés qu'après l'hydratation.
-      const [{ current }, clock, storage, Login, Shell] = await Promise.all([
+      const [{ current }, clock, storage, Login, Shell, Welcome] = await Promise.all([
         import('@core/auth.js'),
         import('@core/clock.js'),
         import('@core/storage.js'),
         import('./src/screens/Login.js'),
         import('./src/Shell.js'),
+        import('./src/screens/Welcome.js'),
       ])
       // Tant qu'il n'y a pas de vraie école : mode démonstration par défaut
       // (équivalent du ?live=1 du web), sans écraser un choix déjà mémorisé.
       if (storage.getItem('coreon_demo_live') == null) clock.setDemoLive(true)
-      setMods({ Login: Login.default, Shell: Shell.default })
+      setMods({ Login: Login.default, Shell: Shell.default, Welcome: Welcome.default })
       setUser(current())
       setReady(true)
     })()
@@ -41,14 +44,17 @@ export default function App() {
     </View>
   )
 
-  const { Login, Shell } = mods
+  const { Login, Shell, Welcome } = mods
+  const showWelcome = !user && !welcomed
   return (
     <SafeAreaProvider>
       <View style={{ flex: 1, backgroundColor: C.canvas }}>
-        <StatusBar style="dark" />
+        <StatusBar style={showWelcome ? 'light' : 'dark'} />
         {user
-          ? <Shell key={user.id} user={user} onLogout={() => setUser(null)} />
-          : <Login onLogin={setUser} />}
+          ? <Shell key={user.id} user={user} onLogout={() => { setUser(null); setWelcomed(true) }} />
+          : showWelcome
+            ? <Welcome onDone={() => setWelcomed(true)} />
+            : <Login onLogin={setUser} />}
       </View>
     </SafeAreaProvider>
   )
