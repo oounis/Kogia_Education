@@ -4,6 +4,8 @@
 // `icon` est le NOM d'une icône lucide, pas le composant : le web le résout dans
 // `lucide-react`, Android dans `lucide-react-native`. Le même menu sert les deux.
 import { featureEnabled } from './features.js'
+import { moduleForSchool } from './levels.js'
+import { settings } from './db.js'
 
 const ALL_NAV=[
   { to:'/app', label:'Tableau de bord', icon:'LayoutDashboard', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent'] },
@@ -15,6 +17,10 @@ const ALL_NAV=[
   { to:'/app/staff', label:'Personnel', icon:'BriefcaseBusiness', roles:['schooladmin','admin'] },
   { to:'/app/pointage', label:'Mon pointage', icon:'Fingerprint', roles:['teacher','supervisor','security','admin'] },
   { to:'/app/evaluate', label:'Évaluer', icon:'ClipboardCheck', roles:['teacher'] },
+  // ── Petite enfance : le trou du marché. Aucun ERP scolaire généraliste n'a ça.
+  { to:'/app/journal', label:'Journal du jour', icon:'NotebookPen', module:'journal',
+    roles:['teacher','admin','schooladmin','parent'],
+    labelFor:{ parent:'La journée de mon enfant' } },
   { to:'/app/results', label:'Suivi élèves', icon:'BarChart3', roles:['schooladmin','admin'] },
   { to:'/app/timetable', label:'Emploi du temps', icon:'CalendarClock', roles:['schooladmin','admin','teacher','parent','supervisor'] },
   { to:'/app/attendance', label:'Présence', icon:'CalendarCheck', roles:['schooladmin','teacher','admin','supervisor'] },
@@ -35,5 +41,18 @@ const ALL_NAV=[
   { to:'/app/settings', label:'Paramètres', icon:'Settings', roles:['schooladmin'] },
 ]
 
-// Un module éteint disparaît du menu et de la palette de commandes (features.js).
-export const NAV=ALL_NAV.filter(n=>featureEnabled(n.to))
+// Un module éteint disparaît du menu et de la palette (features.js).
+//
+// ET un module qui ne SERT PAS les niveaux de l'école disparaît aussi : une
+// crèche ne voit pas « Emploi du temps », une école primaire ne voit pas le
+// « Journal du jour ». Ce n'est pas un réglage d'affichage — c'est le modèle de
+// capacités (core/src/levels.js). Voir COMPANY_ARCHITECTURE.md §3.
+const moduleKey = n => n.module || n.to.replace('/app/', '') || 'dashboard'
+
+export function navFor(school) {
+  const levels = school?.levels
+  return ALL_NAV.filter(n => featureEnabled(n.to) && moduleForSchool(moduleKey(n), levels))
+}
+
+// Compat : le menu par défaut lit l'école courante.
+export const NAV = ALL_NAV.filter(n => featureEnabled(n.to) && moduleForSchool(moduleKey(n), settings()?.levels))

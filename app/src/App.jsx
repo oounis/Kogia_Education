@@ -13,6 +13,7 @@ import Evaluate from './pages/Evaluate.jsx'
 import Finance from './pages/Finance.jsx'
 import Payments from './pages/Payments.jsx'
 import Incidents from './pages/Incidents.jsx'
+import Journal from './pages/Journal.jsx'
 import Requests from './pages/Requests.jsx'
 import Notices from './pages/Notices.jsx'
 import Schools from './pages/Schools.jsx'
@@ -83,6 +84,7 @@ export default function App(){
         <Route path="/app/social" element={R(<Social/>, "/app/social")}/>
         <Route path="/app/security" element={R(<Security/>, "/app/security")}/>
         <Route path="/app/incidents" element={R(<Incidents/>, "/app/incidents")}/>
+        <Route path="/app/journal" element={R(<Journal/>, "/app/journal")}/>
         <Route path="/app/requests" element={R(<Requests/>, "/app/requests")}/>
         <Route path="/app/messages" element={R(<Messages/>, "/app/messages")}/>
         <Route path="/app/notices" element={R(<Notices/>, "/app/notices")}/>

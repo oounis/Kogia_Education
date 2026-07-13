@@ -20,6 +20,12 @@ export const FEATURES = {
   payments: true, finance: true, incidents: true, requests: true,
   social: true, security: true, events: true, messages: true, notices: true,
   staff: true, pointage: true, timetable: true,
+
+  // ── Petite enfance ────────────────────────────────────────────────────────
+  // Le journal du jour (repas, sieste, change, humeur) : c'est ce que les ERP
+  // scolaires n'ont PAS et ce que Famly/Procare ont — mais eux ne font pas
+  // l'école. Nous faisons les deux. Voir core/src/levels.js.
+  journal: true,
 }
 
 // Un chemin est-il ouvert ? (les routes non listées ne sont pas des modules)
@@ -38,6 +44,7 @@ const ROUTE_MODULE = {
   '/app/requests': 'requests',
   '/app/social': 'social',
   '/app/security': 'security',
+  '/app/journal': 'journal',
   '/app/events': 'events',
   '/app/staff': 'staff',
   '/app/pointage': 'pointage',

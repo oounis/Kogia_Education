@@ -43,12 +43,15 @@ export function demoUsers(){
     {id:"u_sadmin",role:"schooladmin",name:"Lina Aderra",email:"direction@alnour.tn",pw:"admin",phone:"+216 20 555 555"},
     {id:"u_admin",role:"admin",name:"Karim Jelassi",email:"admin@alnour.tn",pw:"office",phone:"+216 20 666 666"},
     {id:"t1",role:"teacher",name:"Othman Ounis",email:"enseignant@alnour.tn",pw:"teacher",teacherId:"t1"},
+    // L'éducatrice de la crèche et de la maternelle. Elle avait une fiche dans
+    // `teachers` mais AUCUN compte : elle ne pouvait pas se connecter.
+    {id:"t_ee",role:"teacher",name:"Ines Belhadj",email:"creche@alnour.tn",pw:"teacher",teacherId:"t_ee"},
     {id:"u_super",role:"supervisor",name:"Dali Brahmi",email:"surveillant@alnour.tn",pw:"super",phone:"+216 20 777 777"},
     // agent de sécurité : portail, visiteurs, rondes, soirées — distinct du surveillant
     {id:"u_secu",role:"security",name:"Mongi Zouaoui",email:"securite@alnour.tn",pw:"secu",gender:"Homme",phone:"+216 20 777 888"},
     // `gender` sert aux événements réservés aux mères ou aux pères (Espace parents).
-    {id:"p1",role:"parent",name:"Karim Ben Salah",email:"parent@alnour.tn",pw:"parent",gender:"Homme",childIds:["s1"],phone:"+216 20 888 111",occupation:"Ingénieur",address:"Tunis"},
-    {id:"p2",role:"parent",name:"Anis Trabelsi",email:"parent2@alnour.tn",pw:"parent",gender:"Homme",childIds:["s2"],phone:"+216 20 888 222",occupation:"Médecin"},
+    {id:"p1",role:"parent",name:"Karim Ben Salah",email:"parent@alnour.tn",pw:"parent",gender:"Homme",childIds:["s1","s29"],phone:"+216 20 888 111",occupation:"Ingénieur",address:"Tunis"},
+    {id:"p2",role:"parent",name:"Anis Trabelsi",email:"parent2@alnour.tn",pw:"parent",gender:"Homme",childIds:["s2","s32"],phone:"+216 20 888 222",occupation:"Médecin"},
     {id:"p3",role:"parent",name:"Salma Khelifi",email:"parent3@alnour.tn",pw:"parent",gender:"Femme",childIds:["s3"],phone:"+216 20 888 333",occupation:"Commerçante"},
     {id:"p4",role:"parent",name:"Sonia Ferchichi",email:"parent4@alnour.tn",pw:"parent",gender:"Femme",childIds:["s11"],phone:"+216 20 888 444",occupation:"Pharmacienne"},
     {id:"p5",role:"parent",name:"Mehdi Gharbi",email:"parent5@alnour.tn",pw:"parent",gender:"Homme",childIds:["s4"],phone:"+216 20 888 555",occupation:"Architecte"},
@@ -139,11 +142,18 @@ export function demoSocialEvents(){
 }
 
 function seed(){
+  // Une classe porte désormais son NIVEAU (`level`, cf. core/src/levels.js) —
+  // c'est lui qui décide des modules, pas une chaîne de caractères libre.
+  // L'école de démo fait crèche ET primaire : le cas exact que ni PowerSchool
+  // ni Famly ne savent servir, et que Coreon EDU sert sous un seul toit.
   const classes=[
-    {id:"c5a",name:"5ème A",grade:"5ème année",cycle:"Primaire"},
-    {id:"c6a",name:"6ème A",grade:"6ème année",cycle:"Primaire"},
-    {id:"c9a",name:"3ème A",grade:"3ème année",cycle:"Primaire"},
-    {id:"l2s",name:"4ème A",grade:"4ème année",cycle:"Primaire"},
+    {id:"kg_ns", name:"Crèche — Les Coccinelles", grade:"Crèche",        level:"nursery", cycle:"Petite enfance"},
+    {id:"kg_pk", name:"Pré-maternelle A",         grade:"Pré-maternelle", level:"prekg",  cycle:"Petite enfance"},
+    {id:"kg_1",  name:"Maternelle 1 A",           grade:"Maternelle 1",  level:"kg1",     cycle:"Petite enfance"},
+    {id:"c5a",name:"5ème A",grade:"5ème année",level:"g5",cycle:"Primaire"},
+    {id:"c6a",name:"6ème A",grade:"6ème année",level:"g6",cycle:"Primaire"},
+    {id:"c9a",name:"3ème A",grade:"3ème année",level:"g3",cycle:"Primaire"},
+    {id:"l2s",name:"4ème A",grade:"4ème année",level:"g4",cycle:"Primaire"},
   ]
   const S=(id,first,last,cls,parent,extra={})=>({id,name:`${first} ${last}`,initials:first[0]+last[0],classId:cls,parentId:parent,
     gender:extra.gender||"—",dob:extra.dob||"2015-05-10",bloodGroup:extra.bloodGroup||"O+",nationality:extra.nationality||"Tunisienne",
@@ -164,8 +174,23 @@ function seed(){
     S("s17","Firas","Nasri","c6a",null,{gender:"Garçon"}),S("s18","Ines","Hidri","c6a",null,{gender:"Fille"}),S("s19","Malek","Riahi","c6a",null,{gender:"Garçon"}),S("s20","Dorra","Lahmar","c6a",null,{gender:"Fille"}),
     S("s21","Aymen","Zouari","c9a",null,{gender:"Garçon"}),S("s22","Khouloud","Belhaj","c9a",null,{gender:"Fille"}),S("s23","Seif","Mabrouk","c9a",null,{gender:"Garçon"}),S("s24","Rim","Gabsi","c9a",null,{gender:"Fille"}),
     S("s25","Nadia","Toumi","l2s",null,{gender:"Fille"}),S("s26","Walid","Charfi","l2s",null,{gender:"Garçon"}),S("s27","Emna","Brahmi","l2s",null,{gender:"Fille"}),S("s28","Zied","Karray","l2s",null,{gender:"Garçon"}),
+
+    // ── PETITE ENFANCE ────────────────────────────────────────────────────────
+    // Adam Ben Salah (crèche) est le PETIT FRÈRE d'Amira (5ème A) — même parent,
+    // p1. C'est la démonstration de tout le produit : aujourd'hui, ce père a
+    // besoin de DEUX applications (Famly pour le petit, un ERP pour la grande).
+    // Ici il en ouvre UNE. C'est ça, notre position sur le marché.
+    S("s29","Adam","Ben Salah","kg_ns","p1",{gender:"Garçon",dob:"2024-02-11",allergies:"Lait de vache",medical:"Aucune"}),
+    S("s30","Lina","Gharbi","kg_ns",null,{gender:"Fille",dob:"2024-05-03"}),
+    S("s31","Rayan","Mejri","kg_ns",null,{gender:"Garçon",dob:"2023-11-20"}),
+    S("s32","Maya","Trabelsi","kg_pk","p2",{gender:"Fille",dob:"2022-04-18",allergies:"Aucune"}),
+    S("s33","Iyed","Khelifi","kg_pk",null,{gender:"Garçon",dob:"2022-08-09"}),
+    S("s34","Sirine","Jlassi","kg_pk",null,{gender:"Fille",dob:"2022-01-27"}),
+    S("s35","Nizar","Sassi","kg_1",null,{gender:"Garçon",dob:"2021-06-14"}),
+    S("s36","Farah","Hammami","kg_1",null,{gender:"Fille",dob:"2021-09-30"}),
   ]
   const teachers=[
+    {id:"t_ee",name:"Ines Belhadj",subject:"Petite enfance",classes:["kg_ns","kg_pk","kg_1"],gender:"Fille",qualification:"Éducatrice de jeunes enfants",experience:6,joiningDate:"2023-09-01",designation:"Éducatrice",phone:"+216 20 444 444",email:"creche@alnour.tn",address:"Tunis",salary:1500},
     {id:"t1",name:"Othman Ounis",subject:"Mathématiques",classes:["c5a","c6a"],gender:"Garçon",qualification:"Maîtrise en Mathématiques",experience:8,joiningDate:"2022-09-01",designation:"Instituteur principal",phone:"+216 20 333 333",email:"enseignant@alnour.tn",address:"Tunis",salary:1800},
     {id:"t2",name:"Hela Morjane",subject:"Éveil scientifique",classes:["c5a"],gender:"Fille",qualification:"Licence en Biologie",experience:5,joiningDate:"2023-09-01",designation:"Institutrice",phone:"+216 20 444 444",email:"hmorjane@alnour.tn",address:"Tunis",salary:1600},
     {id:"t3",name:"Sami Gabsi",subject:"Français",classes:["c6a","c9a"],gender:"Garçon",qualification:"Maîtrise de Français",experience:11,joiningDate:"2019-09-01",designation:"Professeur",phone:"+216 20 999 000",email:"sgabsi@alnour.tn",address:"Tunis",salary:1900},
@@ -272,7 +297,7 @@ function seed(){
       staffAttendance[iso]=srec
     }
   }
-  const settings={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026',
+  const settings={ levels:['nursery','prekg','kg1','kg2','g1','g2','g3','g4','g5','g6'], schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026',
     director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis',
     brand:BRAND.indigo, logoText:'AN', currency:'DT' }
   // ── écoles clientes de la plateforme (console Kogia Group). Al-Nour est
@@ -335,7 +360,10 @@ function seed(){
 
   return {classes,students,teachers,users,payments,evaluations,incidents,requests,books,routes,homework,events,socialEvents,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,visitors,rounds,logbook,timetables:genTimetables(classes),settings,schools}
 }
-export const DEFAULT_SETTINGS={ schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026', director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis', brand:BRAND.indigo, logoText:'AN', currency:'DT' }
+// `levels` : les niveaux que l'école accueille RÉELLEMENT. C'est ce qui décide
+// des modules visibles (core/src/levels.js). L'école de démo fait crèche ET
+// primaire — c'est justement le cas que personne d'autre ne sait servir.
+export const DEFAULT_SETTINGS={ levels:['nursery','prekg','kg1','kg2','g1','g2','g3','g4','g5','g6'], schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026', director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis', brand:BRAND.indigo, logoText:'AN', currency:'DT' }
 export const settings=()=>({...DEFAULT_SETTINGS, ...(db().settings||{})})
 export function saveSettings(patch){ return mutate(d=>{ d.settings={...DEFAULT_SETTINGS, ...(d.settings||{}), ...patch} }) }
 // ── Chargement + MIGRATION ──────────────────────────────────────────────────
