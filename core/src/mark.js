@@ -1,25 +1,30 @@
 // ════════════════════════════════════════════════════════════════════════════
-// LA MARQUE KOGIA — un seul tracé, partagé mot pour mot par le web et le natif.
+// LA MARQUE KOGIA — un K. Et, dans son négatif, une nageoire caudale.
 //
-// Le K ET le cachalot sont la MÊME silhouette : tête busquée → œil → corps →
-// pédoncule → nageoire caudale, où la caudale EST le bras du K et le creux entre
-// les deux lobes EST le creux du K. Comme la flèche de FedEx : on voit la lettre,
-// puis on voit l'animal, et on ne peut plus le « dé-voir ».
+// ON VOIT D'ABORD UN K. Puis on remarque que les deux bras ne sont pas des bras :
+// ce sont les deux LOBES d'une queue de cachalot, réunis sur un pédoncule, avec
+// l'encoche médiane en espace négatif. Comme la flèche de FedEx : rien n'est
+// dessiné, tout est suggéré — et une fois vue, on ne peut plus la « dé-voir ».
 //
-// L'ŒIL EST UN TROU (fill-rule evenodd), jamais un point blanc : un point blanc
-// trahit le logo dès qu'on le pose sur une couleur.
+// CE QU'IL N'Y A PAS, ET C'EST VOULU :
+//   • PAS D'ŒIL. Un œil fait une créature, donc une mascotte. C'était le défaut
+//     de TOUTES les versions précédentes de ce logo.
+//   • Pas de corps, pas de sourire, pas de jet, pas de dégradé, rien de mignon.
+//     Kogia Group est une entreprise de technologie.
 //
-// APLAT, jamais de dégradé — un logo doit tenir sur un tampon, une facture, une
-// icône monochrome, en impression. Il prend la couleur de la FAMILLE du produit.
+// L'animal est présent par ses QUALITÉS — compact, calme, intelligent, courbes
+// lisses, mouvement minimal, eaux profondes — jamais par son portrait.
 //
-// Ce fichier ne contient PLUS la baleine dessinée (corps, sourire, nageoire, jet,
-// croissant) : la mascotte cartoon est retirée. Une entreprise, une illustration.
+// Aplat. Prend la couleur de la FAMILLE du produit (currentColor). Grille 64.
+// Testé à 16 px, en monochrome et en NOIR PUR avant d'être retenu.
 // Source : brand/KOGIA_HARMONY.md §4
 // ════════════════════════════════════════════════════════════════════════════
 
 export const MARK_VIEWBOX = '0 0 64 64'
 
-export const MARK_PATH = {
-  d: 'M18 10 a10 10 0 0 1 10 10 v8.5 L51 9 L55.5 13.5 Q43.5 25 40.5 32 Q43.5 39 55.5 50.5 L51 55 L28 35.5 V44 a10 10 0 0 1 -20 0 V20 A10 10 0 0 1 18 10 Z M18 17.5 a3.6 3.6 0 1 0 0 7.2 a3.6 3.6 0 0 0 0 -7.2 Z',
-  rule: 'evenodd',
-}
+/** Les trois tracés de la marque : la hampe, le lobe haut, le lobe bas. */
+export const MARK_PARTS = [
+  'M10 14.25 a4.25 4.25 0 0 1 8.5 0 v35.5 a4.25 4.25 0 0 1 -8.5 0 Z',
+  'M21 32 C34 29 45 21 54 9 L58.5 14.5 C50 27 39 34.5 26 35.5 Z',
+  'M21 32 C34 35 45 43 54 55 L58.5 49.5 C50 37 39 29.5 26 28.5 Z',
+]
