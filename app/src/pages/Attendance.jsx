@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { current } from '@core/auth.js'
-import { db, mutate, studentById, classById } from '@core/db.js'
+import { db, mutate, studentById, classById , attParts } from '@core/db.js'
 import { notify } from '@core/notify.js'
 import { PageHead, Card, StatCard, SectionCard, Avatar, Btn, Badge, EmptyState, STATUS } from '../components/ui.jsx'
 import { currentClass, teacherSchedule } from '@core/data.js'
@@ -46,7 +46,7 @@ function StudentsInsights(){
   const A=useMemo(()=>{
     const days={} // iso → {present,absent,late, absents:[{sid,classId,status}]}
     for(const key in (d.attendance||{})){
-      const i=key.indexOf('_'); const classId=key.slice(0,i), iso=key.slice(i+1)
+      const {classId,iso}=attParts(key)
       const day=days[iso]=days[iso]||{present:0,absent:0,late:0,absents:[]}
       for(const [sid,st] of Object.entries(d.attendance[key])){
         day[st]!=null&&day[st]++
@@ -59,7 +59,7 @@ function StudentsInsights(){
     const cutoff=isoOf(new Date(Date.now()-30*86400000))
     const perStudent={}, perClass={}
     for(const key in (d.attendance||{})){
-      const i=key.indexOf('_'); const classId=key.slice(0,i), iso=key.slice(i+1)
+      const {classId,iso}=attParts(key)
       if(iso<cutoff) continue
       const pc=perClass[classId]=perClass[classId]||{present:0,absent:0,late:0}
       for(const [sid,st] of Object.entries(d.attendance[key])){

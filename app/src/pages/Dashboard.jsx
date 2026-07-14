@@ -6,7 +6,7 @@ import { SoftBars, SoftBarsH, Gauge, DistributionBar } from '../components/chart
 import { SERIES, LEVELS, axis as chartAxis, grid as chartGrid, tooltip as chartTip } from '@core/charts.js'
 import { Users, GraduationCap, Wallet, ShieldAlert, ClipboardCheck, CreditCard, Star, ArrowRight, Bell, FileText, TrendingUp, CalendarCheck, Radio, Stethoscope, UserX, CalendarDays, ChevronRight, Building2, Search, CheckCircle2 } from 'lucide-react'
 import { current } from '@core/auth.js'
-import { db, FEE_MONTHS, studentById, classById, settings } from '@core/db.js'
+import { db, FEE_MONTHS, studentById, classById, settings, attParts } from '@core/db.js'
 import { decisionsFor } from '@core/workbench.js'
 import { menuFor } from '@core/nav.js'
 import { t, dateLocale } from '@core/i18n.js'
@@ -173,7 +173,7 @@ export default function Dashboard(){
   const collectRate=totalFees?Math.round((collected/totalFees)*100):0
   // présence réelle : agrégation des appels enregistrés (14 derniers jours d'école)
   const attDays={}
-  for(const key in (d.attendance||{})){ const iso=key.slice(key.indexOf('_')+1)
+  for(const key in (d.attendance||{})){ const {iso}=attParts(key)
     const day=attDays[iso]=attDays[iso]||{present:0,absent:0,late:0}
     Object.values(d.attendance[key]).forEach(v=>{ day[v]!=null&&day[v]++ }) }
   const attDates=Object.keys(attDays).sort()

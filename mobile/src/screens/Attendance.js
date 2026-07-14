@@ -5,7 +5,7 @@
 // La feuille est écrite EXACTEMENT comme au web : db.attendance[classId_date] = {sid:statut}.
 import { useMemo, useState, useEffect, useReducer } from 'react'
 import { View, Text, Pressable, ScrollView } from 'react-native'
-import { db, mutate, studentById, classById } from '@core/db.js'
+import { db, mutate, studentById, classById , attParts } from '@core/db.js'
 import { notify } from '@core/notify.js'
 import { teacherSchedule, currentClass } from '@core/data.js'
 import { todayIso, isoOf, frDateLabel } from '@core/clock.js'
@@ -181,7 +181,7 @@ function SchoolView({ user }) {
   const A = useMemo(() => {
     const days = {} // iso → {present,absent,late, absents:[{sid,classId,status}]}
     for (const key in (d.attendance || {})) {
-      const i = key.indexOf('_'); const classId = key.slice(0, i), iso = key.slice(i + 1)
+      const { classId, iso } = attParts(key)
       const day = days[iso] = days[iso] || { present: 0, absent: 0, late: 0, absents: [] }
       for (const [sid, st] of Object.entries(d.attendance[key])) {
         day[st] != null && day[st]++
@@ -193,7 +193,7 @@ function SchoolView({ user }) {
     const cutoff = isoOf(new Date(Date.now() - 30 * 86400000))
     const perStudent = {}, perClass = {}
     for (const key in (d.attendance || {})) {
-      const i = key.indexOf('_'); const classId = key.slice(0, i), iso = key.slice(i + 1)
+      const { classId, iso } = attParts(key)
       if (iso < cutoff) continue
       const pc = perClass[classId] = perClass[classId] || { present: 0, absent: 0, late: 0 }
       for (const [sid, st] of Object.entries(d.attendance[key])) {

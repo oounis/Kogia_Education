@@ -597,6 +597,14 @@ export function setParentChildren(d, parentId, childIds=[]){
   childIds.forEach(id=>{ const s=d.students.find(x=>x.id===id); if(s) attach(d,s,parentId) })
 }
 
+// La clé d'un appel : `${classId}_${iso}`. Un identifiant de classe peut LUI-MÊME
+// contenir des « _ » (kg_ns, kg_pk…) — on coupe donc au DERNIER underscore, jamais
+// au premier. Couper au premier rendait /app/attendance blanc pour la direction
+// (« Invalid time value », trouvé au smoke test du 2026-07-15) et faussait en
+// silence l'agrégation de présence du tableau de bord pour la petite enfance.
+export const attKey=(classId,iso)=>classId+'_'+iso
+export function attParts(key){ const i=key.lastIndexOf('_'); return { classId:key.slice(0,i), iso:key.slice(i+1) } }
+
 export const studentById=id=>db().students.find(s=>s.id===id)
 export const classById=id=>db().classes.find(c=>c.id===id)
 export const studentsOfClass=cid=>db().students.filter(s=>s.classId===cid)

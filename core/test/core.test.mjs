@@ -273,3 +273,12 @@ test('i18n : le dictionnaire ne contient ni entrée vide ni copie du français',
     assert.notEqual(v, k, `traduction identique à la clé : ${k}`)
   }
 })
+
+// ── La clé d'appel se lit au DERNIER underscore (kg_ns_2026-07-14) ───────────
+import { attKey, attParts } from '../src/db.js'
+test('présence : un identifiant de classe peut contenir des underscores', () => {
+  assert.deepEqual(attParts('kg_ns_2026-07-14'), { classId: 'kg_ns', iso: '2026-07-14' })
+  assert.deepEqual(attParts('c1_2026-07-14'), { classId: 'c1', iso: '2026-07-14' })
+  assert.equal(attKey('kg_pk', '2026-07-15'), 'kg_pk_2026-07-15')
+  assert.ok(!isNaN(new Date(attParts(attKey('kg_1', '2026-07-15')).iso)), 'la date relue est valide')
+})
