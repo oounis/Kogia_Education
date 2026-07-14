@@ -235,3 +235,36 @@ l'interface n'est pas une règle.*
 | 2026-07-14 | **La règle n°7 s'applique au marketing** : témoignages inventés supprimés de la page d'accueil | La confiance se gagne par les principes (les 9 règles), pas par des clients imaginaires |
 | 2026-07-14 | La **catégorie** d'une demande = le groupe de son type, jamais une saisie | Une taxonomie de plus serait une case de plus à remplir faux |
 | 2026-07-14 | L'ardoise passe à `#485868` (7.31:1, AAA) et graisse 600 aux petites tailles | Retour d'Othman « texte très clair » — calculé, pas estimé, changé à la source |
+
+---
+
+# CARNET v2 — ouvert le 2026-07-15
+
+## Chantier 1 · L'arabe et le RTL — LA TRANCHE 1 EST LIVRÉE
+
+**Pourquoi en premier :** bloque tout le Golfe — la Vague 2 annoncée publiquement
+sur kogiagroup.com (« en préparation — ouverte par le chantier arabe/RTL »).
+
+**Livré (tranche 1) :** `core/src/i18n.js` — le français est la CLÉ (façon
+gettext) : `t('Tableau de bord')` → « لوحة المتابعة » ; une traduction absente
+retombe sur le français, jamais sur un trou, et **un test de couverture interdit
+à la dégradation de grandir** (navigation, sections, rôles, niveaux : 100 %).
+La langue est un choix d'appareil ; `dir()` l'accompagne toujours — l'arabe est
+une DIRECTION, pas une traduction. Tajawal (le Nunito de l'arabe), interlettrage
+zéro (les ligatures), `<html lang dir>` posés avant le premier rendu, sélecteur
+FR/ع sur la connexion, la pré-inscription et la barre du haut. Traduits : l'écorce
+(navigation, rôles, palette, notifications) + le parcours public du parent
+(pré-inscription, pièces, reçu) + la connexion. Vérifié au navigateur : un parent
+dépose une candidature entièrement en arabe, la barre latérale passe à droite,
+la direction la voit.
+
+**Tranches suivantes :** les pages métier une à une (tableau de bord/atelier,
+inscriptions, journal, accidents…) ; les classes Tailwind physiques restantes
+(ml-/pl-/text-left) vers des logiques (ms-/ps-/text-start) ; les dates et
+nombres localisés ; les documents officiels bilingues (le Golfe exige des
+bulletins bilingues) ; le barème et la réglementation par pays (Vague 2).
+
+## Les chantiers suivants de ce carnet
+2. Portail élève · 3. Permissions en matrice module × action (groupes, façon
+« Tool Rights ») · 4. Partage photo/vidéo (Famly l'a, une crèche l'attend) ·
+5. Un vrai backend avant la première vraie école.

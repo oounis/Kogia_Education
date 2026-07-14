@@ -60,6 +60,16 @@
 /* Typographie : 15 px en graisse 500 — un cran plus gras que le défaut, dans tous
    les produits Kogia. C'est un petit détail qui fait que tout paraît fabriqué exprès. */
 html { scroll-behavior: smooth; font-size: 15px }
+
+/* ── L'arabe (chantier RTL, carnet v2) ─────────────────────────────────────
+   Tajawal remplace Nunito ET Sora : l'arabe n'a pas de « display face » à
+   part. L'interlettrage négatif CASSE les ligatures arabes → zéro partout. */
+html[lang="ar"] {
+  --font-sans:    "Tajawal", "Nunito Variable", system-ui, sans-serif;
+  --font-display: "Tajawal", "Sora Variable", system-ui, sans-serif;
+}
+html[lang="ar"] body { letter-spacing: 0 }
+html[lang="ar"] h1, html[lang="ar"] h2, html[lang="ar"] h3, html[lang="ar"] h4 { letter-spacing: 0 }
 body {
   font-family: var(--font-sans); color: var(--color-ink); -webkit-font-smoothing: antialiased;
   font-weight: 500; line-height: 1.55; letter-spacing: -0.004em;

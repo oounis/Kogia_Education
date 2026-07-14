@@ -12,4 +12,14 @@ if (getItem('coreon_demo_live') == null) setDemoLive(true)
 import './index.css'
 import '@fontsource-variable/nunito'
 import '@fontsource-variable/plus-jakarta-sans'
+// Tajawal : le Nunito de l'arabe — rond, chaleureux. Chargé localement comme les
+// autres (jamais de CDN). Les trois graisses que l'interface utilise vraiment.
+import '@fontsource/tajawal/400.css'
+import '@fontsource/tajawal/500.css'
+import '@fontsource/tajawal/700.css'
+import { locale, dir } from '@core/i18n.js'
+// L'arabe n'est pas une traduction, c'est une DIRECTION : la langue et le sens
+// de lecture se posent sur <html> avant le premier rendu.
+document.documentElement.lang = locale()
+document.documentElement.dir = dir()
 ReactDOM.createRoot(document.getElementById('root')).render(<React.StrictMode><App/></React.StrictMode>)

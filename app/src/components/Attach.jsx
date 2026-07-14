@@ -22,6 +22,7 @@
 import { useState } from 'react'
 import { Paperclip, Check, Upload, Eye, X } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { t as tr } from '@core/i18n.js'
 
 // PDF : 2 Mo, on ne sait pas le compresser. IMAGE : 12 Mo acceptés à l'entrée,
 // parce qu'on la RÉDUIT nous-mêmes (1400 px, JPEG) avant de la stocker — une
@@ -132,7 +133,7 @@ export default function Attach({ types, value = [], onChange, readOnly = false }
               {a
                 ? <Check size={15} style={{ color: '#12946F' }} />
                 : <Paperclip size={15} className="text-muted" />}
-              <span className="truncate">{label}</span>
+              <span className="truncate">{tr(label)}</span>
               {a?.size ? <span className="text-[11px] text-muted shrink-0">({human(a.size)})</span> : null}
             </span>
 
@@ -140,7 +141,7 @@ export default function Attach({ types, value = [], onChange, readOnly = false }
               {a && (
                 <button type="button" onClick={() => open(a)}
                   className="text-xs font-semibold accent-text inline-flex items-center gap-1">
-                  <Eye size={13} /> Ouvrir
+                  <Eye size={13} /> {tr('Ouvrir')}
                 </button>
               )}
               {a && !readOnly && (
@@ -149,7 +150,7 @@ export default function Attach({ types, value = [], onChange, readOnly = false }
               )}
               {!readOnly && (
                 <label className="cursor-pointer text-xs font-semibold accent-text inline-flex items-center gap-1">
-                  <Upload size={13} /> {busy === t ? 'Lecture…' : a ? 'Remplacer' : 'Joindre'}
+                  <Upload size={13} /> {busy === t ? tr('Lecture…') : a ? tr('Remplacer') : tr('Joindre')}
                   <input type="file" className="hidden" accept="image/*,.pdf"
                     onChange={pick(t)} disabled={busy === t} />
                 </label>

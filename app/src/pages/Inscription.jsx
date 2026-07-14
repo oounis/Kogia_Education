@@ -26,6 +26,8 @@ import { settings } from '@core/db.js'
 import { LEVELS, schoolLevels } from '@core/levels.js'
 import { Card, Btn, Input, Field, Mark } from '../components/ui.jsx'
 import { Ic } from '../icons.jsx'
+import { t } from '@core/i18n.js'
+import LangSwitch from '../components/Lang.jsx'
 
 const empty = { childName: '', dob: '', level: '', parentName: '', parentPhone: '', parentEmail: '', note: '' }
 
@@ -41,11 +43,11 @@ export default function Inscription() {
 
   const submit = () => {
     const e = {}
-    if (!f.childName.trim()) e.childName = 'Le nom de l’enfant est requis.'
-    if (!f.dob) e.dob = 'La date de naissance est requise.'
-    if (!f.level) e.level = 'Choisissez un niveau.'
-    if (!f.parentName.trim()) e.parentName = 'Votre nom est requis.'
-    if (!/^[\d\s+]{8,}$/.test(f.parentPhone)) e.parentPhone = 'Un numéro joignable, s’il vous plaît.'
+    if (!f.childName.trim()) e.childName = t('Le nom de l’enfant est requis.')
+    if (!f.dob) e.dob = t('La date de naissance est requise.')
+    if (!f.level) e.level = t('Choisissez un niveau.')
+    if (!f.parentName.trim()) e.parentName = t('Votre nom est requis.')
+    if (!/^[\d\s+]{8,}$/.test(f.parentPhone)) e.parentPhone = t('Un numéro joignable, s’il vous plaît.')
     if (Object.keys(e).length) return setErr(e)
     // apply() VÉRIFIE que le dossier est réellement écrit — le reçu ne ment pas.
     const r = apply({ ...f, files })
@@ -64,7 +66,7 @@ export default function Inscription() {
           <span className="w-14 h-14 rounded-2xl grid place-items-center mx-auto mb-4 accent-soft accent-text">
             <Ic n="Check" size={28} />
           </span>
-          <h1 className="text-2xl font-extrabold">Candidature reçue.</h1>
+          <h1 className="text-2xl font-extrabold">{t('Candidature reçue.')}</h1>
           <p className="text-muted mt-2 max-w-md mx-auto">
             L’école va l’examiner et vous recontactera au <b>{a.parentPhone}</b>.
             {done.filesDropped
@@ -74,12 +76,12 @@ export default function Inscription() {
                 : <> Les pièces manquantes vous seront demandées.</>}
           </p>
           <div className="mt-5 inline-block rounded-xl border border-line px-5 py-3">
-            <div className="text-xs font-bold text-muted uppercase tracking-wider">Votre référence</div>
+            <div className="text-xs font-bold text-muted uppercase tracking-wider">{t('Votre référence')}</div>
             <div className="text-xl font-extrabold tabular-nums">{a.id.toUpperCase()}</div>
           </div>
           <p className="text-xs text-muted mt-4">Notez-la : elle nous permet de retrouver le dossier de {a.childName}.</p>
           <div className="mt-6">
-            <Link to="/"><Btn variant="ghost">Retour à l’accueil</Btn></Link>
+            <Link to="/"><Btn variant="ghost">{t('Retour à l’accueil')}</Btn></Link>
           </div>
         </Card>
       </Screen>
@@ -89,30 +91,29 @@ export default function Inscription() {
   return (
     <Screen>
       <div className="text-center mb-6">
-        <h1 className="text-3xl font-extrabold">Pré-inscription</h1>
+        <h1 className="text-3xl font-extrabold">{t('Pré-inscription')}</h1>
         <p className="text-muted mt-2 max-w-lg mx-auto">
-          Quelques informations, une minute. Joignez les pièces si vous les avez —
-          sinon l’école vous les demandera.
+          {t('Quelques informations, une minute. Joignez les pièces si vous les avez — sinon l’école vous les demandera.')}
         </p>
       </div>
 
       <Card className="p-6 grid gap-4">
-        <Field label="Nom et prénom de l’enfant *" error={err.childName}>
+        <Field label={t('Nom et prénom de l’enfant *')} error={err.childName}>
           <Input value={f.childName} onChange={e => set('childName', e.target.value)} placeholder="Adam Ben Salah" />
         </Field>
 
-        <Field label="Date de naissance *" error={err.dob}>
+        <Field label={t('Date de naissance *')} error={err.dob}>
           <Input type="date" value={f.dob} onChange={e => set('dob', e.target.value)} />
         </Field>
 
         <div>
-          <div className="text-sm font-semibold mb-1.5">Niveau demandé *</div>
+          <div className="text-sm font-semibold mb-1.5">{t('Niveau demandé *')}</div>
           <div className="flex flex-wrap gap-2">
             {LEVELS.filter(l => levels.includes(l.key)).map(l => (
               <button key={l.key} type="button" onClick={() => set('level', l.key)}
                 className={`px-3 py-2 rounded-xl text-[13px] font-bold border transition
                   ${f.level === l.key ? 'text-white border-transparent accent-bg' : 'bg-white border-line text-ink hover:border-ink/25'}`}>
-                {l.label}
+                {t(l.label)}
               </button>
             ))}
           </div>
@@ -120,16 +121,16 @@ export default function Inscription() {
         </div>
 
         <div className="border-t border-line pt-4 mt-1">
-          <div className="text-sm font-bold mb-3">Le parent ou tuteur</div>
+          <div className="text-sm font-bold mb-3">{t('Le parent ou tuteur')}</div>
           <div className="grid sm:grid-cols-2 gap-4">
-            <Field label="Votre nom *" error={err.parentName}>
+            <Field label={t('Votre nom *')} error={err.parentName}>
               <Input value={f.parentName} onChange={e => set('parentName', e.target.value)} placeholder="Karim Ben Salah" />
             </Field>
-            <Field label="Téléphone *" error={err.parentPhone}>
+            <Field label={t('Téléphone *')} error={err.parentPhone}>
               <Input value={f.parentPhone} onChange={e => set('parentPhone', e.target.value)} placeholder="+216 20 000 000" />
             </Field>
           </div>
-          <Field label="E-mail (facultatif)">
+          <Field label={t('E-mail (facultatif)')}>
             <Input type="email" value={f.parentEmail} onChange={e => set('parentEmail', e.target.value)} placeholder="karim@mail.tn" />
           </Field>
         </div>
@@ -141,10 +142,9 @@ export default function Inscription() {
             aucune candidature. Le parent joint ce qu'il a ; l'école réclamera le reste. */}
         {f.level && (
           <div className="border-t border-line pt-4">
-            <div className="text-sm font-bold mb-1">Pièces (facultatif maintenant)</div>
+            <div className="text-sm font-bold mb-1">{t('Pièces (facultatif maintenant)')}</div>
             <p className="text-xs text-muted mb-3">
-              Joignez ce que vous avez sous la main — une photo prise au téléphone suffit.
-              Ce qui manque, l’école vous le demandera. <b>Rien n’est bloquant à cette étape.</b>
+              {t('Joignez ce que vous avez sous la main — une photo prise au téléphone suffit. Ce qui manque, l’école vous le demandera.')} <b>{t('Rien n’est bloquant à cette étape.')}</b>
             </p>
             <Attach
               types={docsFor(f.level)}
@@ -153,7 +153,7 @@ export default function Inscription() {
           </div>
         )}
 
-        <Field label="Un mot pour l’école (facultatif)">
+        <Field label={t('Un mot pour l’école (facultatif)')}>
           <textarea rows={3} value={f.note} onChange={e => set('note', e.target.value)}
             placeholder="Il vient d’une autre école, il est allergique aux arachides…"
             className="w-full rounded-xl border border-line px-3 py-2 text-sm accent-ring" />
@@ -166,7 +166,7 @@ export default function Inscription() {
           </div>
         )}
         <Btn size="lg" className="w-full justify-center" onClick={submit}>
-          Envoyer ma candidature <Ic n="ArrowRight" size={16} />
+          {t('Envoyer ma candidature')} <Ic n="ArrowRight" size={16} className="rtl:-scale-x-100" />
         </Btn>
         <p className="text-xs text-muted text-center">
           Vos informations ne servent qu’à cette candidature. {s?.schoolName || 'L’école'} est la seule à les voir.
@@ -190,11 +190,11 @@ function Screen({ children }) {
               coreon <span className="accent-text">edu</span>
             </span>
           </Link>
-          <span className="text-sm text-muted ml-auto">{settings()?.schoolName}</span>
+          <span className="ms-auto flex items-center gap-3"><span className="text-sm text-muted">{settings()?.schoolName}</span><LangSwitch/></span>
         </div>
       </header>
       <main className="max-w-2xl mx-auto px-6 py-10">{children}</main>
-      <footer className="text-center text-xs text-muted pb-8">par Kogia Group</footer>
+      <footer className="text-center text-xs text-muted pb-8">{t('par Kogia Group')}</footer>
     </div>
   )
 }

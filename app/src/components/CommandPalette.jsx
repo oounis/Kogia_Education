@@ -6,6 +6,7 @@ import { NAV } from '@core/nav.js'
 import { Avatar } from './ui.jsx'
 import { Search, CornerDownLeft } from 'lucide-react'
 import { Ic } from '../icons.jsx'
+import { t } from '@core/i18n.js'
 
 const Kbd=({children})=><span className="text-[11px] font-bold text-muted border border-line rounded-md px-1.5 py-0.5 bg-canvas">{children}</span>
 
@@ -22,7 +23,7 @@ export default function CommandPalette({ open, onClose, user }){
     const out=[]
     NAV.filter(n=>n.roles.includes(user.role)&&(!query||n.label.toLowerCase().includes(query)))
       .slice(0,query?6:9)
-      .forEach(n=>out.push({group:'Pages',label:n.labelFor?.[user.role]||n.label,icon:n.icon,run:()=>navigate(n.to)}))
+      .forEach(n=>out.push({group:t('Pages'),label:t(n.labelFor?.[user.role]||n.label),icon:n.icon,run:()=>navigate(n.to)}))
     const canStudents=['schooladmin','admin','supervisor','teacher'].includes(user.role)
     const canTeachers=['schooladmin','admin'].includes(user.role)
     if(query&&canStudents) d.students.filter(s=>s.name.toLowerCase().includes(query)).slice(0,5)
@@ -48,11 +49,11 @@ export default function CommandPalette({ open, onClose, user }){
           <div className="flex items-center gap-2.5 px-4 border-b border-line shrink-0">
             <Search size={17} className="text-muted"/>
             <input autoFocus value={q} onChange={e=>setQ(e.target.value)} onKeyDown={onKey} aria-label="Recherche globale"
-              placeholder="Rechercher une page, un élève, un enseignant…" className="flex-1 py-3.5 text-sm outline-none bg-transparent"/>
+              placeholder={t('Rechercher une page, un élève, un enseignant…')} className="flex-1 py-3.5 text-sm outline-none bg-transparent"/>
             <Kbd>esc</Kbd>
           </div>
           <div className="overflow-y-auto scroll-thin p-2 flex-1">
-            {items.length===0 && <div className="px-3 py-10 text-center text-sm text-muted">Aucun résultat pour « {q} »</div>}
+            {items.length===0 && <div className="px-3 py-10 text-center text-sm text-muted">{t('Aucun résultat pour')} « {q} »</div>}
             {items.map((it,i)=>{ const head=it.group!==lastGroup?it.group:null; lastGroup=it.group
               return (<div key={it.group+it.label}>
                 {head&&<div className="text-[11px] font-extrabold uppercase tracking-wide text-muted px-2.5 pt-2 pb-1">{head}</div>}

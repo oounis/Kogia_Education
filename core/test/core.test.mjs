@@ -235,3 +235,41 @@ test('demandes : catégorie → assigné → échéance → clôture, tout est t
   assert.ok(!keys.includes('req-retard') || db().requests.some(r => r.status === 'approved' && r.deadline && r.id !== 'req_w1'),
     'une demande clôturée quitte la liste des retards')
 })
+
+// ── L'arabe n'est pas une traduction, c'est une direction (i18n.js) ──────────
+import { t, setLocale, locale, dir, LOCALES, AR } from '../src/i18n.js'
+import { NAV, SECTIONS } from '../src/nav.js'
+import { LEVELS, CYCLES } from '../src/levels.js'
+
+test('i18n : langue, direction, persistance, et retour au français jamais au trou', () => {
+  setLocale('fr')
+  assert.equal(locale(), 'fr'); assert.equal(dir(), 'ltr')
+  assert.equal(t('Tableau de bord'), 'Tableau de bord')
+  setLocale('ar')
+  assert.equal(dir(), 'rtl')
+  assert.equal(t('Tableau de bord'), 'لوحة المتابعة')
+  assert.equal(t('Phrase jamais traduite'), 'Phrase jamais traduite', 'clé absente → français, jamais un trou')
+  setLocale('xx')                                     // langue inconnue : refusée
+  assert.equal(locale(), 'ar')
+  setLocale('fr')
+})
+
+test('i18n : la couverture ne régresse pas — navigation, sections, rôles, niveaux', () => {
+  setLocale('ar')
+  const misses = []
+  const need = s => { if (!s) return; if (t(s) === s) misses.push(s) }
+  for (const n of NAV) { need(n.label); Object.values(n.labelFor || {}).forEach(need) }
+  SECTIONS.forEach(s => need(s.label))
+  LEVELS.forEach(l => need(l.label))
+  Object.values(CYCLES).forEach(c => need(c.label))
+  for (const r of ['Plateforme','Direction','Administration','Enseignant','Surveillant','Sécurité','Parent']) need(r)
+  setLocale('fr')
+  assert.deepEqual(misses, [], `traductions manquantes : ${misses.join(' · ')}`)
+})
+
+test('i18n : le dictionnaire ne contient ni entrée vide ni copie du français', () => {
+  for (const [k, v] of Object.entries(AR)) {
+    assert.ok(v && v.trim().length, `entrée vide : ${k}`)
+    assert.notEqual(v, k, `traduction identique à la clé : ${k}`)
+  }
+})

@@ -17,6 +17,7 @@
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/nunito": "^5.2.7",
     "@fontsource-variable/plus-jakarta-sans": "^5.2.8",
+    "@fontsource/tajawal": "^5.2.7",
     "@headlessui/react": "^2.2.10",
     "@xyflow/react": "^12.11.1",
     "clsx": "^2.1.1",
