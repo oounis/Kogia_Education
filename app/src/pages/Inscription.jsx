@@ -11,13 +11,17 @@
 //
 // Un parent tunisien remplit ça sur un téléphone, souvent debout, parfois avec un
 // enfant dans les bras. Donc : une seule colonne, des gros champs, aucune
-// question qu'on peut poser plus tard. Les PIÈCES ne sont pas demandées ici —
-// elles se règlent avec l'école, après. Une page qui exige un scan d'acte de
-// naissance à 22h ne reçoit aucune candidature.
+// question qu'on peut poser plus tard.
+//
+// LES PIÈCES sont téléversables ici, mais AUCUNE n'est bloquante : une page qui
+// exige un scan d'acte de naissance à 22h ne reçoit aucune candidature. Le parent
+// joint ce qu'il a ; l'école réclame le reste. Ce qui est REÇU est un vrai fichier,
+// pas une case cochée — c'est le défaut qu'Othman a trouvé le 2026-07-14.
 // ════════════════════════════════════════════════════════════════════════════
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { apply } from '@core/admissions.js'
+import { apply, docsFor, DOCS } from '@core/admissions.js'
+import Attach from '../components/Attach.jsx'
 import { settings } from '@core/db.js'
 import { LEVELS, schoolLevels } from '@core/levels.js'
 import { Card, Btn, Input, Field, Mark } from '../components/ui.jsx'
@@ -29,6 +33,7 @@ export default function Inscription() {
   const s = settings()
   const levels = schoolLevels(s)                 // l'école ne propose que SES niveaux
   const [f, setF] = useState(empty)
+  const [files, setFiles] = useState([])
   const [err, setErr] = useState({})
   const [done, setDone] = useState(null)
   const set = (k, v) => { setF(p => ({ ...p, [k]: v })); setErr(e => ({ ...e, [k]: null })) }
@@ -41,7 +46,7 @@ export default function Inscription() {
     if (!f.parentName.trim()) e.parentName = 'Votre nom est requis.'
     if (!/^[\d\s+]{8,}$/.test(f.parentPhone)) e.parentPhone = 'Un numéro joignable, s’il vous plaît.'
     if (Object.keys(e).length) return setErr(e)
-    setDone(apply(f))
+    setDone(apply({ ...f, files }))
   }
 
   // ── Reçu. Le parent repart avec une référence : il peut rappeler et être suivi.
@@ -55,7 +60,9 @@ export default function Inscription() {
           <h1 className="text-2xl font-extrabold">Candidature reçue.</h1>
           <p className="text-muted mt-2 max-w-md mx-auto">
             L’école va l’examiner et vous recontactera au <b>{done.parentPhone}</b>.
-            Les pièces à fournir vous seront demandées à ce moment-là — rien à envoyer maintenant.
+            {done.files?.length
+              ? <> Nous avons bien reçu <b>{done.files.length} pièce(s)</b>.</>
+              : <> Les pièces manquantes vous seront demandées.</>}
           </p>
           <div className="mt-5 inline-block rounded-xl border border-line px-5 py-3">
             <div className="text-xs font-bold text-muted uppercase tracking-wider">Votre référence</div>
@@ -75,8 +82,8 @@ export default function Inscription() {
       <div className="text-center mb-6">
         <h1 className="text-3xl font-extrabold">Pré-inscription</h1>
         <p className="text-muted mt-2 max-w-lg mx-auto">
-          Quelques informations, une minute. Aucun document à joindre maintenant —
-          l’école vous dira quoi apporter.
+          Quelques informations, une minute. Joignez les pièces si vous les avez —
+          sinon l’école vous les demandera.
         </p>
       </div>
 
@@ -117,6 +124,25 @@ export default function Inscription() {
             <Input type="email" value={f.parentEmail} onChange={e => set('parentEmail', e.target.value)} placeholder="karim@mail.tn" />
           </Field>
         </div>
+
+        {/* LES PIÈCES. L'ancienne version n'en demandait AUCUNE, alors que l'écran
+            Inscriptions parlait de « pièces à fournir » : le produit promettait un
+            document qu'il n'avait jamais reçu. Corrigé (défaut trouvé par Othman).
+            Rien n'est OBLIGATOIRE ici : une page qui exige un scan à 22h ne reçoit
+            aucune candidature. Le parent joint ce qu'il a ; l'école réclamera le reste. */}
+        {f.level && (
+          <div className="border-t border-line pt-4">
+            <div className="text-sm font-bold mb-1">Pièces (facultatif maintenant)</div>
+            <p className="text-xs text-muted mb-3">
+              Joignez ce que vous avez sous la main — une photo prise au téléphone suffit.
+              Ce qui manque, l’école vous le demandera. <b>Rien n’est bloquant à cette étape.</b>
+            </p>
+            <Attach
+              types={docsFor(f.level)}
+              value={files}
+              onChange={setFiles} />
+          </div>
+        )}
 
         <Field label="Un mot pour l’école (facultatif)">
           <textarea rows={3} value={f.note} onChange={e => set('note', e.target.value)}

@@ -52,13 +52,16 @@ export const appById = id => applications().find(a => a.id === id) || null
 function write(next) { const d = db(); d.applications = next; save(d) }
 
 /** Une nouvelle candidature. Le parent la dépose ; l'école ne saisit rien. */
-export function apply({ childName, dob, level, parentName, parentPhone, parentEmail, note = '' }) {
+export function apply({ childName, dob, level, parentName, parentPhone, parentEmail, note = '', files = [] }) {
   const a = {
     id: 'a' + Date.now().toString(36),
     childName, dob, level,
     parentName, parentPhone, parentEmail, note,
     stage: 'nouvelle',
-    docs: {},                       // { [docKey]: true } — fourni
+    // LES PIÈCES SONT DES FICHIERS, pas des cases à cocher. Une pièce « fournie »
+    // sans fichier derrière était un mensonge d'interface : l'administration
+    // croyait la détenir. Corrigé le 2026-07-14 (défaut trouvé par Othman).
+    files,                          // [{ type, name, size, mime, data }]
     createdAt: now(),
     history: [{ at: now(), stage: 'nouvelle', by: 'Parent (en ligne)' }],
     studentId: null,                // rempli à l'inscription — la trace du lien
@@ -67,15 +70,18 @@ export function apply({ childName, dob, level, parentName, parentPhone, parentEm
   return a
 }
 
-export function setDoc(id, docKey, given, by = 'Administration') {
-  const next = applications().map(a => a.id !== id ? a : { ...a, docs: { ...a.docs, [docKey]: !!given } })
-  write(next)
+/** L'administration ajoute une pièce reçue au guichet (papier scanné). */
+export function setFiles(id, files) {
+  write(applications().map(a => a.id !== id ? a : { ...a, files }))
   return appById(id)
 }
 
+/** Une pièce est fournie si — et seulement si — le FICHIER existe. */
+export const hasDoc = (a, key) => (a.files || []).some(f => f.type === key && f.data)
+
 /** Les pièces obligatoires sont-elles toutes là ? Sinon on ne passe pas à l'étude. */
 export function docsComplete(a) {
-  return docsFor(a.level).filter(d => d.required).every(d => a.docs?.[d.key])
+  return docsFor(a.level).filter(d => d.required).every(d => hasDoc(a, d.key))
 }
 
 /** Faire avancer une candidature. Refuse les sauts d'étape : le parcours est un parcours. */

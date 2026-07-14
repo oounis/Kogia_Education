@@ -9,9 +9,10 @@
 // système ne ment jamais sur une place qu'il n'a pas.
 import { useState } from 'react'
 import {
-  applications, appById, STAGES, docsFor, docsComplete, setDoc, advance,
+  applications, appById, STAGES, docsFor, docsComplete, hasDoc, setFiles, advance,
   openClasses, enrol, summary, stageLabel,
 } from '@core/admissions.js'
+import Attach from '../components/Attach.jsx'
 import { labelOf } from '@core/levels.js'
 import { PageHead, Card, Btn, Badge, EmptyState, Avatar, Modal, STATUS } from '../components/ui.jsx'
 import { Ic } from '../icons.jsx'
@@ -120,27 +121,21 @@ export default function Admissions() {
         {a && (
           <div className="space-y-5">
             <div>
-              <div className="text-sm font-bold mb-2">Pièces à fournir</div>
-              <div className="grid gap-1.5">
-                {docsFor(a.level).map(d => {
-                  const on = !!a.docs?.[d.key]
-                  return (
-                    <button key={d.key}
-                      onClick={() => { setDoc(a.id, d.key, !on); refresh() }}
-                      className="flex items-center justify-between gap-3 rounded-xl border border-line px-3 py-2 text-left hover:border-ink/20">
-                      <span className="text-[13px] font-semibold flex items-center gap-2">
-                        <Ic n={on ? 'CheckCircle2' : 'Circle'} size={16}
-                          style={{ color: on ? STATUS.ok : STATUS.neutral }} />
-                        {d.label}
-                        {d.required && <span className="text-[10px] font-extrabold uppercase text-muted">requis</span>}
-                      </span>
-                      <span className="text-xs font-bold" style={{ color: on ? STATUS.ok : STATUS.warn }}>
-                        {on ? 'Fournie' : 'Manquante'}
-                      </span>
-                    </button>
-                  )
-                })}
-              </div>
+              <div className="text-sm font-bold mb-1">Pièces</div>
+              {/* On OUVRE le document. Avant, on cochait une case alors qu'AUCUN
+                  fichier n'existait : l'école croyait détenir la pièce. */}
+              <p className="text-xs text-muted mb-2">
+                Ce que le parent a joint. L’administration peut compléter ce qui arrive au guichet.
+              </p>
+              <Attach
+                types={docsFor(a.level)}
+                value={a.files || []}
+                onChange={files => { setFiles(a.id, files); refresh() }} />
+              {!docsComplete(a) && (
+                <p className="text-[12px] mt-2" style={{ color: STATUS.warn }}>
+                  Il manque : {docsFor(a.level).filter(d => d.required && !hasDoc(a, d.key)).map(d => d.label).join(', ')}.
+                </p>
+              )}
             </div>
 
             {/* Inscrire : la capacité décide. Une classe pleine bascule en attente. */}
