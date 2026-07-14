@@ -332,7 +332,7 @@ function HeroSearch(){
 // Vide, elle reste une information : l'école est à jour.
 function Workbench({ items, className='' }){
   const TONE={danger:STATUS.danger,warn:STATUS.warn,info:STATUS.info}
-  return (<Card className={`p-5 ${className}`}>
+  return (<Card className={`p-5 min-w-0 ${className}`}>
     <div className="flex items-center justify-between mb-2">
       <h3 className="font-bold">{t('À décider')}</h3>
       {items.length>0&&<span className="text-xs font-bold px-2.5 py-0.5 rounded-full accent-soft accent-text tabular-nums">{items.reduce((s,i)=>s+i.count,0)}</span>}
@@ -344,7 +344,7 @@ function Workbench({ items, className='' }){
             return (<Link key={it.key} to={it.to} className="flex items-center gap-3 py-2.5 group">
               <span className="w-9 h-9 grid place-items-center rounded-xl shrink-0" style={{background:c+'16',color:c}}><Ic n={it.icon} size={17}/></span>
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold group-hover:accent-text">{it.label}</span>
+                <span className="block text-sm font-semibold group-hover:accent-text break-words">{it.label}</span>
                 <span className="block text-[12px] text-muted truncate">{it.sub}</span></span>
               <ChevronRight size={15} className="text-muted shrink-0 group-hover:accent-text"/>
             </Link>)})}
