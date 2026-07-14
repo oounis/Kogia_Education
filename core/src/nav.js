@@ -95,6 +95,10 @@ const ALL_NAV=[
   { to:'/app/behavior', section:'pedagogie', pinned:['teacher'], label:'Comportement', icon:'Smile', module:'behavior',
     roles:['teacher','admin','schooladmin','parent'],
     labelFor:{ parent:'Comportement de mon enfant' } },
+  // Moments : le partage photo/vidéo de la journée — l'attente n°1 d'une crèche.
+  // La vie privée des enfants est tenue par le cœur (gallery.js).
+  { to:'/app/gallery', section:'quotidien', pinned:['parent'], label:'Moments', icon:'Camera', module:'gallery',
+    roles:['teacher','admin','schooladmin','parent'] },
   { to:'/app/requests', section:'equipe', label:'Demandes', icon:'FileText', roles:['teacher','admin','schooladmin'] },
   { to:'/app/messages', section:'quotidien', label:'Messages', icon:'MessageSquare', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent'] },
   { to:'/app/notices', section:'quotidien', label:'Annonces', icon:'Megaphone', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent'] },

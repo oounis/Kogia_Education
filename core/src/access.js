@@ -27,6 +27,7 @@ export const ROUTE_ROLES={
   '/app/security': ['security','schooladmin','admin'],
   '/app/incidents': ['supervisor','security','admin','schooladmin'],
   '/app/behavior': ['teacher','admin','schooladmin','parent'],
+  '/app/gallery': ['teacher','admin','schooladmin','parent'],
   // Le journal du jour : l'éducatrice le remplit, le parent le lit.
   '/app/journal': ['teacher','admin','schooladmin','parent'],
   '/app/admissions': ['schooladmin','admin'],

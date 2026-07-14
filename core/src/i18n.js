@@ -98,6 +98,7 @@ export const AR = {
   'Déclarations d’accident': 'تصاريح الإصابات',
   'Demandes': 'المطالب',
   'Comportement': 'السلوك',
+  'Moments': 'اللحظات',
   'Comportement de mon enfant': 'سلوك طفلي',
   'Suivi du comportement': 'متابعة السلوك',
   'Messages': 'الرسائل',

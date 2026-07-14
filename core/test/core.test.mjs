@@ -321,3 +321,44 @@ test('comportement : rien ne s\'efface — un retrait est tracé', () => {
   assert.ok(still.removed && still.removed.by, 'mais elle est marquée retirée, avec trace')
   assert.ok(!behaviorSummary('s3').recent.some(e => e.id === entry.id), 'et ne compte plus dans le bilan')
 })
+
+// ── Les moments (photo/vidéo) : la vie privée des enfants, dans le cœur ───────
+import { share, feedForParent, visibleToParent, toggleLike, removeMoment } from '../src/gallery.js'
+
+test('moments : un parent ne voit QUE son enfant ou la classe de son enfant', () => {
+  const d = db()
+  const p1 = d.users.find(u => u.id === 'p1')   // parent de s1 (classe c5a) et s29
+  const p2 = d.users.find(u => u.id === 'p2')   // parent de s2 (classe c5a) et s32
+  const teacher = d.users.find(u => u.id === 't1')
+
+  // un moment identifié SUR s1 : visible par p1, PAS par p2
+  const { moment: mS1 } = share({ classId: 'c5a', childIds: ['s1'], caption: 'Photo de s1', media: [{ type:'image', data:'x' }], byId: teacher.id, byName: teacher.name })
+  assert.equal(visibleToParent(mS1, p1), true, 'le parent de l\'enfant le voit')
+  assert.equal(visibleToParent(mS1, p2), false, 'un autre parent ne voit PAS la photo d\'un enfant qui n\'est pas le sien')
+
+  // un moment DE CLASSE (aucun enfant identifié) en c5a : visible par les deux (leurs enfants y sont)
+  const { moment: mClass } = share({ classId: 'c5a', childIds: [], caption: 'Sortie de classe', media: [{ type:'image', data:'x' }], byId: teacher.id, byName: teacher.name })
+  assert.equal(visibleToParent(mClass, p1), true)
+  assert.equal(visibleToParent(mClass, p2), true)
+
+  // un moment de classe d'une AUTRE classe (c6a) : invisible pour p1 (son enfant n'y est pas)
+  const { moment: mOther } = share({ classId: 'c6a', childIds: [], caption: 'Autre classe', media: [{ type:'image', data:'x' }], byId: teacher.id, byName: teacher.name })
+  assert.equal(visibleToParent(mOther, p1), false, 'la classe d\'un autre enfant reste privée')
+
+  // le fil du parent ne contient que le permis
+  const feed = feedForParent(p1)
+  assert.ok(feed.some(m => m.id === mS1.id) && feed.some(m => m.id === mClass.id))
+  assert.ok(!feed.some(m => m.id === mOther.id), 'le fil ne fuit jamais une autre classe')
+})
+
+test('moments : partager exige une photo ou un mot ; le cœur du parent (like) bascule', () => {
+  const d = db()
+  const teacher = d.users.find(u => u.id === 't1')
+  assert.ok(share({ classId: 'c5a', childIds: [], byId: teacher.id, byName: teacher.name }).error, 'ni photo ni mot → refusé')
+  const { moment } = share({ classId: 'c5a', childIds: [], caption: 'Un mot suffit', byId: teacher.id, byName: teacher.name })
+  const p1 = d.users.find(u => u.id === 'p1')
+  toggleLike(moment.id, p1.id)
+  assert.ok(db().moments.find(m => m.id === moment.id).likes.includes(p1.id), 'le cœur est posé')
+  toggleLike(moment.id, p1.id)
+  assert.ok(!db().moments.find(m => m.id === moment.id).likes.includes(p1.id), 'le cœur se retire')
+})

@@ -37,6 +37,7 @@ export const FEATURES = {
   accidents: true,   // déclaration d'accident : validation + accusé du parent
   childfile: true,   // santé, vaccins, personnes autorisées, jalons
   behavior: true,    // suivi du comportement : encourager d'abord, jamais classer
+  gallery: true,     // moments : partage photo/vidéo — l'attente n°1 d'une crèche
   interop: true,     // export OneRoster v1.2
 }
 
@@ -54,6 +55,7 @@ const ROUTE_MODULE = {
   '/app/finance': 'finance',
   '/app/incidents': 'incidents',
   '/app/behavior': 'behavior',
+  '/app/gallery': 'gallery',
   '/app/requests': 'requests',
   '/app/social': 'social',
   '/app/security': 'security',

@@ -10,7 +10,8 @@
     "smoke": "node parcours.smoke.mjs",
     "uiux": "node parcours.uiux.mjs",
     "comportement": "node parcours.comportement.mjs",
-    "all": "node parcours.public.mjs && node parcours.demandes.mjs && node parcours.arabe.mjs && node parcours.smoke.mjs && node parcours.uiux.mjs && node parcours.comportement.mjs"
+    "moments": "node parcours.moments.mjs",
+    "all": "node parcours.public.mjs && node parcours.demandes.mjs && node parcours.arabe.mjs && node parcours.smoke.mjs && node parcours.uiux.mjs && node parcours.comportement.mjs && node parcours.moments.mjs"
   },
   "dependencies": { "playwright-core": "^1.61.1" }
 }

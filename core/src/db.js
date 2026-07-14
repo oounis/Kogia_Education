@@ -467,7 +467,7 @@ function seed(){
     {id:'l4',at:Date.now()-7*HR, agentName:'Mongi Zouaoui',kind:'visiteur',place:'Portail principal',text:'Livraison Papeterie El Amel — badge V-001, sorti à 08:31.'},
   ]
 
-  return {classes,students,teachers,users,applications,journal:[],hrContracts,hrLeaves,hrPayrolls:[],feeSchedule,discounts,invoices:[],receipts:[],reports:[],promotions:[],facilities,bookings:[],memberships:[],accidents,health,pickups,departures:[],milestones:{},payments,evaluations,incidents,requests,behavior:seedBehavior(students),books,routes,homework,events,socialEvents,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,visitors,rounds,logbook,timetables:genTimetables(classes),settings,schools}
+  return {classes,students,teachers,users,applications,journal:[],hrContracts,hrLeaves,hrPayrolls:[],feeSchedule,discounts,invoices:[],receipts:[],reports:[],promotions:[],facilities,bookings:[],memberships:[],accidents,health,pickups,departures:[],milestones:{},payments,evaluations,incidents,requests,behavior:seedBehavior(students),moments:seedMoments(students),books,routes,homework,events,socialEvents,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,visitors,rounds,logbook,timetables:genTimetables(classes),settings,schools}
 }
 // Quelques observations de comportement de démonstration — l'encouragement
 // d'abord, pour que l'écran raconte quelque chose dès la première ouverture.
@@ -487,6 +487,20 @@ function seedBehavior(students){
   pick('s1','progres',true,2,"",72)
   return out
 }
+// Quelques moments de démonstration. Les images sont de petits dégradés (SVG en
+// data-URL) — assez pour montrer la mécanique sans alourdir la base. Dans la vraie
+// vie, ce sont des photos compressées côté client (Gallery.jsx).
+function seedMoments(students){
+  const H=3600000
+  const grad=(a,b)=>`data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='${a}'/><stop offset='1' stop-color='${b}'/></linearGradient></defs><rect width='400' height='300' fill='url(%23g)'/></svg>`)}`
+  const img=(a,b)=>({type:'image',data:grad(a,b),name:'moment.svg'})
+  const has=id=>students.some(s=>s.id===id)
+  const out=[]
+  // un moment « de classe » (crèche) + un moment identifié
+  if(has('s29')) out.push({id:'mo_seed1',classId:students.find(s=>s.id==='s29')?.classId||'kg_ns',childIds:[],caption:"Atelier peinture ce matin — tout le monde a adoré !",media:[img('#F9A8D4','#A78BFA'),img('#FDE68A','#FCA5A5')],consentOnly:false,by:'t_ee',byName:'Ines Belhadj',at:Date.now()-3*H,likes:['p1']})
+  if(has('s1')) out.push({id:'mo_seed2',classId:students.find(s=>s.id==='s1')?.classId||'c5a',childIds:['s1'],caption:"Amira a lu son premier texte devant la classe. Bravo !",media:[img('#6EE7B7','#3B82F6')],consentOnly:false,by:'t1',byName:'Othman Ounis',at:Date.now()-26*H,likes:[]})
+  return out
+}
 // `levels` : les niveaux que l'école accueille RÉELLEMENT. C'est ce qui décide
 // des modules visibles (core/src/levels.js). L'école de démo fait crèche ET
 // primaire — c'est justement le cas que personne d'autre ne sait servir.
@@ -498,7 +512,7 @@ export function saveSettings(patch){ return mutate(d=>{ d.settings={...DEFAULT_S
 // à chaque évolution du schéma (coreon_db_v17 → v18 …), ce qui abandonnait la base
 // précédente et RÉINSTALLAIT les données de démonstration par-dessus les vraies
 // données de l'école. La version vit désormais DANS la base (`_v`) et on migre.
-const COLLECTIONS={classes:[],students:[],teachers:[],users:[],evaluations:[],incidents:[],requests:[],behavior:[],books:[],routes:[],homework:[],events:[],socialEvents:[],exams:[],messages:[],notifications:[],staffLeaves:[],schools:[],visitors:[],rounds:[],logbook:[],payments:{},attendance:{},staffAttendance:{},staffClock:{},timetables:{}}
+const COLLECTIONS={classes:[],students:[],teachers:[],users:[],evaluations:[],incidents:[],requests:[],behavior:[],moments:[],books:[],routes:[],homework:[],events:[],socialEvents:[],exams:[],messages:[],notifications:[],staffLeaves:[],schools:[],visitors:[],rounds:[],logbook:[],payments:{},attendance:{},staffAttendance:{},staffClock:{},timetables:{}}
 
 function migrate(d){
   const from=d._v||0
