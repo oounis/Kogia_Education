@@ -10,13 +10,25 @@ import { NotifRow } from './NotifItem.jsx'
 import { Mark, Avatar, STATUS } from './ui.jsx'
 import { Bell, Search, LogOut, ChevronDown, Menu as MenuIcon, CheckCheck } from 'lucide-react'
 import { settings, db } from '@core/db.js'
-import { NAV } from '@core/nav.js'
+import { NAV, menuFor } from '@core/nav.js'
 import { safeLink } from '@core/access.js'
 import MeteoCorner from './MeteoCorner.jsx'
 import ClockCorner from './ClockCorner.jsx'
 import { SummerChip } from './Summer.jsx'
 import CommandPalette from './CommandPalette.jsx'
 import { Ic } from '../icons.jsx'
+function NavLink({ n, u, loc, onGo }) {
+  const active = loc.pathname === n.to
+  return (
+    <Link to={n.to} onClick={onGo} aria-current={active ? 'page' : undefined}
+      className={`relative flex items-center gap-3 px-3 py-2 rounded-xl text-sm transition
+        ${active ? 'accent-soft accent-text font-semibold' : 'text-muted font-medium hover:bg-canvas hover:text-ink'}`}>
+      {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r-full accent-bg" aria-hidden="true" />}
+      <Ic n={n.icon} size={18} /> {n.labelFor?.[u.role] || n.label}
+    </Link>
+  )
+}
+
 export default function AppShell({ children }){
   const u=current(); const loc=useLocation(); const nav=useNavigate(); const [open,setOpen]=useState(false)
   const [palette,setPalette]=useState(false)
@@ -26,14 +38,31 @@ export default function AppShell({ children }){
     window.addEventListener('keydown',f); return ()=>window.removeEventListener('keydown',f)
   },[])
   if(!u){ nav('/'); return null }
-  const items=NAV.filter(n=>n.roles.includes(u.role)); const role=ROLE[u.role]
+  const menu=menuFor(u.role, settings()); const role=ROLE[u.role]
   return (
     <div className="min-h-screen flex">
       <aside className={`fixed lg:static z-40 inset-y-0 left-0 w-64 bg-white border-r border-line p-4 flex flex-col transition-transform ${open?'translate-x-0':'-translate-x-full lg:translate-x-0'}`}>
         <div className="flex items-center gap-2 px-2 mb-5"><Mark size={30}/><div className="font-extrabold lowercase tracking-tight">coreon <span className="accent-text font-normal text-sm">edu</span></div></div>
-        <nav className="flex-1 space-y-1 overflow-y-auto scroll-thin -mr-2 pr-2">
-          {items.map(n=>{ const active=loc.pathname===n.to; return (
-            <Link key={n.to} to={n.to} onClick={()=>setOpen(false)} aria-current={active?'page':undefined} className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${active?'accent-soft accent-text font-semibold':'text-muted font-medium hover:bg-canvas hover:text-ink'}`}>{active&&<span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r-full accent-bg" aria-hidden="true"/>}<Ic n={n.icon} size={18}/> {n.labelFor?.[u.role]||n.label}</Link>) })}
+        {/* LA NAVIGATION EN ÉTAGES (recherche COMPETITIVE_v2.md, 3-0) :
+            1. ÉPINGLÉ — ce que CE rôle fait tous les jours, en haut, sans titre.
+            2. SECTIONS — un petit nombre de groupes nommés, rangés par FRÉQUENCE.
+            3. RECHERCHE (Ctrl+K) — la vraie navigation d'un ERP : chez PowerSchool,
+               l'accueil administrateur EST un champ de recherche.
+            22 entrées à plat était le problème ; les empiler ne suffisait pas. */}
+        <nav className="flex-1 overflow-y-auto scroll-thin -mr-2 pr-2">
+          <div className="space-y-1">
+            {menu.pinned.map(n=><NavLink key={n.to} n={n} u={u} loc={loc} onGo={()=>setOpen(false)}/>)}
+          </div>
+          {menu.groups.map(g=>(
+            <div key={g.key} className="mt-4">
+              <div className="px-3 mb-1 text-[10px] font-extrabold uppercase tracking-wider text-muted/70">
+                {g.label}
+              </div>
+              <div className="space-y-1">
+                {g.items.map(n=><NavLink key={n.to} n={n} u={u} loc={loc} onGo={()=>setOpen(false)}/>)}
+              </div>
+            </div>
+          ))}
         </nav>
         <div className="rounded-2xl p-4 text-white text-sm mt-3" style={{background:`linear-gradient(135deg,${role.color},#0E2135)`}}><div className="font-bold">{role.label}</div><div className="opacity-80 text-xs mt-1">{u.role==='owner'?'Kogia Group · Console SaaS':`${settings().schoolName} · ${settings().city}`}</div></div>
       </aside>

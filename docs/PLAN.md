@@ -97,23 +97,42 @@ composant `Attach` lui-même ne garde que le **nom** du fichier.
 vaccination, bulletin) ; le fichier est stocké ; l'administration **l'ouvre**.
 Une case cochée sans fichier derrière est un mensonge d'interface.
 
-### 2.2 — Tableaux de bord par rôle ❌ → À FAIRE
-Un tableau de bord doit être un **poste de travail**, pas une vitrine de chiffres.
-Par rôle : actions rapides · en attente de ma décision · aujourd'hui · raccourcis.
+### 2.2 — Tableaux de bord par rôle ❌ → **SUIVANT** (la recherche confirme Othman)
+Vérifié 3-0 : l'accueil administrateur de **PowerSchool est un CHAMP DE RECHERCHE** ;
+les KPI sont relégués **sous Reports**. Un tableau de bord d'ERP est un **atelier**, pas
+une vitrine. Nos tableaux de bord montrent des chiffres : **c'est l'erreur, pas la
+référence.**
+À livrer : `ce qui attend MA décision` + `recherche` + `raccourcis du métier` +
+`aujourd'hui`. Les chiffres en second rang.
 
-### 2.3 — Ticketing interne ❓ → **RECHERCHE D'ABORD** (à la demande d'Othman)
-Othman a raison de demander une vérification avant de construire. Question à
-trancher : les ERP scolaires modernes gèrent-ils les demandes internes par un
-**ticketing** ou par un **workflow de demandes** ? *(Coreon a déjà un module
-« Demandes » — peut-être suffit-il de l'étendre plutôt que d'ajouter un système.)*
+### 2.3 — Ticketing interne ✅ → **TRANCHÉ PAR LA RECHERCHE : NE PAS LE CONSTRUIRE**
+**Othman a eu raison d'exiger une vérification avant de construire.**
+Résultat (vérifié 3-0) : **aucun MIS grand public n'embarque de ticketing.** La
+taxonomie complète de Bromcom (24 modules) n'en a aucun. Une catégorie SÉPARÉE existe
+et se vend (Incident IQ, Brightly/SchoolDude) — mais elle vise les **districts
+américains** et leurs **programmes 1:1 de milliers d'appareils**, pas une crèche de
+40 enfants sans informaticien.
+
+**Décision : NE PAS construire un produit de tickets. ÉTENDRE « Demandes »** en un flux
+*demande → catégorie → assigné → échéance → clôture*, avec la trace de qui a fait quoi.
+Othman obtient exactement ce qu'il voulait (« évaluer le travail accompli sur le mois »)
+sans une usine à gaz. Le **besoin** était réel ; la **forme** ne l'était pas.
 
 ### 2.4 — Recherche approfondie ERP ⏳ → **LANCÉE**
 La plus importante. Fonctionnalités, rôles, permissions, workflows, tableaux de
 bord, UX, erreurs courantes, tendances. **Sommes-nous compétitifs ?**
 
-### 2.5 — Menu de gauche ❌ → À FAIRE
-22 entrées à plat. À regrouper : *Quotidien · Élèves · Pédagogie · Administration ·
-Finances · Vie de l'école · Système*. Le plus utilisé en haut.
+### 2.5 — Menu de gauche ✅ → **FAIT** (et la recherche a corrigé mon plan)
+**Mon plan initial (« regrouper ») était insuffisant, et la recherche l'a montré.**
+Arbor n'a **aucun module** dans sa barre latérale : sept icônes utilitaires, les modules
+en haut en **quatre groupes**, et une sous-navigation **contextuelle**. Il faut des
+**étages**, pas seulement des paquets.
+
+**Livré :** ① **Épinglé** — les 2 à 4 choses que CE rôle fait tous les jours, en haut,
+sans titre. ② **Sections** rangées par **fréquence** (Au quotidien · Élèves & familles ·
+Pédagogie · Vie de l'école · Équipe · Finances · Administration). ③ **Ctrl+K** —
+la vraie navigation d'un ERP : chez PowerSchool, l'accueil administrateur **EST** un
+champ de recherche.
 
 ### 2.6 — Pages d'accueil (Coreon EDU + KogiaGroup) ❌ → À FAIRE
 Doivent dire « entreprise technologique moderne », pas « logiciel scolaire de plus ».
