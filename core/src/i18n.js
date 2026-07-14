@@ -44,6 +44,8 @@ export function setLocale(l) {
   setItem(KEY, l)
 }
 export const dir = () => LOCALES[locale()].dir
+/** Le repère de dates suit la langue — ar-TN garde les chiffres latins, lisibles des deux publics. */
+export const dateLocale = () => (locale() === 'ar' ? 'ar-TN' : 'fr-FR')
 export const isRTL = () => dir() === 'rtl'
 
 /** Traduire. Le français est la clé ; s'il manque une entrée, il reste le texte. */
@@ -196,3 +198,44 @@ export const AR = {
   'Ouvrir': 'فتح',
   'Lecture…': 'جارٍ القراءة…',
 }
+
+// ── Tranche 2 : l'atelier (Dashboard) — la chrome statique ──────────────────
+// Les libellés DYNAMIQUES du bureau (« 3 candidatures à trancher ») restent en
+// français : le pluriel arabe (duel, pluriel 3–10) est une vraie grammaire,
+// pas un remplacement de chaîne — c'est la tranche 3, faite proprement.
+Object.assign(AR, {
+  'Bonjour': 'مرحبًا',
+  'Votre atelier — ce qui attend votre décision passe en premier.': 'ورشتك — ما ينتظر قرارك يأتي أولًا.',
+  'À décider': 'للقرار',
+  "Rien n'attend votre décision": 'لا شيء ينتظر قراركم',
+  "L'école est à jour. C'est une information, pas un écran vide.": 'المدرسة على ما يرام. هذه معلومة، لا شاشة فارغة.',
+  "Aujourd'hui": 'اليوم',
+  'À venir': 'القادم',
+  'Aucun absent': 'لا غيابات',
+  'Aucun incident ouvert': 'لا وقائع مفتوحة',
+  "Aucun événement aujourd'hui": 'لا فعاليات اليوم',
+  'Aucun événement planifié.': 'لا فعاليات مبرمجة.',
+  'Les chiffres': 'الأرقام',
+  "l'état de l'école, pour qui veut regarder": 'حالة المدرسة، لمن أراد الاطلاع',
+  'Rechercher un élève, un enseignant, une page…': 'ابحث عن تلميذ، معلّم، صفحة…',
+  'Incidents ouverts': 'وقائع مفتوحة',
+  'Demandes en attente': 'مطالب في الانتظار',
+  'État des frais': 'حالة الرسوم',
+  'Tous mois confondus': 'كل الأشهر مجتمعة',
+  'réglés à ce jour': 'مدفوعة إلى اليوم',
+  'Présence hebdomadaire': 'الحضور الأسبوعي',
+  'Présents vs absents': 'الحاضرون مقابل الغائبين',
+  'Présents': 'الحاضرون',
+  'Absents': 'الغائبون',
+  'Effectif par classe': 'عدد التلاميذ حسب القسم',
+  'Taux de recouvrement': 'نسبة الاستخلاص',
+  'Évaluations enregistrées': 'التقييمات المسجّلة',
+  'Suivi élèves ': 'متابعة التلاميذ ',
+  'Classe': 'القسم',
+  'Matière': 'المادة',
+  'Leçon': 'الدرس',
+  'Date': 'التاريخ',
+  'Élèves notés': 'تلاميذ مقيَّمون',
+  'Moyenne': 'المعدّل',
+  'mois': 'شهرًا',
+})

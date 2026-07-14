@@ -9,6 +9,7 @@ import { current } from '@core/auth.js'
 import { db, FEE_MONTHS, studentById, classById, settings } from '@core/db.js'
 import { decisionsFor } from '@core/workbench.js'
 import { menuFor } from '@core/nav.js'
+import { t, dateLocale } from '@core/i18n.js'
 import { StatCard, Card, PageHead, Badge, Avatar, Btn, IconTile, EmptyState, STATUS } from '../components/ui.jsx'
 import { currentClass, classForSlot, SCHEDULE } from '@core/data.js'
 import { studentSummary, bulletinFor, mentionFor, strengthsWeaknesses, lessonBreakdown } from '@core/results.js'
@@ -36,7 +37,7 @@ const BTN_DEFAULT=`${BTN_LG} bg-white border border-line hover:bg-canvas active:
 
 export default function Dashboard(){
   const u=current(); const d=db()
-  const greet = `Bonjour, ${u.name.split(' ')[0]}`
+  const greet = `${t('Bonjour')}, ${u.name.split(' ')[0]}`
 
   if(u.role==='teacher'){
     // currentClass() renvoie null hors séance (soir, week-end) : on retombe alors sur
@@ -56,7 +57,7 @@ export default function Dashboard(){
       {decisions.length>0&&<Workbench items={decisions} className="mb-5"/>}
       <div className="grid sm:grid-cols-3 gap-4 mb-5">
         <StatCard label={cls.isLive?"Classe en cours":"Prochaine séance"} value={cls.cls.name} sub={cls.slot.subject} tint="mint" icon={<ClipboardCheck/>} to="/app/evaluate"/>
-        <StatCard label="Élèves" value={cls.students.length} tint="sky" icon={<Users/>} to="/app/students"/>
+        <StatCard label={t('Élèves')} value={cls.students.length} tint="sky" icon={<Users/>} to="/app/students"/>
         <StatCard label="Mes demandes" value={d.requests.filter(r=>r.by===u.id).length} tint="butter" icon={<FileText/>} to="/app/requests"/>
       </div>
       <div className="grid lg:grid-cols-2 gap-4">
@@ -99,7 +100,7 @@ export default function Dashboard(){
         <StatCard label="À couvrir ce soir" value={tonight.length} sub={tonight.length?tonight[0].time:'rien de prévu'} tint="brand" icon={<ShieldAlert/>} to="/app/security"/>
         <StatCard label="Visiteurs dans l'école" value={inside.length} tint="grape" icon={<Users/>} to="/app/security"/>
         <StatCard label="Dernière ronde" value={lastRound?lastRound.startAt:'—'} sub={lastRound?`${lastRound.points.length} zones`:'aucune aujourd\'hui'} tint="sky" icon={<CalendarCheck/>} to="/app/security"/>
-        <StatCard label="Incidents ouverts" value={open.length} tint="coral" icon={<ShieldAlert/>} to="/app/incidents"/>
+        <StatCard label={t('Incidents ouverts')} value={open.length} tint="coral" icon={<ShieldAlert/>} to="/app/incidents"/>
       </div>
       <div className="grid lg:grid-cols-2 gap-4">
         <Card className="p-5"><h3 className="font-bold mb-1">Prochains événements à couvrir</h3>
@@ -134,8 +135,8 @@ export default function Dashboard(){
     return (<><PageHead title={greet} sub="Gardez l'école sûre et informée."/>
       {decisions.length>0&&<Workbench items={decisions} className="mb-5"/>}
       <div className="grid sm:grid-cols-3 gap-4 mb-5">
-        <StatCard label="Incidents ouverts" value={open.length} tint="coral" icon={<ShieldAlert/>} to="/app/incidents"/>
-        <StatCard label="Élèves" value={d.students.length} tint="sky" icon={<Users/>} to="/app/students"/>
+        <StatCard label={t('Incidents ouverts')} value={open.length} tint="coral" icon={<ShieldAlert/>} to="/app/incidents"/>
+        <StatCard label={t('Élèves')} value={d.students.length} tint="sky" icon={<Users/>} to="/app/students"/>
         <StatCard label="Signalés par moi" value={d.incidents.filter(i=>i.by===u.name).length} tint="butter" icon={<ShieldAlert/>} to="/app/incidents"/>
       </div>
       <div className="grid lg:grid-cols-2 gap-4">
@@ -193,55 +194,55 @@ export default function Dashboard(){
   // Effectif par classe : une seule grandeur (un nombre d'élèves), donc UNE seule
   // couleur. Peindre chaque barre différemment laissait croire à quatre catégories.
   const cycleData=d.classes.map(c=>({name:c.name,value:d.students.filter(s=>s.classId===c.id).length,color:SERIES[0]})).filter(x=>x.value>0)
-  return (<><PageHead title={greet} sub="Votre atelier — ce qui attend votre décision passe en premier."/>
+  return (<><PageHead title={greet} sub={t('Votre atelier — ce qui attend votre décision passe en premier.')}/>
     <HeroSearch/>
     <div className="grid lg:grid-cols-3 gap-4 mb-4">
       <Workbench items={decisions} className="lg:col-span-2"/>
       <Card className="p-5">
-        <h3 className="font-bold mb-0.5">Aujourd'hui</h3>
-        <p className="text-xs text-muted capitalize mb-3">{new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</p>
+        <h3 className="font-bold mb-0.5">{t("Aujourd'hui")}</h3>
+        <p className="text-xs text-muted capitalize mb-3">{new Date().toLocaleDateString(dateLocale(),{weekday:'long',day:'numeric',month:'long'})}</p>
         <div className="space-y-1">
           <TodayRow to="/app/attendance" icon={<UserX size={15}/>} color={absToday?STATUS.danger:STATUS.ok}
-            label={absToday?`${absToday} absent${absToday>1?'s':''}${lateToday?` · ${lateToday} retard${lateToday>1?'s':''}`:''}`:'Aucun absent'}/>
+            label={absToday?`${absToday} absent${absToday>1?'s':''}${lateToday?` · ${lateToday} retard${lateToday>1?'s':''}`:''}`:t('Aucun absent')}/>
           <TodayRow to="/app/incidents" icon={<ShieldAlert size={15}/>} color={openInc?STATUS.warn:STATUS.ok}
-            label={openInc?`${openInc} incident${openInc>1?'s':''} ouvert${openInc>1?'s':''}`:'Aucun incident ouvert'}/>
+            label={openInc?`${openInc} incident${openInc>1?'s':''} ouvert${openInc>1?'s':''}`:t('Aucun incident ouvert')}/>
           <TodayRow to="/app/events" icon={<CalendarDays size={15}/>} color={eventsToday.length?'#7539E4':STATUS.neutral}
-            label={eventsToday.length?`${eventsToday[0].title}${eventsToday.length>1?` +${eventsToday.length-1}`:''}`:"Aucun événement aujourd'hui"}/>
+            label={eventsToday.length?`${eventsToday[0].title}${eventsToday.length>1?` +${eventsToday.length-1}`:''}`:t("Aucun événement aujourd'hui")}/>
         </div>
-        <div className="text-[11px] font-extrabold uppercase tracking-wide text-muted mt-4 mb-2">À venir</div>
+        <div className="text-[11px] font-extrabold uppercase tracking-wide text-muted mt-4 mb-2">{t('À venir')}</div>
         <div className="space-y-2">
           {nextEvents.map(e=>(<Link key={e.id} to="/app/events" className="flex items-center gap-2.5 text-sm group">
             <IconTile icon={<CalendarCheck size={14}/>} tint="brand" size={32} radius="rounded-lg"/>
             <span className="min-w-0"><span className="block font-medium truncate group-hover:accent-text">{e.title}</span>
               <span className="block text-[11px] text-muted">{e.date} · {e.type}</span></span></Link>))}
-          {nextEvents.length===0&&<div className="text-xs text-muted">Aucun événement planifié.</div>}
+          {nextEvents.length===0&&<div className="text-xs text-muted">{t('Aucun événement planifié.')}</div>}
         </div>
       </Card>
     </div>
     <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 mb-6">
       {shortcuts.map(s=>(<Link key={s.to} to={s.to} className="card px-2 py-3 flex flex-col items-center gap-1.5 text-center hover:shadow-md hover:-translate-y-0.5 transition group">
         <span className="w-9 h-9 grid place-items-center rounded-xl bg-canvas text-muted group-hover:accent-soft group-hover:accent-text transition"><Ic n={s.icon} size={17}/></span>
-        <span className="text-[12px] font-semibold leading-tight">{s.label}</span></Link>))}
+        <span className="text-[12px] font-semibold leading-tight">{t(s.label)}</span></Link>))}
     </div>
     {/* ── Les chiffres — en second rang, comme il se doit ─────────────────── */}
-    <div className="flex items-baseline gap-2 mb-3"><h2 className="text-lg font-extrabold">Les chiffres</h2>
-      <span className="text-xs text-muted">l'état de l'école, pour qui veut regarder</span></div>
+    <div className="flex items-baseline gap-2 mb-3"><h2 className="text-lg font-extrabold">{t('Les chiffres')}</h2>
+      <span className="text-xs text-muted">{t("l'état de l'école, pour qui veut regarder")}</span></div>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-      <StatCard label="Élèves" value={d.students.length} tint="grape" icon={<Users/>} to="/app/students"/>
-      <StatCard label="Enseignants" value={d.teachers.length} tint="butter" icon={<GraduationCap/>} to="/app/teachers"/>
-      <StatCard label="Incidents ouverts" value={openInc} tint="coral" icon={<ShieldAlert/>} to="/app/incidents"/>
-      <StatCard label="Demandes en attente" value={d.requests.filter(r=>r.status==='pending').length} tint="sky" icon={<FileText/>} to="/app/requests"/>
+      <StatCard label={t('Élèves')} value={d.students.length} tint="grape" icon={<Users/>} to="/app/students"/>
+      <StatCard label={t('Enseignants')} value={d.teachers.length} tint="butter" icon={<GraduationCap/>} to="/app/teachers"/>
+      <StatCard label={t('Incidents ouverts')} value={openInc} tint="coral" icon={<ShieldAlert/>} to="/app/incidents"/>
+      <StatCard label={t('Demandes en attente')} value={d.requests.filter(r=>r.status==='pending').length} tint="sky" icon={<FileText/>} to="/app/requests"/>
     </div>
     <div className="grid lg:grid-cols-3 gap-4 mb-4">
       {/* Cette carte montre la RÉPARTITION des mois ; la jauge du taux de recouvrement
           vit sur sa propre carte plus bas — deux jauges affichant 40 % faisaient doublon. */}
-      <Link to="/app/finance" className="card p-5 block hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-1 flex items-center justify-between">État des frais <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3><p className="text-xs text-muted mb-5">Tous mois confondus</p>
+      <Link to="/app/finance" className="card p-5 block hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-1 flex items-center justify-between">{t('État des frais')} <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3><p className="text-xs text-muted mb-5">{t('Tous mois confondus')}</p>
         {/* un camembert force à comparer des angles ; une barre empilée compare des longueurs */}
         <div className="mb-1"><div className="text-3xl font-extrabold tabular-nums leading-none">{collected}<span className="text-base font-semibold text-muted"> / {totalFees} mois</span></div>
-          <div className="text-xs text-muted mt-1">réglés à ce jour</div></div>
+          <div className="text-xs text-muted mt-1">{t('réglés à ce jour')}</div></div>
         <div className="mt-5"><DistributionBar items={pie}/></div>
       </Link>
-      <Link to="/app/attendance" className="card p-5 lg:col-span-2 block hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-1 flex items-center justify-between">Présence hebdomadaire <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3><p className="text-xs text-muted mb-2">Présents vs absents</p>
+      <Link to="/app/attendance" className="card p-5 lg:col-span-2 block hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-1 flex items-center justify-between">{t('Présence hebdomadaire')} <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3><p className="text-xs text-muted mb-2">{t('Présents vs absents')}</p>
         <div className="h-52"><ResponsiveContainer width="100%" height="100%"><AreaChart data={attend} margin={{top:8,right:8,left:-4,bottom:0}}>
           <defs><linearGradient id="gP" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={SERIES[0]} stopOpacity={.22}/><stop offset="100%" stopColor={SERIES[0]} stopOpacity={0}/></linearGradient></defs>
           <CartesianGrid {...chartGrid}/>
@@ -250,20 +251,20 @@ export default function Dashboard(){
           <Area type="monotone" dataKey="absent" name="Absents" stroke={STATUS.danger} strokeWidth={2} fill="transparent" dot={false} activeDot={{r:4,strokeWidth:2,stroke:'#fff'}}/>
         </AreaChart></ResponsiveContainer></div>
         <div className="flex gap-4 mt-2 justify-center">
-          <span className="inline-flex items-center gap-1.5 text-xs text-muted"><i className="w-2.5 h-2.5 rounded-full" style={{background:SERIES[0]}}/>Présents</span>
-          <span className="inline-flex items-center gap-1.5 text-xs text-muted"><i className="w-2.5 h-2.5 rounded-full" style={{background:STATUS.danger}}/>Absents</span>
+          <span className="inline-flex items-center gap-1.5 text-xs text-muted"><i className="w-2.5 h-2.5 rounded-full" style={{background:SERIES[0]}}/>{t('Présents')}</span>
+          <span className="inline-flex items-center gap-1.5 text-xs text-muted"><i className="w-2.5 h-2.5 rounded-full" style={{background:STATUS.danger}}/>{t('Absents')}</span>
         </div>
       </Link>
     </div>
     <div className="grid lg:grid-cols-3 gap-4">
-      {cycleData.length>0 && <Link to="/app/students" className="card p-5 block lg:col-span-2 hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-3 flex items-center justify-between">Effectif par classe <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3>
+      {cycleData.length>0 && <Link to="/app/students" className="card p-5 block lg:col-span-2 hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-3 flex items-center justify-between">{t('Effectif par classe')} <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3>
         <SoftBars data={cycleData} height={176} showValues/>
       </Link>}
-      <Link to="/app/finance" className="card p-5 block hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-3 flex items-center justify-between">Taux de recouvrement <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3>
+      <Link to="/app/finance" className="card p-5 block hover:shadow-lg hover:-translate-y-0.5 transition group"><h3 className="font-bold mb-3 flex items-center justify-between">{t('Taux de recouvrement')} <ChevronRight size={15} className="text-muted group-hover:accent-text"/></h3>
         <div className="grid place-items-center h-44"><Gauge value={collectRate} color={STATUS.ok} label={`${collected} / ${totalFees} mois`} size={142}/></div>
       </Link>
     </div>
-    <Card className="p-5 mt-4"><div className="flex items-center justify-between mb-3"><h3 className="font-bold flex items-center gap-1.5"><ClipboardCheck size={16}/> Évaluations enregistrées</h3><Link to="/app/results" className="text-xs font-semibold accent-text inline-flex items-center gap-1">Suivi élèves <ChevronRight size={13}/></Link></div>
+    <Card className="p-5 mt-4"><div className="flex items-center justify-between mb-3"><h3 className="font-bold flex items-center gap-1.5"><ClipboardCheck size={16}/> {t('Évaluations enregistrées')}</h3><Link to="/app/results" className="text-xs font-semibold accent-text inline-flex items-center gap-1">Suivi élèves <ChevronRight size={13}/></Link></div>
       {d.evaluations.length? <div className="overflow-x-auto scroll-thin -mx-5 -mb-5"><table className="w-full text-sm"><thead><tr className="text-left text-[12px] uppercase tracking-wide text-muted bg-canvas"><th className="px-4 py-3 font-semibold">Date</th><th className="px-4 py-3 font-semibold">Classe</th><th className="px-4 py-3 font-semibold">Matière</th><th className="px-4 py-3 font-semibold">Leçon</th><th className="px-4 py-3 font-semibold">Enseignant</th><th className="px-4 py-3 font-semibold text-center">Élèves notés</th><th className="px-4 py-3 font-semibold text-center">Moyenne</th></tr></thead>
         <tbody className="divide-y divide-line">{d.evaluations.slice(0,8).map(ev=>{ const cls=d.classes.find(c=>c.id===ev.classId); const studs=d.students.filter(s=>s.classId===ev.classId); const scores=studs.map(s=>studentSummary(ev,s.id).score).filter(x=>x!=null); const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):null; const m=mentionFor(avg)
         return (<tr key={ev.id}><td className="px-4 py-3 text-muted whitespace-nowrap">{new Date(ev.at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})}</td><td className="px-4 py-3 font-medium">{ev.className||cls?.name}</td><td className="px-4 py-3">{ev.subject}</td><td className="px-4 py-3 text-muted">{ev.lesson||"—"}</td><td className="px-4 py-3 text-muted">{ev.teacher}</td><td className="px-4 py-3 text-center">{scores.length}</td><td className="px-4 py-3 text-center font-bold" style={{color:m.color}}>{avg!=null?`${avg}/100`:'—'}</td></tr>) })}</tbody></table></div>
@@ -320,7 +321,7 @@ function HeroSearch(){
   return (<button onClick={()=>window.dispatchEvent(new Event('coreon:open-palette'))}
     className="card w-full flex items-center gap-3 px-4 py-3.5 mb-4 text-left hover:shadow-md transition group">
     <Search size={18} className="text-muted group-hover:accent-text transition"/>
-    <span className="flex-1 text-sm text-muted">Rechercher un élève, un enseignant, une page…</span>
+    <span className="flex-1 text-sm text-muted">{t('Rechercher un élève, un enseignant, une page…')}</span>
     <span className="hidden sm:flex items-center gap-1">
       <span className="text-[11px] font-bold text-muted border border-line rounded-md px-1.5 py-0.5 bg-canvas">Ctrl</span>
       <span className="text-[11px] font-bold text-muted border border-line rounded-md px-1.5 py-0.5 bg-canvas">K</span></span>
@@ -333,11 +334,11 @@ function Workbench({ items, className='' }){
   const TONE={danger:STATUS.danger,warn:STATUS.warn,info:STATUS.info}
   return (<Card className={`p-5 ${className}`}>
     <div className="flex items-center justify-between mb-2">
-      <h3 className="font-bold">À décider</h3>
+      <h3 className="font-bold">{t('À décider')}</h3>
       {items.length>0&&<span className="text-xs font-bold px-2.5 py-0.5 rounded-full accent-soft accent-text tabular-nums">{items.reduce((s,i)=>s+i.count,0)}</span>}
     </div>
     {items.length===0
-      ? <EmptyState icon={<CheckCircle2 size={22}/>} title="Rien n'attend votre décision" sub="L'école est à jour. C'est une information, pas un écran vide."/>
+      ? <EmptyState icon={<CheckCircle2 size={22}/>} title={t("Rien n'attend votre décision")} sub={t("L'école est à jour. C'est une information, pas un écran vide.")}/>
       : <div className="divide-y divide-line">
           {items.map(it=>{ const c=TONE[it.tone]||STATUS.info
             return (<Link key={it.key} to={it.to} className="flex items-center gap-3 py-2.5 group">

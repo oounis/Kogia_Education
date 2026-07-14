@@ -1,0 +1,13 @@
+{
+  "name": "@coreon/e2e",
+  "private": true,
+  "type": "module",
+  "description": "Parcours de bout en bout sur le vrai bundle — on vérifie en conduisant.",
+  "scripts": {
+    "public": "node parcours.public.mjs",
+    "demandes": "node parcours.demandes.mjs",
+    "arabe": "node parcours.arabe.mjs",
+    "all": "node parcours.public.mjs && node parcours.demandes.mjs && node parcours.arabe.mjs"
+  },
+  "dependencies": { "playwright-core": "^1.61.1" }
+}

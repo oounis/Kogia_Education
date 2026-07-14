@@ -79,7 +79,7 @@ sécurité · incidents · événements · messages · emploi du temps · demand
 | ~~Les pièces jointes sont du théâtre~~ → **réglé** (§2.1, y compris le quota silencieux) | — |
 | ~~Le menu de gauche est plat~~ → **réglé** (§2.5, étages + Ctrl+K) | — |
 | ~~Les tableaux de bord affichent des statistiques~~ → **réglé** (§2.2, l'atelier) | — |
-| Aucun test d'intégration UI automatisé dans le dépôt (le cœur est testé par exécution ; l'UI est vérifiée en pilotant le navigateur à la main de session en session — le script mérite d'entrer dans le dépôt) | Moyenne |
+| ~~Aucun test d'intégration UI dans le dépôt~~ → **réglé** (2026-07-15) : `e2e/` — trois parcours pilotés au navigateur sur le vrai bundle (public+quota, demandes+bilan, arabe+RTL). `cd e2e && npm i && npm run all` | — |
 
 ---
 
