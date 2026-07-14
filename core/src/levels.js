@@ -100,6 +100,7 @@ export const MODULE_LEVELS = {
 
   // ── Petite enfance uniquement ────────────────────────────────────────────
   // C'est le trou du marché : aucun ERP scolaire généraliste n'a ça.
+  childfile:  EARLY, // Santé, vaccins, personnes autorisées, jalons
   journal:    EARLY, // Le journal du jour : repas, sieste, change, humeur
   milestones: EARLY, // Le développement de l'enfant (jalons observés)
   health:     EARLY, // Vaccins, allergies, traitements

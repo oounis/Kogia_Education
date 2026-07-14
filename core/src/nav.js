@@ -31,6 +31,10 @@ const ALL_NAV=[
   { to:'/app/pointage', label:'Mon pointage', icon:'Fingerprint', roles:['teacher','supervisor','security','admin'] },
   { to:'/app/evaluate', label:'Évaluer', icon:'ClipboardCheck', roles:['teacher'] },
   // ── Petite enfance : le trou du marché. Aucun ERP scolaire généraliste n'a ça.
+  // Le dossier de l'enfant : santé, personnes autorisées, jalons. Petite enfance
+  // uniquement — un CM2 n'a pas de jalon « marche seul », et il rentre seul.
+  { to:'/app/child', label:'Dossier de l’enfant', icon:'BookUser', module:'childfile',
+    roles:['teacher','admin','schooladmin'] },
   { to:'/app/journal', label:'Journal du jour', icon:'NotebookPen', module:'journal',
     roles:['teacher','admin','schooladmin','parent'],
     labelFor:{ parent:'La journée de mon enfant' } },

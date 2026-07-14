@@ -35,6 +35,7 @@ export const FEATURES = {
   academic: true,    // bulletins, passage de classe, archives
   facilities: true,  // location piscine, terrain, gymnase, salles
   accidents: true,   // déclaration d'accident : validation + accusé du parent
+  childfile: true,   // santé, vaccins, personnes autorisées, jalons
 }
 
 // Un chemin est-il ouvert ? (les routes non listées ne sont pas des modules)
@@ -60,6 +61,7 @@ const ROUTE_MODULE = {
   '/app/academic': 'academic',
   '/app/facilities': 'facilities',
   '/app/accidents': 'accidents',
+  '/app/child': 'childfile',
   '/app/events': 'events',
   '/app/staff': 'staff',
   '/app/pointage': 'pointage',
