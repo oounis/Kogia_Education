@@ -34,6 +34,7 @@ export const FEATURES = {
   accounting: true,  // barème, remises, factures, reçus
   academic: true,    // bulletins, passage de classe, archives
   facilities: true,  // location piscine, terrain, gymnase, salles
+  accidents: true,   // déclaration d'accident : validation + accusé du parent
 }
 
 // Un chemin est-il ouvert ? (les routes non listées ne sont pas des modules)
@@ -58,6 +59,7 @@ const ROUTE_MODULE = {
   '/app/accounting': 'accounting',
   '/app/academic': 'academic',
   '/app/facilities': 'facilities',
+  '/app/accidents': 'accidents',
   '/app/events': 'events',
   '/app/staff': 'staff',
   '/app/pointage': 'pointage',

@@ -21,6 +21,7 @@ import HR from './pages/HR.jsx'
 import Accounting from './pages/Accounting.jsx'
 import Academic from './pages/Academic.jsx'
 import Facilities from './pages/Facilities.jsx'
+import Accidents from './pages/Accidents.jsx'
 import Requests from './pages/Requests.jsx'
 import Notices from './pages/Notices.jsx'
 import Schools from './pages/Schools.jsx'
@@ -102,6 +103,7 @@ export default function App(){
         <Route path="/app/accounting" element={R(<Accounting/>, "/app/accounting")}/>
         <Route path="/app/academic" element={R(<Academic/>, "/app/academic")}/>
         <Route path="/app/facilities" element={R(<Facilities/>, "/app/facilities")}/>
+        <Route path="/app/accidents" element={R(<Accidents/>, "/app/accidents")}/>
 
         <Route path="/app/requests" element={R(<Requests/>, "/app/requests")}/>
         <Route path="/app/messages" element={R(<Messages/>, "/app/messages")}/>

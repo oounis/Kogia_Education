@@ -273,6 +273,17 @@ function seed(){
      schoolSlots:[{day:5,from:"08:00",to:"13:00",label:"EPS"}]},
     {id:"f_audi",name:"Auditorium",kind:"auditorium",capacity:200,rateInternal:0,rateExternal:150,schoolSlots:[]},
   ]
+  // ── Déclarations d'accident ───────────────────────────────────────────────
+  // Une déclaration EN ATTENTE D'ACCUSÉ : c'est exactement le dossier qui explose
+  // six mois plus tard si personne ne le voit. La direction doit le voir.
+  const accidents=[
+    {id:"ac1",childId:"s29",zones:["genou_g"],kind:"chute",severity:"benin",
+     whatHappened:"Adam a glissé en courant dans la cour et s'est cogné le genou gauche contre le banc. Il a pleuré deux minutes, puis est reparti jouer.",
+     care:["lavage","glace"],at:Date.now()-5*3600*1000,stage:"envoye",
+     witness:{id:"t_ee",name:"Ines Belhadj",at:Date.now()-5*3600*1000},
+     approver:{id:"u_sadmin",name:"Lina Aderra",at:Date.now()-4.5*3600*1000},
+     sentAt:Date.now()-4*3600*1000,ack:null,reminders:[],notes:[]},
+  ]
   const teachers=[
     {id:"t_ee",name:"Ines Belhadj",subject:"Petite enfance",classes:["kg_ns","kg_pk","kg_1"],gender:"Fille",qualification:"Éducatrice de jeunes enfants",experience:6,joiningDate:"2023-09-01",designation:"Éducatrice",phone:"+216 20 444 444",email:"creche@alnour.tn",address:"Tunis",salary:1500},
     {id:"t1",name:"Othman Ounis",subject:"Mathématiques",classes:["c5a","c6a"],gender:"Garçon",qualification:"Maîtrise en Mathématiques",experience:8,joiningDate:"2022-09-01",designation:"Instituteur principal",phone:"+216 20 333 333",email:"enseignant@alnour.tn",address:"Tunis",salary:1800},
@@ -442,7 +453,7 @@ function seed(){
     {id:'l4',at:Date.now()-7*HR, agentName:'Mongi Zouaoui',kind:'visiteur',place:'Portail principal',text:'Livraison Papeterie El Amel — badge V-001, sorti à 08:31.'},
   ]
 
-  return {classes,students,teachers,users,applications,journal:[],hrContracts,hrLeaves,hrPayrolls:[],feeSchedule,discounts,invoices:[],receipts:[],reports:[],promotions:[],facilities,bookings:[],memberships:[],payments,evaluations,incidents,requests,books,routes,homework,events,socialEvents,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,visitors,rounds,logbook,timetables:genTimetables(classes),settings,schools}
+  return {classes,students,teachers,users,applications,journal:[],hrContracts,hrLeaves,hrPayrolls:[],feeSchedule,discounts,invoices:[],receipts:[],reports:[],promotions:[],facilities,bookings:[],memberships:[],accidents,payments,evaluations,incidents,requests,books,routes,homework,events,socialEvents,exams,messages,attendance,staffAttendance,staffLeaves,staffClock,notifications,visitors,rounds,logbook,timetables:genTimetables(classes),settings,schools}
 }
 // `levels` : les niveaux que l'école accueille RÉELLEMENT. C'est ce qui décide
 // des modules visibles (core/src/levels.js). L'école de démo fait crèche ET

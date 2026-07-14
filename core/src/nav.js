@@ -48,6 +48,12 @@ const ALL_NAV=[
   { to:'/app/social', label:'Espaces', icon:'Sparkles', roles:['parent','teacher','supervisor','security','schooladmin','admin'],
     labelFor:{parent:'Espace parents',teacher:'Espace enseignants',supervisor:'Espace personnel',security:'Espace personnel'} },
   { to:'/app/incidents', label:'Incidents', icon:'ShieldAlert', roles:['supervisor','security','admin','schooladmin'] },
+  // Déclarations d'accident : la chaîne de confiance école ↔ parent. Deux paires
+  // d'yeux, un accusé de réception du parent, et rien qui s'efface. La recherche
+  // (3-0) l'a désigné comme le motif « le plus difficile à copier ».
+  { to:'/app/accidents', label:'Accidents', icon:'HeartPulse', module:'accidents',
+    roles:['teacher','supervisor','admin','schooladmin','parent'],
+    labelFor:{ parent:'Déclarations d’accident' } },
   { to:'/app/requests', label:'Demandes', icon:'FileText', roles:['teacher','admin','schooladmin'] },
   { to:'/app/messages', label:'Messages', icon:'MessageSquare', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent'] },
   { to:'/app/notices', label:'Annonces', icon:'Megaphone', roles:['owner','schooladmin','admin','teacher','supervisor','security','parent'] },
