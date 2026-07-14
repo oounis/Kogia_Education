@@ -7,7 +7,8 @@
     "public": "node parcours.public.mjs",
     "demandes": "node parcours.demandes.mjs",
     "arabe": "node parcours.arabe.mjs",
-    "all": "node parcours.public.mjs && node parcours.demandes.mjs && node parcours.arabe.mjs"
+    "smoke": "node parcours.smoke.mjs",
+    "all": "node parcours.public.mjs && node parcours.demandes.mjs && node parcours.arabe.mjs && node parcours.smoke.mjs"
   },
   "dependencies": { "playwright-core": "^1.61.1" }
 }

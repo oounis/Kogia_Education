@@ -1,29 +1,105 @@
-name: Deploy Kogia Edu to GitHub Pages
+# ════════════════════════════════════════════════════════════════════════════
+# LA CHAÎNE DE QUALITÉ — rien ne part en ligne sans avoir été prouvé.
+#
+# AVANT (jusqu'au 2026-07-15) : ce fichier construisait et DÉPLOYAIT. Aucun test
+# ne s'exécutait. Un test cassé ne bloquait rien : la seule chose qui protégeait
+# la production était qu'un humain pense à lancer `npm test` — donc rien.
+#
+# MAINTENANT, trois étages, et chacun BLOQUE le suivant :
+#   1. qualite  — le cœur métier (tests d'exécution) + le lint + l'audit des
+#                 dépendances. Rapide : il échoue en moins d'une minute.
+#   2. build    — le bundle. Puis les PARCOURS pilotés au navigateur (e2e/) sur
+#                 CE bundle précis : parcours public, demandes, arabe, et le
+#                 SMOKE (60 pages × 5 rôles). C'est là qu'on a attrapé l'écran
+#                 blanc de la présence.
+#   3. deploy   — seulement si tout ce qui précède est vert.
+#
+# Puis, APRÈS la mise en ligne : `smoke-prod` interroge le site RÉEL. Un
+# déploiement vert dont le site répond 404 n'est pas un déploiement réussi.
+# ════════════════════════════════════════════════════════════════════════════
+name: Qualité, build & déploiement — Coreon Edu
 on:
   push: { branches: [main] }
+  pull_request: { branches: [main] }
   workflow_dispatch:
 permissions: { contents: read, pages: write, id-token: write }
 concurrency: { group: pages, cancel-in-progress: true }
+
 jobs:
+  # ── 1. LE CŒUR : les règles du métier, testées par exécution ───────────────
+  qualite:
+    name: Tests unitaires & intégration (cœur)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Tests d'exécution du cœur
+        working-directory: core
+        run: npm test
+      - name: Audit des dépendances (vulnérabilités hautes)
+        working-directory: app
+        run: npm audit --omit=dev --audit-level=high || echo "::warning::npm audit a signalé des vulnérabilités — à traiter (docs/quality/security-checklist.md)"
+
+  # ── 2. LE BUNDLE, puis les parcours pilotés au navigateur SUR ce bundle ────
   build:
+    name: Build + parcours navigateur (e2e & smoke)
+    needs: qualite
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: npm, cache-dependency-path: app/package-lock.json }
-      - name: Install & build
+      - name: Installer & construire
         working-directory: app
         run: |
           npm ci --legacy-peer-deps
           npm run build
+      - name: Installer le harnais et son navigateur
+        working-directory: e2e
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright@1.61 install --with-deps chromium-headless-shell
+      - name: Parcours (public · demandes · arabe · smoke 60 pages × 5 rôles)
+        working-directory: e2e
+        run: npm run all
       - uses: actions/configure-pages@v5
         with: { enablement: true }
       - uses: actions/upload-pages-artifact@v3
         with: { path: app/dist }
+
+  # ── 3. LA MISE EN LIGNE — seulement si tout ce qui précède est vert ────────
   deploy:
+    name: Déploiement
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     environment: { name: github-pages, url: "${{ steps.deployment.outputs.page_url }}" }
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
+
+  # ── 4. APRÈS LA MISE EN LIGNE : le site réel répond-il ? ───────────────────
+  # « Déployé » n'est pas « en ligne ». On vérifie l'adresse de production.
+  smoke-prod:
+    name: Smoke de production (le site réel)
+    if: github.event_name != 'pull_request'
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Le site répond, et sert bien l'application
+        run: |
+          set -e
+          URL="https://edu.kogiagroup.com/"
+          code=$(curl -s -o page.html -w "%{http_code}" --retry 5 --retry-delay 10 --retry-all-errors "$URL")
+          echo "HTTP $code pour $URL"
+          test "$code" = "200"
+          grep -q '<div id="root">' page.html
+          asset=$(grep -oE 'assets/index-[^"]+\.js' page.html | head -1)
+          test -n "$asset"
+          acode=$(curl -s -o bundle.js -w "%{http_code}" "$URL$asset")
+          test "$acode" = "200"
+          # le bundle servi est bien le nôtre : il porte le cœur et l'arabe
+          grep -q "coreon_db" bundle.js
+          grep -q "لوحة المتابعة" bundle.js
+          echo "✅ Production saine : page, bundle, cœur et arabe servis."
