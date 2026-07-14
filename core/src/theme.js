@@ -30,7 +30,7 @@ export const ROLE = {
   // La Direction porte la voie de Coreon Edu : l'indigo, LA primaire.
   schooladmin: role('Direction',      BRAND.indigo),// #7539E4
   // L'Administration : l'ardoise. Sobre, clérical — c'est un métier de registre.
-  admin:       role('Administration', N.slate),     // #5B6B7D
+  admin:       role('Administration', N.slate),     // #485868
   // L'Enseignant : le vert de la série 6. La classe.
   teacher:     role('Enseignant',     SERIES[5]),   // #2F8050
   // Le Surveillant : la terre profonde. La cour, le terrain.

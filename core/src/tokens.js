@@ -14,7 +14,7 @@
 export const N = {
   abyss:   '#071726', // fond sombre
   ink:     '#0E2135', // texte principal — 16.3:1 sur blanc
-  slate:   '#5B6B7D', // texte secondaire — 5.46:1 sur blanc, 5.08:1 sur canvas
+  slate:   '#485868', // texte secondaire — 5.46:1 sur blanc, 5.08:1 sur canvas
   line:    '#DCE3EB',
   canvas:  '#F4F7FA', // marine et froid, jamais un gris neutre
   surface: '#FFFFFF',

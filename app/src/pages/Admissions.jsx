@@ -19,6 +19,18 @@ import { Ic } from '../icons.jsx'
 import toast from 'react-hot-toast'
 
 const fmt = ts => new Date(ts).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
+const ageOf = dob => {
+  const d = new Date(dob); if (isNaN(d)) return null
+  const n = new Date(); let a = n.getFullYear() - d.getFullYear()
+  if (n.getMonth() < d.getMonth() || (n.getMonth() === d.getMonth() && n.getDate() < d.getDate())) a--
+  return a
+}
+const Info = ({ label, value }) => (
+  <div>
+    <div className="text-[11px] font-extrabold uppercase tracking-wide text-muted">{label}</div>
+    <div className="text-sm font-semibold mt-0.5">{value}</div>
+  </div>
+)
 
 export default function Admissions() {
   const [, force] = useState(0)
@@ -74,52 +86,75 @@ export default function Admissions() {
       {!rows.length && <EmptyState icon="Inbox" title="Aucune candidature ici."
         sub="Les candidatures déposées en ligne par les parents apparaissent dans cette liste." />}
 
-      <div className="grid gap-3">
-        {rows.map(x => {
-          const st = STAGES[x.stage]
-          const ready = docsComplete(x)
-          return (
-            <Card key={x.id} className="p-5">
-              <div className="flex items-start justify-between gap-3 flex-wrap">
-                <div className="flex items-center gap-3">
-                  <Avatar name={x.childName} seed={x.id} />
-                  <div>
-                    <div className="font-bold">{x.childName}</div>
-                    <div className="text-xs text-muted font-semibold">
-                      {labelOf(x.level)} · déposée le {fmt(x.createdAt)} · {x.parentName}
-                    </div>
-                  </div>
-                </div>
+      {/* Des LIGNES, pas des pavés : tout tient à l'écran, et TOUTE la ligne
+          s'ouvre — le dossier complet vit dans la fiche, les actions aussi.
+          (Demande d'Othman, 2026-07-14 : « clickable with full details ».) */}
+      {rows.length > 0 && (
+        <Card className="p-0 overflow-hidden divide-y divide-line">
+          {rows.map(x => {
+            const st = STAGES[x.stage]
+            const ready = docsComplete(x)
+            return (
+              <button key={x.id} onClick={() => setOpen(x.id)}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-canvas transition group">
+                <Avatar name={x.childName} seed={x.id} size={34} />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-bold truncate group-hover:accent-text">{x.childName}</span>
+                  <span className="block text-xs text-muted truncate">
+                    {labelOf(x.level)} · {x.parentName} · {fmt(x.createdAt)}
+                  </span>
+                </span>
+                {!st?.terminal && (
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-bold shrink-0"
+                    style={{ color: ready ? STATUS.ok : STATUS.warn }}>
+                    <Ic n="Paperclip" size={12} /> {ready ? 'complètes' : 'incomplètes'}
+                  </span>
+                )}
                 <Badge status={x.stage} label={st?.label} tone={st?.tone} />
-              </div>
+                <Ic n="ChevronRight" size={15} className="text-muted shrink-0" />
+              </button>
+            )
+          })}
+        </Card>
+      )}
 
-              {!STAGES[x.stage]?.terminal && (
-                <div className="flex items-center gap-2 flex-wrap mt-4">
-                  <button onClick={() => setOpen(x.id)}
-                    className="text-[13px] font-bold flex items-center gap-1.5 accent-text">
-                    <Ic n="Paperclip" size={14} />
-                    Pièces {ready
-                      ? <span style={{ color: STATUS.ok }}>· complètes</span>
-                      : <span style={{ color: STATUS.warn }}>· incomplètes</span>}
-                  </button>
-                  <span className="flex-1" />
-                  {st.next.map(n => (
-                    <Btn key={n} size="sm" variant={n === 'refuse' ? 'ghost' : 'soft'}
-                      onClick={() => n === 'inscrit' ? setOpen(x.id) : go(x.id, n)}>
-                      {stageLabel(n)}
-                    </Btn>
-                  ))}
-                </div>
-              )}
-            </Card>
-          )
-        })}
-      </div>
-
-      {/* Le dossier : pièces + inscription. Un seul endroit, pas trois écrans. */}
-      <Modal open={!!a} onClose={() => setOpen(null)} title={a ? `Dossier — ${a.childName}` : ''}>
+      {/* Le dossier COMPLET : identité, contact, pièces, inscription, décision,
+          historique. Un seul endroit, pas trois écrans. */}
+      <Modal open={!!a} onClose={() => setOpen(null)} size="xl"
+        title={a ? `Dossier — ${a.childName}` : ''}
+        footer={a && !STAGES[a.stage]?.terminal && (
+          <>
+            {STAGES[a.stage].next.filter(n => n !== 'inscrit').map(n => (
+              <Btn key={n} variant={n === 'refuse' ? 'ghost' : 'primary'}
+                onClick={() => go(a.id, n)}>{stageLabel(n)}</Btn>
+            ))}
+          </>
+        )}>
         {a && (
           <div className="space-y-5">
+            {/* L'identité et le contact — ce que la direction cherche en premier. */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge status={a.stage} label={STAGES[a.stage]?.label} tone={STAGES[a.stage]?.tone} />
+              <span className="text-xs text-muted">déposée le {fmt(a.createdAt)}</span>
+              <span className="ml-auto text-xs font-bold tabular-nums rounded-lg border border-line px-2 py-1">Réf. {a.id.toUpperCase()}</span>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-x-6 gap-y-3">
+              <Info label="Enfant" value={a.childName} />
+              <Info label="Naissance" value={a.dob ? `${a.dob}${ageOf(a.dob) != null ? ` · ${ageOf(a.dob)} ans` : ''}` : '—'} />
+              <Info label="Niveau demandé" value={labelOf(a.level)} />
+              <Info label="Parent / tuteur" value={a.parentName} />
+              <Info label="Téléphone" value={a.parentPhone
+                ? <a href={`tel:${a.parentPhone}`} className="accent-text font-bold">{a.parentPhone}</a> : '—'} />
+              <Info label="E-mail" value={a.parentEmail
+                ? <a href={`mailto:${a.parentEmail}`} className="accent-text font-bold">{a.parentEmail}</a> : '—'} />
+            </div>
+            {a.note && (
+              <div className="rounded-xl border border-line bg-canvas px-4 py-3">
+                <div className="text-[11px] font-extrabold uppercase tracking-wide text-muted mb-1">Mot du parent</div>
+                <p className="text-sm">{a.note}</p>
+              </div>
+            )}
+
             <div>
               <div className="text-sm font-bold mb-1">Pièces</div>
               {/* On OUVRE le document. Avant, on cochait une case alors qu'AUCUN

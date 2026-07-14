@@ -13,7 +13,7 @@
 @theme {
   /* ── L'eau : les neutres. Identiques dans tous les produits Kogia. ── */
   --color-ink:     #0E2135;   /* 16.3:1 sur blanc */
-  --color-muted:   #5B6B7D;   /* 5.46:1 sur blanc, 5.08:1 sur canvas — du vrai texte */
+  --color-muted:   #485868;   /* 7.31:1 sur blanc, 6.80:1 sur canvas — AAA : Othman le trouvait trop clair (2026-07-14) */
   --color-line:    #DCE3EB;
   --color-canvas:  #F4F7FA;   /* marine et froid, jamais un gris neutre */
   --color-pearl:   #FDF6F0;   /* la seule surface CHAUDE (loi 4 : « la chaleur en dessous ») */
@@ -66,7 +66,9 @@ body {
   background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 4%, var(--color-canvas)) 0%, var(--color-canvas) 320px);
 }
 h1, h2, h3, h4 { font-family: var(--font-display); letter-spacing: -0.02em; line-height: 1.15; font-weight: 800 }
-.text-muted { font-weight: 500 }
+/* Le texte secondaire porte un cran de graisse de plus : à 11–13 px, Nunito en
+   500 paraissait « très clair » (retour d'Othman, 2026-07-14). 600 + #485868. */
+.text-muted { font-weight: 600 }
 b, strong { font-weight: 700 }
 .tabular-nums { font-variant-numeric: tabular-nums }
 

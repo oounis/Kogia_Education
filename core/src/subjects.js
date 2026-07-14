@@ -22,7 +22,7 @@ const RULES = [
   [/angl/,                'Languages',    SERIES[3]], // #9061F0 violet
   [/musi/,                'Music',        BRAND.violet],  // #8B5CF6
   [/art|dessin/,          'Palette',      SERIES[2]], // #D2603A terre
-  [/info|techno/,         'Monitor',      N.slate],   // #5B6B7D ardoise
+  [/info|techno/,         'Monitor',      N.slate],   // #485868 ardoise
   [/sport|physique|gym/,  'Dumbbell',     TERRA.deep],// #C2410C terre profonde
   [/islam|coran/,         'MoonStar',     BRAND.indigo], // #7539E4
   [/civi/,                'Landmark',     N.ink],     // #0E2135 encre
