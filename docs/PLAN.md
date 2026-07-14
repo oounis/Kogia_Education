@@ -268,3 +268,25 @@ bulletins bilingues) ; le barème et la réglementation par pays (Vague 2).
 2. Portail élève · 3. Permissions en matrice module × action (groupes, façon
 « Tool Rights ») · 4. Partage photo/vidéo (Famly l'a, une crèche l'attend) ·
 5. Un vrai backend avant la première vraie école.
+
+## Chantier 2 · Enrichir l'ERP (la liste des 30 catégories d'Othman)
+
+L'objectif : le TOP 1 des ERP écoles — sans jamais trahir l'âge (0–12 ans) ni
+la sauce (évaluation, suivi, activités, location). Filtre : « est-ce juste pour
+l'école d'un enfant de 3 à 11 ans ? »
+
+**Livré (2026-07-15) :**
+- ✅ **Suivi du comportement** (`behavior.js`) — encourager d'abord, jamais
+  classer (règle n°9). L'idée maîtresse d'Othman, enfin outillée.
+- ✅ **Moments** (`gallery.js`) — partage photo/vidéo, l'attente n°1 d'une
+  crèche. Vie privée des enfants tenue par le cœur.
+
+**Décision de périmètre (2026-07-15) :** ❌ **PAS de portail élève.** Le produit
+sert la crèche et le primaire (0–12 ans) : les enfants ne se connectent pas. Le
+portail PARENT est le portail de l'enfant à cet âge. (Les listes ERB génériques
+visent aussi le lycée ; Coreon est plus jeune.)
+
+**Prochains candidats, filtrés pour l'âge :** cantine (menus, allergies —
+la crèche en a besoin), inventaire léger, budget/rapports financiers, documents
+& certificats imprimables, recrutement RH. À l'écart tant qu'il n'y a pas de
+backend : les intégrations (Google/MS/paiement) et l'IA.
