@@ -73,3 +73,51 @@ test('uid : identifiants distincts', () => {
   const seen = new Set(Array.from({ length: 200 }, () => uid('t')))
   assert.equal(seen.size, 200)
 })
+
+// ── Le reçu ne ment jamais (admissions.js × storage.js) ──────────────────────
+// Le 2026-07-14, deux vraies pré-inscriptions ont été perdues : quatre photos en
+// base64 dépassaient le quota du navigateur, l'écriture échouait EN SILENCE, et
+// le parent repartait avec la référence d'un dossier jamais enregistré.
+import { setStorage } from '../src/storage.js'
+import { apply, appById } from '../src/admissions.js'
+
+test('inscription : jamais de faux reçu — le stockage plein est dit, pas avalé', () => {
+  // un stockage à quota : refuse toute écriture au-delà de `limit`
+  const m = new Map()
+  let limit = Infinity
+  setStorage({
+    getItem: k => (m.has(k) ? m.get(k) : null),
+    setItem: (k, v) => { if (String(v).length > limit) throw new Error('QuotaExceeded'); m.set(k, String(v)) },
+    removeItem: k => m.delete(k),
+  })
+  const tick = () => { const t = Date.now(); while (Date.now() <= t) { /* ids distincts */ } }
+  const base = JSON.stringify(db()).length          // l'école de démo se sème ici
+  limit = base + 200 * 1024                          // ~200 Ko de marge — comme un vrai quota
+
+  // 1) une pièce trop lourde : le dossier passe SANS elle, et on le DIT
+  const big = 'x'.repeat(500 * 1024)
+  const r1 = apply({ childName: 'Hammouda', dob: '2021-01-01', level: 'kg1',
+    parentName: 'O. Ounis', parentPhone: '30359449',
+    files: [{ type: 'photo', name: 'p.jpg', size: big.length, mime: 'image/jpeg', data: big }] })
+  assert.ok(r1.app, 'la candidature survit à la pièce')
+  assert.equal(r1.filesDropped, true, 'et l’abandon des pièces est DIT au parent')
+  assert.ok(appById(r1.app.id), 'le dossier est réellement en base')
+  assert.equal(appById(r1.app.id).files.length, 0)
+
+  // 2) une candidature légère passe entière
+  tick()
+  const r2 = apply({ childName: 'ounis Marwan', dob: '2020-05-05', level: 'g1',
+    parentName: 'O. Ounis', parentPhone: '+21600000000' })
+  assert.ok(r2.app && r2.filesDropped === false)
+  assert.ok(appById(r2.app.id))
+
+  // 3) quota totalement plein : une ERREUR franche, pas de reçu
+  tick()
+  limit = 10
+  const r3 = apply({ childName: 'Fantôme', dob: '2020-01-01', level: 'g1',
+    parentName: 'X', parentPhone: '00000000' })
+  assert.ok(r3.error, 'pas de reçu pour un dossier non enregistré')
+  assert.ok(!r3.app)
+
+  setStorage(null)   // un stockage neuf pour la suite
+})

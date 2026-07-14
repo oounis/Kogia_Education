@@ -35,7 +35,8 @@ export default function Inscription() {
   const [f, setF] = useState(empty)
   const [files, setFiles] = useState([])
   const [err, setErr] = useState({})
-  const [done, setDone] = useState(null)
+  const [fatal, setFatal] = useState(null)   // l'enregistrement a échoué : on le DIT
+  const [done, setDone] = useState(null)     // { app, filesDropped }
   const set = (k, v) => { setF(p => ({ ...p, [k]: v })); setErr(e => ({ ...e, [k]: null })) }
 
   const submit = () => {
@@ -46,11 +47,17 @@ export default function Inscription() {
     if (!f.parentName.trim()) e.parentName = 'Votre nom est requis.'
     if (!/^[\d\s+]{8,}$/.test(f.parentPhone)) e.parentPhone = 'Un numéro joignable, s’il vous plaît.'
     if (Object.keys(e).length) return setErr(e)
-    setDone(apply({ ...f, files }))
+    // apply() VÉRIFIE que le dossier est réellement écrit — le reçu ne ment pas.
+    const r = apply({ ...f, files })
+    if (r.error) return setFatal(r.error)
+    setDone(r)
   }
 
   // ── Reçu. Le parent repart avec une référence : il peut rappeler et être suivi.
+  // Le reçu dit la VÉRITÉ : si les pièces n'ont pas pu être conservées
+  // (stockage plein), on l'écrit — on ne fait pas semblant de les détenir.
   if (done) {
+    const a = done.app
     return (
       <Screen>
         <Card className="p-8 text-center">
@@ -59,16 +66,18 @@ export default function Inscription() {
           </span>
           <h1 className="text-2xl font-extrabold">Candidature reçue.</h1>
           <p className="text-muted mt-2 max-w-md mx-auto">
-            L’école va l’examiner et vous recontactera au <b>{done.parentPhone}</b>.
-            {done.files?.length
-              ? <> Nous avons bien reçu <b>{done.files.length} pièce(s)</b>.</>
-              : <> Les pièces manquantes vous seront demandées.</>}
+            L’école va l’examiner et vous recontactera au <b>{a.parentPhone}</b>.
+            {done.filesDropped
+              ? <> <b>Vos pièces n’ont pas pu être conservées</b> (mémoire de l’appareil pleine) — l’école vous les redemandera, la candidature est bien enregistrée.</>
+              : a.files?.length
+                ? <> Nous avons bien reçu <b>{a.files.length} pièce(s)</b>.</>
+                : <> Les pièces manquantes vous seront demandées.</>}
           </p>
           <div className="mt-5 inline-block rounded-xl border border-line px-5 py-3">
             <div className="text-xs font-bold text-muted uppercase tracking-wider">Votre référence</div>
-            <div className="text-xl font-extrabold tabular-nums">{done.id.toUpperCase()}</div>
+            <div className="text-xl font-extrabold tabular-nums">{a.id.toUpperCase()}</div>
           </div>
-          <p className="text-xs text-muted mt-4">Notez-la : elle nous permet de retrouver le dossier de {done.childName}.</p>
+          <p className="text-xs text-muted mt-4">Notez-la : elle nous permet de retrouver le dossier de {a.childName}.</p>
           <div className="mt-6">
             <Link to="/"><Btn variant="ghost">Retour à l’accueil</Btn></Link>
           </div>
@@ -150,6 +159,12 @@ export default function Inscription() {
             className="w-full rounded-xl border border-line px-3 py-2 text-sm accent-ring" />
         </Field>
 
+        {fatal && (
+          <div className="rounded-xl border px-4 py-3 text-sm font-semibold"
+            style={{ borderColor: '#C2410C55', background: '#C2410C10', color: '#C2410C' }}>
+            {fatal}
+          </div>
+        )}
         <Btn size="lg" className="w-full justify-center" onClick={submit}>
           Envoyer ma candidature <Ic n="ArrowRight" size={16} />
         </Btn>

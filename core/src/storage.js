@@ -28,7 +28,11 @@ let impl = (typeof localStorage !== 'undefined' && localStorage) || memory()
 export function setStorage(next) { impl = next || memory() }
 
 export const getItem = k => { try { return impl.getItem(k) } catch { return null } }
-export const setItem = (k, v) => { try { impl.setItem(k, v) } catch { /* quota, mode privé */ } }
+// ÉCRIRE PEUT ÉCHOUER (quota plein, navigation privée) — et l'avaler en silence
+// a produit un FAUX REÇU : une candidature « reçue » à l'écran, jamais enregistrée
+// (trouvé par Othman, 2026-07-14, deux pré-inscriptions perdues). On ne lance
+// toujours pas d'exception — mais on DIT si l'écriture a eu lieu.
+export const setItem = (k, v) => { try { impl.setItem(k, v); return true } catch { return false } }
 export const removeItem = k => { try { impl.removeItem(k) } catch { /* ignore */ } }
 
 // ── Session (auth) ───────────────────────────────────────────────────────────

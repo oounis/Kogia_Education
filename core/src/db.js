@@ -554,7 +554,16 @@ export function db(){
   return d
 }
 export function setTimetableCell(classId,pi,di,cell){ return mutate(d=>{ d.timetables=d.timetables||{}; d.timetables[classId]=d.timetables[classId]||Array.from({length:6},()=>Array(5).fill(null)); d.timetables[classId][pi]=d.timetables[classId][pi]||Array(5).fill(null); d.timetables[classId][pi][di]=cell }) }
-export function save(d){setItem(KEY,JSON.stringify(d))}
+// Une sauvegarde qui échoue n'est plus silencieuse : elle RÉPOND (false) et
+// prévient l'application (onSaveFailure → un toast, une bannière). Avaler
+// l'échec a déjà produit un faux reçu de candidature — plus jamais.
+let onFail=null
+export function onSaveFailure(fn){ onFail=fn }
+export function save(d){
+  const ok=setItem(KEY,JSON.stringify(d))
+  if(!ok&&onFail){ try{ onFail() }catch{ /* le garde-fou ne casse rien */ } }
+  return ok
+}
 export function mutate(fn){const d=db();fn(d);save(d);return d}
 export function resetDb(){removeItem(KEY)}
 export const uid=(p="id")=>p+"_"+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-3)

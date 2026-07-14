@@ -51,7 +51,18 @@ export const appById = id => applications().find(a => a.id === id) || null
 
 function write(next) { const d = db(); d.applications = next; save(d) }
 
-/** Une nouvelle candidature. Le parent la dépose ; l'école ne saisit rien. */
+/**
+ * Une nouvelle candidature. Le parent la dépose ; l'école ne saisit rien.
+ *
+ * LE REÇU NE MENT JAMAIS (défaut trouvé par Othman, 2026-07-14) : quatre photos
+ * en base64 dépassaient le quota du navigateur, l'écriture échouait EN SILENCE,
+ * et le parent repartait avec une référence… d'un dossier jamais enregistré.
+ * Désormais on VÉRIFIE que le dossier a été écrit. S'il ne passe pas avec les
+ * pièces, on le réessaie SANS les pièces (elles sont facultatives ; l'école les
+ * réclamera) et on le dit : `filesDropped`. S'il ne passe toujours pas, on rend
+ * une ERREUR — pas un faux reçu.
+ * Retourne { app, filesDropped } ou { error }.
+ */
 export function apply({ childName, dob, level, parentName, parentPhone, parentEmail, note = '', files = [] }) {
   const a = {
     id: 'a' + Date.now().toString(36),
@@ -67,7 +78,14 @@ export function apply({ childName, dob, level, parentName, parentPhone, parentEm
     studentId: null,                // rempli à l'inscription — la trace du lien
   }
   write([a, ...applications()])
-  return a
+  // La preuve, pas l'espoir : on relit le stockage.
+  if (appById(a.id)) return { app: a, filesDropped: false }
+  if (files.length) {
+    const light = { ...a, files: [], history: [...a.history, { at: now(), stage: 'nouvelle', by: 'Système', note: 'Pièces non conservées (stockage plein) — à réclamer.' }] }
+    write([light, ...applications().filter(x => x.id !== a.id)])
+    if (appById(a.id)) return { app: light, filesDropped: true }
+  }
+  return { error: 'Votre candidature n’a pas pu être enregistrée sur cet appareil (stockage plein ou navigation privée). Réessayez, ou contactez l’école directement.' }
 }
 
 /** L'administration ajoute une pièce reçue au guichet (papier scanné). */

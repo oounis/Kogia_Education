@@ -9,7 +9,7 @@ import { useRef } from 'react'
 import { NotifRow } from './NotifItem.jsx'
 import { Mark, Avatar, STATUS } from './ui.jsx'
 import { Bell, Search, LogOut, ChevronDown, Menu as MenuIcon, CheckCheck } from 'lucide-react'
-import { settings, db } from '@core/db.js'
+import { settings, db, onSaveFailure } from '@core/db.js'
 import { NAV, menuFor } from '@core/nav.js'
 import { safeLink } from '@core/access.js'
 import MeteoCorner from './MeteoCorner.jsx'
@@ -35,8 +35,14 @@ export default function AppShell({ children }){
   useEffect(()=>{ if(u) applyAccent(u.role) },[u])
   useEffect(()=>{
     const f=e=>{ if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){ e.preventDefault(); setPalette(p=>!p) } }
-    window.addEventListener('keydown',f); return ()=>window.removeEventListener('keydown',f)
+    // le tableau de bord ouvre la même palette que Ctrl+K — une seule recherche
+    const g=()=>setPalette(true)
+    window.addEventListener('keydown',f); window.addEventListener('coreon:open-palette',g)
+    return ()=>{ window.removeEventListener('keydown',f); window.removeEventListener('coreon:open-palette',g) }
   },[])
+  // Une sauvegarde qui échoue (quota plein) n'est JAMAIS silencieuse : c'est
+  // ainsi que deux vraies pré-inscriptions ont été perdues le 2026-07-14.
+  useEffect(()=>{ onSaveFailure(()=>toast.error('Stockage du navigateur plein : la dernière action n’a PAS été enregistrée. Libérez de l’espace (pièces jointes) ou videz d’anciennes données.',{id:'save-fail',duration:8000})) },[])
   if(!u){ nav('/'); return null }
   const menu=menuFor(u.role, settings()); const role=ROLE[u.role]
   return (

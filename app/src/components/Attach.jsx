@@ -12,9 +12,10 @@
 //
 // Ici : le fichier est lu, stocké, et OUVRABLE.
 //
-// LIMITE ASSUMÉE, ET DITE : en démonstration tout vit dans le navigateur. Un acte
-// de naissance scanné à 3 Mo n'y tiendrait pas — on REFUSE au-delà de 2 Mo, avec un
-// message clair, plutôt que de perdre le fichier en silence. Le vrai stockage
+// LIMITE ASSUMÉE, ET DITE : en démonstration tout vit dans le navigateur (~5 Mo).
+// Une photo est donc RÉDUITE avant stockage (1400 px, JPEG) — lisible à l'écran,
+// dix fois plus légère — et un PDF est plafonné à 2 Mo. Ce qui ne tient pas est
+// REFUSÉ avec un message clair, jamais perdu en silence. Le vrai stockage
 // (serveur, antivirus, chiffrement) viendra avec le backend : c'est écrit dans
 // docs/PLAN.md, pas caché sous le tapis.
 // ════════════════════════════════════════════════════════════════════════════
@@ -22,7 +23,15 @@ import { useState } from 'react'
 import { Paperclip, Check, Upload, Eye, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 
-const MAX = 2 * 1024 * 1024   // 2 Mo — la limite honnête du mode démonstration
+// PDF : 2 Mo, on ne sait pas le compresser. IMAGE : 12 Mo acceptés à l'entrée,
+// parce qu'on la RÉDUIT nous-mêmes (1400 px, JPEG) avant de la stocker — une
+// photo de téléphone de 5 Mo devient ~200 Ko. C'est ce qui permet à QUATRE
+// pièces de tenir dans le navigateur : le 2026-07-14, quatre photos brutes en
+// base64 ont dépassé le quota et fait perdre une candidature réelle.
+const MAX_PDF = 2 * 1024 * 1024
+const MAX_IMG = 12 * 1024 * 1024
+const MAX_STORED = 1.2 * 1024 * 1024   // après compression — au-delà, on refuse et on le dit
+const IMG_EDGE = 1400                  // suffisant pour lire un acte de naissance à l'écran
 
 const readAsDataUrl = file => new Promise((resolve, reject) => {
   const r = new FileReader()
@@ -30,6 +39,25 @@ const readAsDataUrl = file => new Promise((resolve, reject) => {
   r.onerror = reject
   r.readAsDataURL(file)
 })
+
+/** Réduire une image AVANT de la stocker. Une pièce sert à être LUE, pas imprimée en A0. */
+async function shrinkImage(file) {
+  const url = URL.createObjectURL(file)
+  try {
+    const img = await new Promise((res, rej) => {
+      const i = new Image()
+      i.onload = () => res(i); i.onerror = rej; i.src = url
+    })
+    const scale = Math.min(1, IMG_EDGE / Math.max(img.width, img.height))
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.round(img.width * scale)
+    canvas.height = Math.round(img.height * scale)
+    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
+    const data = canvas.toDataURL('image/jpeg', 0.82)
+    // taille réelle stockée ≈ la longueur de la data URL
+    return { data, size: data.length, mime: 'image/jpeg' }
+  } finally { URL.revokeObjectURL(url) }
+}
 
 const human = n =>
   n < 1024 ? `${n} o` : n < 1048576 ? `${Math.round(n / 1024)} Ko` : `${(n / 1048576).toFixed(1)} Mo`
@@ -48,17 +76,30 @@ export default function Attach({ types, value = [], onChange, readOnly = false }
   const pick = t => async e => {
     const f = e.target.files?.[0]
     if (!f) return
-    if (f.size > MAX) {
-      toast.error(`« ${f.name} » fait ${human(f.size)}. La limite est de 2 Mo — reprenez la photo en qualité moyenne.`)
+    const isImg = String(f.type || '').startsWith('image/')
+    if (!isImg && f.size > MAX_PDF) {
+      toast.error(`« ${f.name} » fait ${human(f.size)}. La limite est de 2 Mo pour un PDF.`)
+      e.target.value = ''
+      return
+    }
+    if (isImg && f.size > MAX_IMG) {
+      toast.error(`« ${f.name} » fait ${human(f.size)}. La limite est de 12 Mo pour une photo.`)
       e.target.value = ''
       return
     }
     setBusy(t)
     try {
-      const data = await readAsDataUrl(f)
+      // une image est RÉDUITE avant stockage ; un PDF passe tel quel
+      const stored = isImg
+        ? await shrinkImage(f)
+        : { data: await readAsDataUrl(f), size: f.size, mime: f.type }
+      if (stored.size > MAX_STORED) {
+        toast.error(`« ${f.name} » reste trop lourd même compressé. Reprenez la photo en qualité moyenne.`)
+        return
+      }
       onChange([
         ...value.filter(a => a.type !== t),
-        { type: t, name: f.name, size: f.size, mime: f.type, data, at: Date.now() },
+        { type: t, name: f.name, size: stored.size, mime: stored.mime, data: stored.data, at: Date.now() },
       ])
       toast.success(`${t} — reçu.`)
     } catch {
