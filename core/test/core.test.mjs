@@ -188,3 +188,50 @@ test('inscription : jamais de faux reçu — le stockage plein est dit, pas aval
 
   setStorage(null)   // un stockage neuf pour la suite
 })
+
+// ── L'extension des demandes (requests.js) : le travail qui suit la signature ─
+import { mutate } from '../src/db.js'
+import { assign as assignWork, close as closeWork, monthReport, categoryOf } from '../src/requests.js'
+import { isoOf as isoOf2 } from '../src/clock.js'
+
+test('demandes : catégorie → assigné → échéance → clôture, tout est tracé', () => {
+  // une demande approuvée (le circuit d'approbation est déjà testé ailleurs)
+  mutate(d => { d.requests.unshift({ id: 'req_w1', at: Date.now(), by: 't1', byName: 'Sami Ben Ali',
+    type: 'Demande de matériel', fields: {}, chain: ['admin'], currentLevel: 1, approvals: [], status: 'approved' }) })
+  assert.equal(categoryOf({ type: 'Demande de matériel' }), 'Logistique', 'la catégorie vient du type, pas d’une saisie')
+
+  // on n'assigne pas une demande encore en attente
+  mutate(d => { d.requests.unshift({ id: 'req_w2', at: Date.now(), by: 't1', byName: 'Sami Ben Ali',
+    type: 'Réclamation', fields: {}, chain: ['admin'], currentLevel: 0, approvals: [], status: 'pending' }) })
+  assert.ok(assignWork('req_w2', { assigneeId: 'u_admin', assigneeName: 'Karim', byName: 'Dir' }).error,
+    'la signature d’abord : pas de travail sans approbation')
+
+  // assigner, avec une échéance déjà dépassée — le retard sera constaté
+  const r1 = assignWork('req_w1', { assigneeId: 'u_admin', assigneeName: 'Karim Jelassi', deadline: '2020-01-01', byName: 'Lina Aderra' })
+  assert.ok(r1.ok)
+  let w = db().requests.find(r => r.id === 'req_w1')
+  assert.equal(w.assigneeId, 'u_admin')
+  assert.equal(w.trace.length, 1, 'l’assignation est tracée')
+
+  // clôturer : le retard est constaté et ÉCRIT ; la trace s'allonge
+  const r2 = closeWork('req_w1', { byId: 'u_admin', byName: 'Karim Jelassi', note: 'Matériel livré.' })
+  assert.ok(r2.ok && r2.late === true, 'échéance dépassée → clôture en retard, dite')
+  w = db().requests.find(r => r.id === 'req_w1')
+  assert.equal(w.status, 'closed')
+  assert.equal(w.closedLate, true)
+  assert.equal(w.trace.length, 2)
+
+  // le bilan du mois compte depuis les faits
+  const rep = monthReport(isoOf2(new Date()).slice(0, 7))
+  assert.ok(rep.closed >= 1)
+  assert.ok(rep.closedLate >= 1)
+  assert.ok(rep.byCategory['Logistique']?.closed >= 1)
+  assert.ok(rep.byAssignee['Karim Jelassi']?.closed >= 1)
+
+  // et le bureau (workbench) le voit : plus rien à assigner sur req_w1, mais
+  // req_w2 en attente reste au circuit — pas à l'atelier
+  const dir = db().users.find(u => u.role === 'schooladmin')
+  const keys = decisionsFor(dir).map(i => i.key)
+  assert.ok(!keys.includes('req-retard') || db().requests.some(r => r.status === 'approved' && r.deadline && r.id !== 'req_w1'),
+    'une demande clôturée quitte la liste des retards')
+})

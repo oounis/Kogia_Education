@@ -23,7 +23,7 @@ import { db } from './db.js'
 import { applications, docsComplete, openClasses } from './admissions.js'
 import { accidents } from './accidents.js'
 import { leaves, payrolls, monthLabel } from './hr.js'
-import { now } from './clock.js'
+import { now, todayIso } from './clock.js'
 
 const HOURS = 3600 * 1000
 /** Un accusé de réception qui attend plus de 24 h devient un retard à relancer. */
@@ -118,6 +118,19 @@ export function decisionsFor(user) {
       label: n_(demandes.length, 'demande du personnel à viser', 'demandes du personnel à viser'),
       sub: 'Le circuit de validation attend votre étape.',
     })
+    // Le travail qui suit la signature (requests.js) : assigner, puis surveiller.
+    const aAssigner = (d.requests || []).filter(r => r.status === 'approved' && !r.assigneeId)
+    add(aAssigner.length, {
+      key: 'req-assigner', icon: 'UserCog', tone: 'info', to: '/app/requests',
+      label: n_(aAssigner.length, 'demande approuvée à assigner', 'demandes approuvées à assigner'),
+      sub: 'Un travail sans responsable n’avance pas.',
+    })
+    const enRetard = (d.requests || []).filter(r => r.status === 'approved' && r.deadline && todayIso() > r.deadline)
+    add(enRetard.length, {
+      key: 'req-retard', icon: 'AlarmClock', tone: 'warn', to: '/app/requests',
+      label: n_(enRetard.length, 'travail en retard sur son échéance', 'travaux en retard sur leur échéance'),
+      sub: 'L’échéance est passée — relancer, ou clôturer en le disant.',
+    })
 
     // ── L'argent, en dernier — mais jamais oublié ───────────────────────────
     let versements = 0
@@ -155,6 +168,19 @@ export function decisionsFor(user) {
       key: 'parent-retards', icon: 'CreditCard', tone: 'warn', to: '/app/payments',
       label: n_(retards, 'mois de scolarité en retard', 'mois de scolarité en retard'),
       sub: 'Signalez un versement — l’école confirmera.',
+    })
+  }
+
+  // Tout membre du personnel voit LE TRAVAIL QU'ON LUI A CONFIÉ — quel que
+  // soit son rôle. C'est la moitié « exécution » de l'extension des demandes.
+  const confies = (d.requests || []).filter(r => r.status === 'approved' && r.assigneeId === user.id)
+  if (confies.length) {
+    const late = confies.filter(r => r.deadline && todayIso() > r.deadline).length
+    items.push({
+      count: confies.length, key: 'req-mes-travaux', icon: 'Hammer',
+      tone: late ? 'warn' : 'info', to: '/app/requests',
+      label: n_(confies.length, 'travail qui m’est confié', 'travaux qui me sont confiés'),
+      sub: late ? `${late} en retard sur l’échéance.` : 'Clôturez quand c’est fait — la trace s’écrit toute seule.',
     })
   }
 

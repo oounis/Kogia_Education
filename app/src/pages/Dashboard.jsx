@@ -51,7 +51,9 @@ export default function Dashboard(){
     // « Mes évaluations » : celles de CET enseignant — la liste affichait toutes
     // les évaluations de l'école, y compris celles des collègues.
     const myEvals=d.evaluations.filter(e=>e.teacher===u.name)
+    const decisions=decisionsFor(u)   // le travail qui m'est confié (requests.js)
     return (<><PageHead title={greet} sub="Votre journée d'enseignement en un coup d'œil."/>
+      {decisions.length>0&&<Workbench items={decisions} className="mb-5"/>}
       <div className="grid sm:grid-cols-3 gap-4 mb-5">
         <StatCard label={cls.isLive?"Classe en cours":"Prochaine séance"} value={cls.cls.name} sub={cls.slot.subject} tint="mint" icon={<ClipboardCheck/>} to="/app/evaluate"/>
         <StatCard label="Élèves" value={cls.students.length} tint="sky" icon={<Users/>} to="/app/students"/>
@@ -90,7 +92,9 @@ export default function Dashboard(){
     const inside=(d.visitors||[]).filter(v=>v.date===today&&v.inAt&&!v.outAt)
     const lastRound=(d.rounds||[]).filter(r=>r.date===today).sort((a,b)=>(b.startAt||'').localeCompare(a.startAt||''))[0]
     const open=d.incidents.filter(i=>i.status==='open')
+    const decisions=decisionsFor(u)
     return (<><PageHead title={greet} sub="Le poste de sécurité, en un coup d'œil."/>
+      {decisions.length>0&&<Workbench items={decisions} className="mb-5"/>}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
         <StatCard label="À couvrir ce soir" value={tonight.length} sub={tonight.length?tonight[0].time:'rien de prévu'} tint="brand" icon={<ShieldAlert/>} to="/app/security"/>
         <StatCard label="Visiteurs dans l'école" value={inside.length} tint="grape" icon={<Users/>} to="/app/security"/>
@@ -126,7 +130,9 @@ export default function Dashboard(){
   if(u.role==='supervisor'){
     const open=d.incidents.filter(i=>i.status==='open')
     const sevData=[['Faible','low',STATUS.info],['Moyenne','medium',STATUS.warn],['Élevée','high',STATUS.danger]].map(([n,k,c])=>({name:n,value:d.incidents.filter(i=>i.severity===k).length,color:c}))
+    const decisions=decisionsFor(u)
     return (<><PageHead title={greet} sub="Gardez l'école sûre et informée."/>
+      {decisions.length>0&&<Workbench items={decisions} className="mb-5"/>}
       <div className="grid sm:grid-cols-3 gap-4 mb-5">
         <StatCard label="Incidents ouverts" value={open.length} tint="coral" icon={<ShieldAlert/>} to="/app/incidents"/>
         <StatCard label="Élèves" value={d.students.length} tint="sky" icon={<Users/>} to="/app/students"/>

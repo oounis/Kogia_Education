@@ -42,7 +42,7 @@ export function StatCard({ label, value, sub, tint='brand', icon, to, onClick })
 }
 export function Badge({ status, label: lbl, tone }){
   const OKp=[STATUS.okSoft,STATUS.ok], WARNp=[STATUS.warnSoft,STATUS.warn], DANGp=[STATUS.dangerSoft,STATUS.danger], NEUTp=[STATUS.neutralSoft,STATUS.neutral]
-  const m={paid:[...OKp,'Payé'],pending:[...WARNp,'En attente'],overdue:[...DANGp,'En retard'],due:[...NEUTp,'Impayé'],open:[...WARNp,'Ouvert'],resolved:[...OKp,'Résolu'],approved:[...OKp,'Approuvé'],rejected:[...DANGp,'Rejeté'],present:[...OKp,'Présent'],absent:[...DANGp,'Absent'],late:[...WARNp,'Retard']}
+  const m={paid:[...OKp,'Payé'],pending:[...WARNp,'En attente'],overdue:[...DANGp,'En retard'],due:[...NEUTp,'Impayé'],open:[...WARNp,'Ouvert'],resolved:[...OKp,'Résolu'],approved:[...OKp,'Approuvé'],rejected:[...DANGp,'Rejeté'],present:[...OKp,'Présent'],absent:[...DANGp,'Absent'],late:[...WARNp,'Retard'],closed:[...NEUTp,'Clôturée']}
   const TONE={ok:OKp,warn:WARNp,danger:DANGp,info:[STATUS.infoSoft,STATUS.info],neutral:NEUTp}
   const [bg,fg,label]= tone ? [...(TONE[tone]||NEUTp), lbl||status]
                      : m[status] ? m[status]

@@ -117,18 +117,22 @@ l'enfant avant l'argent. L'accueil direction = recherche (ouvre la palette Ctrl+
 sous leur propre titre. Le parent a sa liste aussi (accident à signer, retards).
 Vide, la liste **dit** que l'école est à jour. Verrouillé par 4 tests d'exécution.
 
-### 2.3 — Ticketing interne ✅ → **TRANCHÉ PAR LA RECHERCHE : NE PAS LE CONSTRUIRE**
+### 2.3 — Ticketing interne ✅ → **FAIT — en tant qu'extension, pas en produit**
 **Othman a eu raison d'exiger une vérification avant de construire.**
 Résultat (vérifié 3-0) : **aucun MIS grand public n'embarque de ticketing.** La
-taxonomie complète de Bromcom (24 modules) n'en a aucun. Une catégorie SÉPARÉE existe
-et se vend (Incident IQ, Brightly/SchoolDude) — mais elle vise les **districts
-américains** et leurs **programmes 1:1 de milliers d'appareils**, pas une crèche de
-40 enfants sans informaticien.
+catégorie séparée (Incident IQ, Brightly) vise les districts américains, pas une
+crèche de 40 enfants sans informaticien.
 
-**Décision : NE PAS construire un produit de tickets. ÉTENDRE « Demandes »** en un flux
-*demande → catégorie → assigné → échéance → clôture*, avec la trace de qui a fait quoi.
-Othman obtient exactement ce qu'il voulait (« évaluer le travail accompli sur le mois »)
-sans une usine à gaz. Le **besoin** était réel ; la **forme** ne l'était pas.
+**Livré (2026-07-14 soir) : `core/src/requests.js`** — une demande **approuvée**
+devient un travail : *catégorie (= le groupe du type, jamais une saisie) → assigné
+(notifié) → échéance → clôture avec un mot*. Chaque geste s'ajoute à une **trace**
+datée et signée ; le retard se **constate à la clôture** et reste écrit. Le
+« **Bilan du mois** » (la demande d'origine : *évaluer le travail accompli*) compte
+depuis les faits : déposées, clôturées, en retard, par catégorie, par personne.
+Le bureau (workbench) montre « à assigner » et « en retard » à la direction, et
+« le travail qui m'est confié » à chaque membre du personnel. Verrouillé par test
+d'exécution ; circuit complet vérifié au navigateur (approbation à deux niveaux →
+assignation → clôture → bilan).
 
 ### 2.4 — Recherche approfondie ERP ⏳ → **LANCÉE**
 La plus importante. Fonctionnalités, rôles, permissions, workflows, tableaux de
@@ -178,9 +182,22 @@ Doivent dire « entreprise technologique moderne », pas « logiciel scolaire de
 | ~~2~~ | ~~**Recherche ERP + ticketing** (2.4, 2.3)~~ ✅ | Fait — COMPETITIVE_v2.md |
 | ~~3~~ | ~~**Menu** (2.5)~~ ✅ | Fait — étages + Ctrl+K |
 | ~~4~~ | ~~**Tableaux de bord** (2.2)~~ ✅ | Fait — l'atelier (workbench.js) |
-| 5 | **Pages d'accueil** (2.6) | La première impression de KogiaGroup — **SUIVANT** |
-| 6 | **Arabe / RTL** | Débloque le Golfe |
-| 7 | Extension des « Demandes » (2.3) | demande → catégorie → assigné → échéance → clôture |
+| ~~5~~ | ~~**Pages d'accueil** (2.6)~~ ✅ | Fait — le positionnement, l'arme OneRoster, zéro invention |
+| ~~7~~ | ~~Extension des « Demandes » (2.3)~~ ✅ | Fait — requests.js + bilan du mois |
+| → | **Arabe / RTL** | Débloque le Golfe — **le premier chantier de la page suivante** |
+
+---
+
+## ∎ Carnet v1 — CLOS le 2026-07-14, tard dans la nuit
+
+Les six demandes d'Othman du 2026-07-14 sont livrées, testées par exécution,
+vérifiées au navigateur, déployées. En chemin, un défaut réel trouvé par Othman
+sur deux vraies pré-inscriptions (le faux reçu du stockage plein) a été corrigé
+le soir même, plus deux retours d'usage (dossier cliquable, texte trop clair).
+
+**La page suivante s'ouvre sur :** l'arabe/RTL (bloque le Golfe), le portail
+élève, les permissions en matrice module × action, le partage photo/vidéo
+(Famly l'a), et un vrai backend avant la première vraie école.
 
 ---
 
@@ -215,3 +232,6 @@ l'interface n'est pas une règle.*
 | 2026-07-14 | **Une écriture de stockage qui échoue doit répondre, jamais s'avaler** | Deux vraies pré-inscriptions perdues avec un faux reçu — règle n°7 violée par le produit lui-même |
 | 2026-07-14 | Les photos sont **compressées avant stockage** (1400 px JPEG) | Une pièce sert à être lue à l'écran, pas imprimée — et quatre pièces doivent tenir dans un navigateur |
 | 2026-07-14 | Le tableau de bord se calcule des **faits**, pas des statistiques | `workbench.js` : chaque ligne est une décision, avec son écran. PowerSchool a raison : l'accueil est une recherche |
+| 2026-07-14 | **La règle n°7 s'applique au marketing** : témoignages inventés supprimés de la page d'accueil | La confiance se gagne par les principes (les 9 règles), pas par des clients imaginaires |
+| 2026-07-14 | La **catégorie** d'une demande = le groupe de son type, jamais une saisie | Une taxonomie de plus serait une case de plus à remplir faux |
+| 2026-07-14 | L'ardoise passe à `#485868` (7.31:1, AAA) et graisse 600 aux petites tailles | Retour d'Othman « texte très clair » — calculé, pas estimé, changé à la source |
