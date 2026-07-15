@@ -14,6 +14,7 @@ import {
 } from '../components/ui.jsx'
 import { Ic } from '../icons.jsx'
 import toast from 'react-hot-toast'
+import { isRemote, remoteOp } from '../remote.js'
 
 const when = t => new Date(t).toLocaleString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
 
@@ -108,7 +109,12 @@ export default function Accidents() {
                     <b>Merci de confirmer que vous avez lu cette déclaration.</b> C’est ce qui
                     permet à l’école de savoir que vous êtes au courant.
                   </p>
-                  <Btn onClick={() => { acknowledge(a.id, me.name); toast.success('Merci — c’est confirmé.'); refresh() }}>
+                  <Btn onClick={async () => {
+                    if (isRemote() && me.role === 'parent') {
+                      const r = await remoteOp('acknowledge', [a.id])
+                      if (r.error) return toast.error(r.error)
+                    } else acknowledge(a.id, me.name)
+                    toast.success('Merci — c’est confirmé.'); refresh() }}>
                     <Ic n="Check" size={15} /> J’ai lu et je confirme
                   </Btn>
                 </div>

@@ -37,6 +37,8 @@ jobs:
       - name: Tests d'exécution du cœur
         working-directory: core
         run: npm test
+      - name: Tests du serveur (auth, ACL, verrou de révision)
+        run: node --test server/test/
       - name: Audit des dépendances (vulnérabilités hautes)
         working-directory: app
         run: npm audit --omit=dev --audit-level=high || echo "::warning::npm audit a signalé des vulnérabilités — à traiter (docs/quality/security-checklist.md)"

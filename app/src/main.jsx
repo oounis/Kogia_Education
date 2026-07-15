@@ -4,11 +4,14 @@ import { setAssetBase } from '@core/livestatus.js'
 import { getItem } from '@core/storage.js'
 import { setDemoLive } from '@core/clock.js'
 import App from './App.jsx'
+import RemoteGate from './RemoteGate.jsx'
+import { isRemote } from './remote.js'
 setAssetBase(import.meta.env.BASE_URL)
 // Tant qu'aucune vraie école n'utilise le produit : première visite en mode
 // démonstration (journée de classe simulée), comme sur mobile. ?live=0 ou le
 // bouton « revenir au réel » désactivent, et le choix est mémorisé.
-if (getItem('coreon_demo_live') == null) setDemoLive(true)
+// En mode SERVEUR (coreon_api posé), jamais : une vraie école vit au réel.
+if (!isRemote() && getItem('coreon_demo_live') == null) setDemoLive(true)
 import './index.css'
 import '@fontsource-variable/nunito'
 import '@fontsource-variable/plus-jakarta-sans'
@@ -22,4 +25,5 @@ import { locale, dir } from '@core/i18n.js'
 // de lecture se posent sur <html> avant le premier rendu.
 document.documentElement.lang = locale()
 document.documentElement.dir = dir()
-ReactDOM.createRoot(document.getElementById('root')).render(<React.StrictMode><App/></React.StrictMode>)
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>{isRemote() ? <RemoteGate/> : <App/>}</React.StrictMode>)

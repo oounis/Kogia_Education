@@ -572,3 +572,30 @@ test('recrutement : on n\'embauche pas un CV — pas d\'offre sans entretien, re
   assert.equal(hired.candidate.stage, 'embauchee')
   assert.ok(hired.candidate.history.length >= 4, 'le parcours est écrit, étape par étape')
 })
+
+// ── ACL : la loi du serveur, testée comme une règle du métier ────────────────
+import { blobForParent, blobForStaff, mergeWrite } from '../src/acl.js'
+
+test('acl : le parent reçoit un blob RECONSTRUIT (défaut refus), le personnel un blob taillé', () => {
+  const d = db()
+  const parent = d.users.find(u => u.id === 'p1')
+  const pb = blobForParent(d, parent)
+  assert.equal(pb.hrPayrolls, undefined, 'jamais la paie')
+  assert.equal(pb.visitors, undefined, 'jamais le registre de sécurité')
+  assert.ok(pb.students.every(s => (parent.childIds || []).includes(s.id)), 'seulement SES enfants')
+  assert.ok(pb.users.length === 1 && pb.users[0].id === parent.id)
+  assert.ok(pb.users.every(u => !('pw' in u)) && pb.teachers.every(t => !('salary' in t)), 'ni mot de passe ni salaire')
+  const tb = blobForStaff(d, 'teacher')
+  assert.equal(tb.invoices, undefined, 'l\'enseignant ne voit pas les factures')
+  assert.ok(tb.students?.length > 0, 'mais il voit les élèves')
+})
+
+test('acl : la fusion d\'écriture ne prend que les collections du rôle', () => {
+  const server = { classes: [{ id: 'c1' }], attendance: {}, invoices: [{ id: 'i1' }] }
+  const posted = { classes: [], attendance: { k: { s1: 'absent' } }, invoices: [] }
+  const { merged, applied } = mergeWrite(server, posted, 'teacher')
+  assert.ok(applied.includes('attendance') && !applied.includes('classes') && !applied.includes('invoices'))
+  assert.equal(merged.classes.length, 1, 'les classes du serveur survivent')
+  assert.equal(merged.invoices.length, 1, 'les factures aussi')
+  assert.equal(merged.attendance.k.s1, 'absent', 'l\'appel est pris')
+})

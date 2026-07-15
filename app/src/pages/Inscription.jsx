@@ -26,6 +26,7 @@ import { settings } from '@core/db.js'
 import { LEVELS, schoolLevels } from '@core/levels.js'
 import { Card, Btn, Input, Field, Mark } from '../components/ui.jsx'
 import { Ic } from '../icons.jsx'
+import { isRemote, remoteApply } from '../remote.js'
 import { t } from '@core/i18n.js'
 import LangSwitch from '../components/Lang.jsx'
 
@@ -41,7 +42,7 @@ export default function Inscription() {
   const [done, setDone] = useState(null)     // { app, filesDropped }
   const set = (k, v) => { setF(p => ({ ...p, [k]: v })); setErr(e => ({ ...e, [k]: null })) }
 
-  const submit = () => {
+  const submit = async () => {
     const e = {}
     if (!f.childName.trim()) e.childName = t('Le nom de l’enfant est requis.')
     if (!f.dob) e.dob = t('La date de naissance est requise.')
@@ -50,7 +51,8 @@ export default function Inscription() {
     if (!/^[\d\s+]{8,}$/.test(f.parentPhone)) e.parentPhone = t('Un numéro joignable, s’il vous plaît.')
     if (Object.keys(e).length) return setErr(e)
     // apply() VÉRIFIE que le dossier est réellement écrit — le reçu ne ment pas.
-    const r = apply({ ...f, files })
+    // En mode serveur, la candidature part au serveur de l'école : mêmes règles.
+    const r = isRemote() ? await remoteApply({ ...f, files }) : apply({ ...f, files })
     if (r.error) return setFatal(r.error)
     setDone(r)
   }

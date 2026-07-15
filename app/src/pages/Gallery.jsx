@@ -15,6 +15,7 @@ import { PageHead, Card, Btn, Avatar, EmptyState, STATUS, Modal, Field, Textarea
 import { Ic } from '../icons.jsx'
 import { Heart, Trash2, ImagePlus, X } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { isRemote, remoteOp } from '../remote.js'
 
 const MAX_IMG = 12 * 1024 * 1024, MAX_STORED = 900 * 1024, EDGE = 1200
 const ago = ts => { const h = Math.round((Date.now() - ts) / 3600000); return h < 1 ? "à l'instant" : h < 24 ? `il y a ${h} h` : `il y a ${Math.round(h / 24)} j` }
@@ -159,7 +160,10 @@ function MomentCard({ m, u, onChange, canDelete }) {
         <div className="flex items-center gap-2 text-xs text-muted mt-auto pt-1">
           <Avatar name={m.byName} seed={m.by} size={22} />
           <span className="flex-1 truncate">{m.byName} · {ago(m.at)}</span>
-          <button onClick={() => { toggleLike(m.id, u.id); onChange() }} className="inline-flex items-center gap-1 font-bold" style={{ color: liked ? STATUS.danger : undefined }}>
+          <button onClick={async () => {
+            if (isRemote() && u.role === 'parent') { const r = await remoteOp('toggleLike', [m.id]); if (r.error) return }
+            else toggleLike(m.id, u.id)
+            onChange() }} className="inline-flex items-center gap-1 font-bold" style={{ color: liked ? STATUS.danger : undefined }}>
             <Heart size={15} fill={liked ? STATUS.danger : 'none'} /> {(m.likes || []).length || ''}
           </button>
           {canDelete && <button onClick={() => { if (confirm('Retirer ce moment ?')) { removeMoment(m.id); onChange() } }} className="text-muted hover:text-ink ml-1"><Trash2 size={14} /></button>}
