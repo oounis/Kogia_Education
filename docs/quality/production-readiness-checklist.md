@@ -50,7 +50,7 @@
       un utilisateur est invisible pour nous**.
 - [ ] Disponibilité du site (une sonde externe).
 - [ ] Alerte si la sauvegarde ne s'est pas faite.
-- [ ] Retour utilisateur : un canal réel, pas une adresse e-mail qui rebondit.
-      *(⚠️ `contact@kogiagroup.com` figure sur le site public et **ne reçoit pas
-      encore** de courrier — la boîte Zoho n'est pas créée. À faire d'urgence :
-      un site qui invite à écrire et qui perd les messages ment.)*
+- [x] Retour utilisateur : un canal réel, pas une adresse e-mail qui rebondit.
+      *(✅ 2026-07-15 : la boîte Zoho `contact@kogiagroup.com` existe (créée le
+      09/07) et le DNS est complet — MX vers Zoho, SPF, DKIM, DMARC vérifiés
+      par requête. Reste le test de bout en bout : un courriel envoyé et lu.)*
