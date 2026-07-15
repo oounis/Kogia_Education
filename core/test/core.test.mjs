@@ -363,6 +363,25 @@ test('moments : partager exige une photo ou un mot ; le cœur du parent (like) b
   assert.ok(!db().moments.find(m => m.id === moment.id).likes.includes(p1.id), 'le cœur se retire')
 })
 
+// ── Les fêtes : le coin du jour ne ment pas ──────────────────────────────────
+import { feteOfDay, nextFerie, upcoming } from '../src/fetes.js'
+
+test('fêtes : un férié gagne sur une journée mondiale, et le compte à rebours est juste', () => {
+  assert.equal(feteOfDay('2026-03-20').kind, 'ferie', "l'Indépendance passe avant la journée du bonheur")
+  const j = feteOfDay('2026-11-20')
+  assert.equal(j.kind, 'journee'); assert.match(j.label, /enfant/i)
+  const n = nextFerie('2026-07-15')
+  assert.equal(n.d, '2026-07-25'); assert.equal(n.inDays, 10, 'République dans 10 jours')
+})
+
+test("fêtes : l'agenda est trié, mélange fériés et journées, et passe l'année", () => {
+  const a = upcoming('2026-12-20', 6)
+  assert.equal(a.length, 6)
+  assert.ok(a.every((x, i, arr) => i === 0 || arr[i - 1].d <= x.d), 'trié par date')
+  assert.ok(a.some(x => x.d.startsWith('2027-')), "franchit le passage d'année")
+  assert.ok(a.some(x => x.kind === 'ferie') && a.some(x => x.kind === 'journee'))
+})
+
 // ── La cantine : le menu qui PROTÈGE l'enfant (croisement allergies) ─────────
 import { atRiskForDay, studentReactsTo, setDay, toggleSubscriber, allergensOfDay, weekForChild, summary as canteenSummary } from '../src/canteen.js'
 

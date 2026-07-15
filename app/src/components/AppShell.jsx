@@ -15,7 +15,7 @@ import LangSwitch from './Lang.jsx'
 import { NAV, menuFor } from '@core/nav.js'
 import { safeLink } from '@core/access.js'
 import MeteoCorner from './MeteoCorner.jsx'
-import ClockCorner from './ClockCorner.jsx'
+import FeteCorner from './FeteCorner.jsx'
 import { SummerChip } from './Summer.jsx'
 import CommandPalette from './CommandPalette.jsx'
 import { Ic } from '../icons.jsx'
@@ -84,7 +84,7 @@ export default function AppShell({ children }){
               <span className="text-[11px] font-bold border border-line rounded-md px-1.5 py-0.5 bg-white">Ctrl K</span>
             </button>
             <button onClick={()=>setPalette(true)} aria-label={t('Recherche globale')} className="sm:hidden w-10 h-10 grid place-items-center rounded-xl text-muted hover:bg-canvas"><Search size={18}/></button>
-            <div className="ms-auto flex items-center gap-2"><LangSwitch/><SummerChip/><ClockCorner/><MeteoCorner/><BellMenu user={u}/><UserMenu user={u} role={role} onLogout={()=>{logout();nav('/')}}/></div>
+            <div className="ms-auto flex items-center gap-2"><LangSwitch/><SummerChip/><FeteCorner/><MeteoCorner/><BellMenu user={u}/><UserMenu user={u} role={role} onLogout={()=>{logout();nav('/')}}/></div>
           </div>
         </header>
         <main className="px-4 lg:px-6 py-5 max-w-[1280px] mx-auto">{children}</main>

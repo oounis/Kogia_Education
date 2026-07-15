@@ -41,7 +41,14 @@ await scenario(8955, async ({ page, ok, login, base }) => {
   }
   await closeModal()
 
-  // 5. Une demande s'ouvre d'un clic sur sa ligne (déjà le cas — on le verrouille)
+  // 5. Le coin des fêtes (à la place de l'horloge) : présent, et il s'ouvre
+  const fete = page.locator('[title="Fêtes et journées à venir"]')
+  ok(await fete.count() === 1, 'le coin des fêtes remplace l\'horloge dans la barre du haut')
+  await fete.click(); await page.waitForTimeout(400)
+  ok(/À VENIR|À venir/.test(await page.locator('body').innerText()), 'un clic ouvre l\'agenda des fêtes à venir')
+  await page.keyboard.press('Escape'); await page.waitForTimeout(300)
+
+  // 6. Une demande s'ouvre d'un clic sur sa ligne (déjà le cas — on le verrouille)
   await page.goto(`${base}/#/app/requests`); await page.waitForTimeout(600)
   const row = page.locator('button:has-text("Détails")').first()
   if (await row.count()) {
