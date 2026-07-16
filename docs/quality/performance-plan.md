@@ -9,7 +9,7 @@ l'utilisateur** aujourd'hui, c'est ce que son navigateur télécharge et exécut
 
 | Indicateur | Valeur au 2026-07-15 | Seuil | État |
 |---|---|---|---|
-| Poids du bundle (gzip) | **~777 Ko** | < 400 Ko souhaitable | 🔴 **Trop lourd** |
+| Poids du bundle (gzip) | **371 Ko à la première visite** (code-splitting 2026-07-15 : 45 pages à la demande ; ~207 Ko de tronc commun restent extractibles) | < 400 Ko souhaitable | ✅ **Atteint** |
 | Bundle brut | ~2,7 Mo | — | 🔴 |
 | Découpage du code | **aucun** (un seul fichier pour toute l'application) | par route | ❌ À faire |
 | Temps de build | ~1,5 s | < 30 s | ✅ |

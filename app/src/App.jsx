@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import toast from 'react-hot-toast'
@@ -5,51 +6,53 @@ import { current } from '@core/auth.js'
 import AppShell from './components/AppShell.jsx'
 import Landing from './pages/Landing.jsx'
 import Login from './pages/Login.jsx'
-import Dashboard from './pages/Dashboard.jsx'
-import Students from './pages/Students.jsx'
-import Teachers from './pages/Teachers.jsx'
-import Accounts from './pages/Accounts.jsx'
-import Evaluate from './pages/Evaluate.jsx'
-import Finance from './pages/Finance.jsx'
-import Payments from './pages/Payments.jsx'
-import Incidents from './pages/Incidents.jsx'
-import Behavior from './pages/Behavior.jsx'
-import Gallery from './pages/Gallery.jsx'
-import Canteen from './pages/Canteen.jsx'
-import Documents from './pages/Documents.jsx'
-import Budget from './pages/Budget.jsx'
-import Inventory from './pages/Inventory.jsx'
-import Recruit from './pages/Recruit.jsx'
-import Journal from './pages/Journal.jsx'
-import Admissions from './pages/Admissions.jsx'
-import Setup from './pages/Setup.jsx'
-import Inscription from './pages/Inscription.jsx'
-import HR from './pages/HR.jsx'
-import Accounting from './pages/Accounting.jsx'
-import Academic from './pages/Academic.jsx'
-import Facilities from './pages/Facilities.jsx'
-import Accidents from './pages/Accidents.jsx'
-import ChildFile from './pages/ChildFile.jsx'
-import Interop from './pages/Interop.jsx'
-import Requests from './pages/Requests.jsx'
-import Notices from './pages/Notices.jsx'
-import Schools from './pages/Schools.jsx'
-import Notifications from './pages/Notifications.jsx'
-import Messages from './pages/Messages.jsx'
-import Attendance from './pages/Attendance.jsx'
-import Homework from './pages/Homework.jsx'
-import Library from './pages/Library.jsx'
-import Transport from './pages/Transport.jsx'
-import Events from './pages/Events.jsx'
-import Exams from './pages/Exams.jsx'
-import Timetable from './pages/Timetable.jsx'
-import Live from './pages/Live.jsx'
-import Settings from './pages/Settings.jsx'
-import Results from './pages/Results.jsx'
-import Staff from './pages/Staff.jsx'
-import Pointage from './pages/Pointage.jsx'
-import Social from './pages/Social.jsx'
-import Security from './pages/Security.jsx'
+// ── Le reste se charge À LA DEMANDE : le premier écran n'embarque plus les 40 pages,
+//    ni jsPDF, ni les graphiques. Chaque page devient son propre fichier (code-splitting).
+const Dashboard = lazy(() => import('./pages/Dashboard.jsx'))
+const Students = lazy(() => import('./pages/Students.jsx'))
+const Teachers = lazy(() => import('./pages/Teachers.jsx'))
+const Accounts = lazy(() => import('./pages/Accounts.jsx'))
+const Evaluate = lazy(() => import('./pages/Evaluate.jsx'))
+const Finance = lazy(() => import('./pages/Finance.jsx'))
+const Payments = lazy(() => import('./pages/Payments.jsx'))
+const Incidents = lazy(() => import('./pages/Incidents.jsx'))
+const Behavior = lazy(() => import('./pages/Behavior.jsx'))
+const Gallery = lazy(() => import('./pages/Gallery.jsx'))
+const Canteen = lazy(() => import('./pages/Canteen.jsx'))
+const Documents = lazy(() => import('./pages/Documents.jsx'))
+const Budget = lazy(() => import('./pages/Budget.jsx'))
+const Inventory = lazy(() => import('./pages/Inventory.jsx'))
+const Recruit = lazy(() => import('./pages/Recruit.jsx'))
+const Journal = lazy(() => import('./pages/Journal.jsx'))
+const Admissions = lazy(() => import('./pages/Admissions.jsx'))
+const Setup = lazy(() => import('./pages/Setup.jsx'))
+const Inscription = lazy(() => import('./pages/Inscription.jsx'))
+const HR = lazy(() => import('./pages/HR.jsx'))
+const Accounting = lazy(() => import('./pages/Accounting.jsx'))
+const Academic = lazy(() => import('./pages/Academic.jsx'))
+const Facilities = lazy(() => import('./pages/Facilities.jsx'))
+const Accidents = lazy(() => import('./pages/Accidents.jsx'))
+const ChildFile = lazy(() => import('./pages/ChildFile.jsx'))
+const Interop = lazy(() => import('./pages/Interop.jsx'))
+const Requests = lazy(() => import('./pages/Requests.jsx'))
+const Notices = lazy(() => import('./pages/Notices.jsx'))
+const Schools = lazy(() => import('./pages/Schools.jsx'))
+const Notifications = lazy(() => import('./pages/Notifications.jsx'))
+const Messages = lazy(() => import('./pages/Messages.jsx'))
+const Attendance = lazy(() => import('./pages/Attendance.jsx'))
+const Homework = lazy(() => import('./pages/Homework.jsx'))
+const Library = lazy(() => import('./pages/Library.jsx'))
+const Transport = lazy(() => import('./pages/Transport.jsx'))
+const Events = lazy(() => import('./pages/Events.jsx'))
+const Exams = lazy(() => import('./pages/Exams.jsx'))
+const Timetable = lazy(() => import('./pages/Timetable.jsx'))
+const Live = lazy(() => import('./pages/Live.jsx'))
+const Settings = lazy(() => import('./pages/Settings.jsx'))
+const Results = lazy(() => import('./pages/Results.jsx'))
+const Staff = lazy(() => import('./pages/Staff.jsx'))
+const Pointage = lazy(() => import('./pages/Pointage.jsx'))
+const Social = lazy(() => import('./pages/Social.jsx'))
+const Security = lazy(() => import('./pages/Security.jsx'))
 import { ROUTE_ROLES } from '@core/access.js'
 import { featureEnabled } from '@core/features.js'
 
@@ -75,6 +78,7 @@ export default function App(){
   return (
     <HashRouter>
       <Toaster position="top-right" toastOptions={{ style:{ borderRadius:'12px', fontSize:'14px' } }}/>
+      <Suspense fallback={<div className="min-h-screen grid place-items-center"><div className="skeleton w-40 h-10" aria-label="Chargement…"/></div>}>
       <Routes>
         <Route path="/" element={<Landing/>}/>
         <Route path="/login" element={<Login/>}/>
@@ -129,6 +133,7 @@ export default function App(){
         <Route path="/app/notifications" element={R(<Notifications/>, "/app/notifications")}/>
         <Route path="*" element={<Navigate to="/" replace/>}/>
       </Routes>
+      </Suspense>
     </HashRouter>
   )
 }
