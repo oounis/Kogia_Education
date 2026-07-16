@@ -22,9 +22,17 @@ import Finance from './screens/Finance.js'
 import Incidents from './screens/Incidents.js'
 import Requests from './screens/Requests.js'
 import Security from './screens/Security.js'
+import Journal from './screens/Journal.js'
+import Gallery from './screens/Gallery.js'
+import Canteen from './screens/Canteen.js'
+import Accidents from './screens/Accidents.js'
 
 export const SCREENS = {
   '/app': Dashboard,
+  '/app/journal': Journal,
+  '/app/gallery': Gallery,
+  '/app/canteen': Canteen,
+  '/app/accidents': Accidents,
   '/app/live': Live,
   '/app/social': Social,
   '/app/events': Events,
