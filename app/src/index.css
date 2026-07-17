@@ -25,14 +25,14 @@
   --color-cyan:    #22D3EE;   /* 1.81:1 — DÉCORATIF. Jamais du texte. */
 
   /* ── Statuts : réservés. Jamais une couleur de marque, jamais une série. ── */
-  --color-success: #12946F;  --color-success-soft: #E7F5F0;
-  --color-warn:    #C97C1E;  --color-warn-soft:    #FBF1E3;
-  --color-danger:  #DC4B54;  --color-danger-soft:  #FBEBEC;
-  --color-info:    #0E7FB8;  --color-info-soft:    #E6F1F8;
-  --color-neutral: #7C879B;  --color-neutral-soft: #F1F4F8;
+  --color-success: #0E7A5C;  --color-success-soft: #E7F5F0;
+  --color-warn:    #975D16;  --color-warn-soft:    #FBF1E3;
+  --color-danger:  #B93E46;  --color-danger-soft:  #FBEBEC;
+  --color-info:    #0B70A3;  --color-info-soft:    #E6F1F8;
+  --color-neutral: #6D7688;  --color-neutral-soft: #F1F4F8;
   /* alias historiques encore utilisés dans les pages — même valeur canonique */
-  --color-coral:   #DC4B54;  --color-coral-soft:   #FBEBEC;
-  --color-mint:    #12946F;  --color-mint-soft:    #E7F5F0;
+  --color-coral:   #B93E46;  --color-coral-soft:   #FBEBEC;
+  --color-mint:    #0E7A5C;  --color-mint-soft:    #E7F5F0;
 
   /* ── Type : Sora partout (le fil du groupe), Nunito pour lire (Coreon) ── */
   --font-sans:    "Nunito Variable", system-ui, sans-serif;

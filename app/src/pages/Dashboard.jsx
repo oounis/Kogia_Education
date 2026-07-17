@@ -385,7 +385,7 @@ function ParentDashboard({u,d,greet}){
   const decisions=decisionsFor(u)
   if(!child) return <Card><EmptyState icon={<Users size={26}/>} title="Aucun enfant associé" sub="Demandez à la direction de lier votre compte à votre enfant."/></Card>
   return (<><PageHead title={greet} sub="Votre enfant, en un coup d'œil."
-      action={kids.length>1&&<select value={child.id} onChange={e=>setPickedId(e.target.value)} className="rounded-xl border border-line bg-white px-3 py-2 text-sm font-semibold">{kids.map(k=><option key={k.id} value={k.id}>{k.name}</option>)}</select>}/>
+      action={kids.length>1&&<select aria-label="Choisir l'enfant" value={child.id} onChange={e=>setPickedId(e.target.value)} className="rounded-xl border border-line bg-white px-3 py-2 text-sm font-semibold">{kids.map(k=><option key={k.id} value={k.id}>{k.name}</option>)}</select>}/>
     {decisions.length>0&&<Workbench items={decisions} className="mb-5"/>}
     {child&&live&&<Link to="/app/live" className="relative block rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition mb-5 group text-white" style={{background:`linear-gradient(120deg, ${larea.color} 0%, #0E2135 100%)`}}>
       <div className="relative flex items-center gap-4 p-5 min-h-[124px]">

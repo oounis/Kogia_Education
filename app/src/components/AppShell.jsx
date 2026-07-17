@@ -63,7 +63,7 @@ export default function AppShell({ children }){
           </div>
           {menu.groups.map(g=>(
             <div key={g.key} className="mt-4">
-              <div className="px-3 mb-1 text-[10px] font-extrabold uppercase tracking-wider text-muted/70">
+              <div className="px-3 mb-1 text-[10px] font-extrabold uppercase tracking-wider text-muted">
                 {t(g.label)}
               </div>
               <div className="space-y-1">

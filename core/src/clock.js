@@ -69,8 +69,12 @@ export const todayIso = () => isoOf(now())
 const JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi']
 const MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre']
 export function rentreeDate(ref = now()) {
-  const y = ref.getMonth() >= 8 && ref.getDate() >= 15 ? ref.getFullYear() + 1 : ref.getFullYear()
-  return new Date(y, 8, 15)
+  // Passé le 15 septembre → la prochaine rentrée est en septembre de l'an prochain.
+  // ANCIEN BUG (trouvé au test 2026-07-17) : `month>=8 && date>=15` ratait le
+  // 1er octobre (date 1 < 15) et renvoyait la rentrée de CETTE année, déjà passée.
+  const m = ref.getMonth(), d = ref.getDate()
+  const passed = m > 8 || (m === 8 && d >= 15)
+  return new Date(ref.getFullYear() + (passed ? 1 : 0), 8, 15)
 }
 export function rentreeLabel(ref = now()) {
   const d = rentreeDate(ref)

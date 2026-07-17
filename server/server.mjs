@@ -64,7 +64,12 @@ const sessionUser = req => {
   const token = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '')
   const s = auth.sessions[token]
   if (!s || s.exp < Date.now()) return null
-  return (school.blob.users || []).find(u => u.id === s.userId) || null
+  const u = (school.blob.users || []).find(u => u.id === s.userId) || null
+  // Désactiver un compte doit couper l'accès TOUT DE SUITE — pas à l'expiration
+  // du jeton (8 h plus tard). On vérifie `disabled` à CHAQUE requête, et on tue
+  // la session au passage : la Direction ferme la porte, elle se ferme.
+  if (u && u.disabled) { delete auth.sessions[token]; persistAuth(); return null }
+  return u
 }
 
 // ── Le cœur tourne SUR le blob du serveur (opérations nommées) ────────────────

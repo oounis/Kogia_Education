@@ -57,12 +57,15 @@ jobs:
         run: |
           npm ci --legacy-peer-deps
           npm run build
+      - name: Installer les dépendances du mobile (pour le smoke mobile)
+        working-directory: mobile
+        run: npm ci --no-audit --no-fund
       - name: Installer le harnais et son navigateur
         working-directory: e2e
         run: |
           npm install --no-audit --no-fund
           npx playwright@1.61 install --with-deps chromium-headless-shell
-      - name: Parcours (public · demandes · arabe · smoke 60 pages × 5 rôles)
+      - name: Parcours (public · demandes · arabe · smoke · qualité a11y+PDF · perf · mobile)
         working-directory: e2e
         run: npm run all
       - uses: actions/configure-pages@v5

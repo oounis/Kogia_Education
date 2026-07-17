@@ -105,3 +105,36 @@ test('pré-inscription publique : acceptée, puis limitée par IP', async () => 
   for (let i = 0; i < 12; i++) last = await api('/api/apply', { method: 'POST', body })
   assert.equal(last.status, 429, 'le robinet se ferme après 10/heure')
 })
+
+test('sécurité : désactiver un compte coupe la session EN COURS, pas à l\'expiration', async () => {
+  const dir = await login('direction@alnour.tn', 'admin')
+  const teacher = await login('enseignant@alnour.tn', 'teacher')
+  // le jeton de l'enseignant fonctionne
+  assert.equal((await api('/api/db', { token: teacher.token })).status, 200)
+  // la direction désactive le compte enseignant (écriture de blob, rôle *)
+  const blob = (await api('/api/db', { token: dir.token })).json.blob
+  blob.users = blob.users.map(u => u.id === teacher.user.id ? { ...u, disabled: true } : u)
+  const w = await api('/api/db', { method: 'POST', token: dir.token, body: { baseRev: (await api('/api/rev', { token: dir.token })).json.rev, blob } })
+  assert.equal(w.status, 200)
+  // le jeton EXISTANT de l'enseignant est immédiatement refusé — pas dans 8 h
+  assert.equal((await api('/api/db', { token: teacher.token })).status, 401, 'la porte se ferme tout de suite')
+  // et il ne peut plus se reconnecter non plus
+  assert.equal((await api('/api/login', { method: 'POST', body: { email: 'enseignant@alnour.tn', pw: 'teacher' } })).status, 403)
+})
+
+test('concurrence : 20 écritures simultanées — le verrou tient, aucune corruption', async () => {
+  const dir = await login('direction@alnour.tn', 'admin')
+  const rev0 = (await api('/api/rev', { token: dir.token })).json.rev
+  const blob = (await api('/api/db', { token: dir.token })).json.blob
+  // 20 clients postent en parallèle avec la MÊME baseRev périmée
+  const results = await Promise.all(Array.from({ length: 20 }, (_, i) =>
+    api('/api/db', { method: 'POST', token: dir.token, body: { baseRev: rev0, blob: { ...blob, attendance: { ...blob.attendance, [`burst_${i}`]: { s1: 'present' } } } } })))
+  const ok = results.filter(r => r.status === 200).length
+  const conflicts = results.filter(r => r.status === 409).length
+  assert.equal(ok, 1, 'UNE SEULE écriture réussit sur une révision donnée')
+  assert.equal(conflicts, 19, 'les 19 autres reçoivent un 409, jamais un écrasement muet')
+  // le serveur reste lisible et cohérent après la rafale
+  const final = await api('/api/db', { token: dir.token })
+  assert.equal(final.status, 200)
+  assert.ok(final.json.blob.classes.length > 0, 'les données ne sont pas corrompues')
+})

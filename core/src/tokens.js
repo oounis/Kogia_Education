@@ -55,11 +55,11 @@ export const TERRA = {
 
 /** Réservés. Jamais une couleur de marque, jamais une série. Toujours avec une icône ou un mot. */
 export const STATUS = {
-  ok:      '#12946F', okSoft:      '#E7F5F0',
-  warn:    '#C97C1E', warnSoft:    '#FBF1E3',
-  danger:  '#DC4B54', dangerSoft:  '#FBEBEC',
-  info:    '#0E7FB8', infoSoft:    '#E6F1F8',
-  neutral: '#7C879B', neutralSoft: '#F1F4F8',
+  ok:      '#0E7A5C', okSoft:      '#E7F5F0',
+  warn:    '#975D16', warnSoft:    '#FBF1E3',
+  danger:  '#B93E46', dangerSoft:  '#FBEBEC',
+  info:    '#0B70A3', infoSoft:    '#E6F1F8',
+  neutral: '#6D7688', neutralSoft: '#F1F4F8',
 }
 
 /**

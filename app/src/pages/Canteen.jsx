@@ -166,7 +166,7 @@ function ParentCanteen({ u }) {
 
   return (<>
     <PageHead title={t('Cantine')} sub={`Le menu de la semaine de ${child.name.split(' ')[0]}.`}
-      action={kids.length > 1 && <select value={child.id} onChange={e => setPickedId(e.target.value)} className="rounded-xl border border-line bg-white px-3 py-2 text-sm font-semibold">{kids.map(k => <option key={k.id} value={k.id}>{k.name}</option>)}</select>} />
+      action={kids.length > 1 && <select aria-label="Choisir l'enfant" value={child.id} onChange={e => setPickedId(e.target.value)} className="rounded-xl border border-line bg-white px-3 py-2 text-sm font-semibold">{kids.map(k => <option key={k.id} value={k.id}>{k.name}</option>)}</select>} />
 
     {!subscribed && <Card className="p-4 mb-4 text-sm text-muted">{child.name.split(' ')[0]} n'est pas inscrit(e) à la cantine. Voici tout de même le menu de la semaine.</Card>}
 

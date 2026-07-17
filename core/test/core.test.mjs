@@ -622,3 +622,87 @@ test('comptes : un e-mail un compte, et le dernier compte Direction est intoucha
   const owner = db().users.find(u => u.role === 'owner')
   assert.ok(updateAccount(owner.id, { name: 'X' }).error, 'le compte plateforme ne se gère pas depuis l\'école')
 })
+
+// ── Capacité : une VRAIE école (500 élèves, un an d'appels) tient-elle ? ──────
+// Tout est testé sur la démo de 36 élèves. Ici on fabrique une école réaliste
+// et on mesure : la taille du blob, et le temps du filtrage par rôle (acl.js) —
+// pour dire HONNÊTEMENT où sont les limites, pas pour deviner.
+import { blobForParent as aclParent, blobForStaff as aclStaff } from '../src/acl.js'
+
+test('capacité : 500 élèves × 180 jours d\'appels — le blob et le filtrage restent sains', () => {
+  const N = 500, DAYS = 180, CLASSES = 25
+  const classes = Array.from({ length: CLASSES }, (_, i) => ({ id: `c${i}`, name: `Classe ${i}`, grade: 'G', cycle: 'Primaire' }))
+  const students = Array.from({ length: N }, (_, i) => ({ id: `s${i}`, name: `Élève ${i}`, classId: `c${i % CLASSES}`, parentId: `p${i}`, archived: false, allergies: 'Aucune' }))
+  const users = students.map((s, i) => ({ id: `p${i}`, role: 'parent', name: `Parent ${i}`, email: `p${i}@ex.tn`, childIds: [s.id] }))
+  users.push({ id: 'u_dir', role: 'schooladmin', name: 'Direction', email: 'dir@ex.tn' })
+  const attendance = {}
+  for (let d = 0; d < DAYS; d++) {
+    const iso = `2026-${String((d % 12) + 1).padStart(2, '0')}-${String((d % 28) + 1).padStart(2, '0')}`
+    for (const c of classes) {
+      const marks = {}
+      students.filter(s => s.classId === c.id).forEach(s => { marks[s.id] = d % 9 === 0 ? 'absent' : 'present' })
+      attendance[`${c.id}_${iso}`] = marks
+    }
+  }
+  const big = { _v: 1, classes, students, users, teachers: [], attendance,
+    journal: [], behavior: [], moments: [], accidents: [], health: {}, pickups: {}, milestones: {},
+    departures: [], payments: {}, invoices: [], receipts: [], reports: [], evaluations: [],
+    applications: [], requests: [], notifications: [], canteen: {}, events: [], socialEvents: [],
+    routes: [], homework: [], exams: [], hrPayrolls: [], settings: { schoolName: 'Grande École' } }
+
+  const blobKB = Math.round(JSON.stringify(big).length / 1024)
+  assert.ok(blobKB > 500, `blob réaliste ~${blobKB} KB`)
+  // Bonne nouvelle honnête : 500 élèves × 180 j = ~800 KB, LARGEMENT sous le quota
+  // localStorage (~5 Mo). Le pilote tient une vraie école ; la limite viendra des
+  // pièces jointes (photos), pas des données structurées.
+  assert.ok(blobKB < 4500, `sous le quota localStorage (~5 Mo) : ${blobKB} KB`)
+  // Ce que la checklist veut savoir : ~90 000 marques d'appel produisent un blob de
+  // cette taille. Repère honnête pour le pilote (localStorage ~5 Mo).
+  console.log(`      capacité : 500 élèves × 180 j = ${blobKB} KB de blob (~${Object.keys(attendance).length} feuilles d'appel)`)
+
+  // Le filtrage parent doit rester rapide même sur 500 comptes
+  const t0 = Date.now()
+  const pb = aclParent(big, users[0])
+  const parentMs = Date.now() - t0
+  assert.equal(pb.students.length, 1, 'le parent ne reçoit QUE son enfant, même dans une grande école')
+  assert.ok(pb.users.length === 1, 'un seul compte')
+  assert.ok(parentMs < 500, `filtrage parent en ${parentMs} ms (< 500)`)
+
+  const t1 = Date.now()
+  const sb = aclStaff(big, 'schooladmin')
+  const staffMs = Date.now() - t1
+  assert.equal(sb.students.length, N, 'la direction voit les 500')
+  assert.ok(staffMs < 500, `filtrage direction en ${staffMs} ms`)
+  console.log(`      filtrage : parent ${parentMs} ms · direction ${staffMs} ms`)
+})
+
+// ── Bords de calendrier : là où les bugs silencieux se cachent ───────────────
+import { rentreeDate as rentree, isoOf as iso2 } from '../src/clock.js'
+import { upcoming as fetesUpcoming, nextFerie as fetesNext } from '../src/fetes.js'
+
+test('calendrier : la rentrée bascule d\'année au bon moment', () => {
+  // avant le 15 septembre → rentrée de CETTE année
+  const avant = rentree(new Date(2026, 5, 10))  // 10 juin 2026
+  assert.equal(avant.getFullYear(), 2026)
+  assert.equal(avant.getMonth(), 8); assert.equal(avant.getDate(), 15)
+  // après le 15 septembre → rentrée de l'année PROCHAINE
+  const apres = rentree(new Date(2026, 9, 1))    // 1 octobre 2026
+  assert.equal(apres.getFullYear(), 2027, 'passé la rentrée, on vise septembre prochain')
+})
+
+test('calendrier : les fêtes franchissent le passage d\'année sans trou', () => {
+  // fin décembre : l'agenda doit contenir des dates de 2027
+  const a = fetesUpcoming('2026-12-28', 6)
+  assert.equal(a.length, 6)
+  assert.ok(a.every((x, i, arr) => i === 0 || arr[i - 1].d <= x.d), 'trié')
+  assert.ok(a.some(x => x.d.startsWith('2027')), 'franchit 2026→2027')
+  // le prochain férié après le dernier de l'année existe (table 2027 présente)
+  const n = fetesNext('2026-12-20')
+  assert.ok(n && n.d > '2026-12-20', 'un prochain férié existe toujours')
+})
+
+test('calendrier : isoOf est LOCAL, jamais UTC (le bug des dates de minuit)', () => {
+  // 1er janvier à 00:30 locale ne doit pas devenir le 31 décembre (UTC)
+  assert.equal(iso2(new Date(2026, 0, 1, 0, 30)), '2026-01-01')
+  assert.equal(iso2(new Date(2026, 11, 31, 23, 30)), '2026-12-31')
+})
