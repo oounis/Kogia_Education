@@ -24,6 +24,7 @@
 // ════════════════════════════════════════════════════════════════════════════
 import http from 'node:http'
 import { randomBytes } from 'node:crypto'
+import { gzipSync } from 'node:zlib'
 import { readFileSync, existsSync } from 'node:fs'
 import { hashPw, checkPw } from './pw.mjs'
 import { join, extname, dirname } from 'node:path'
@@ -101,12 +102,17 @@ const applyAllowed = ip => {
 
 // ── HTTP ──────────────────────────────────────────────────────────────────────
 const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2' }
+// Le trafic mesuré (17/07/2026) : le blob direction pèse 371 Ko brut, 32 Ko en
+// gzip — sur le wifi d'une école tunisienne, la compression n'est pas un luxe.
 const send = (res, code, body, origin) => {
+  const payload = JSON.stringify(body)
+  const gz = payload.length > 1024 && String(res.req?.headers['accept-encoding'] || '').includes('gzip')
   res.writeHead(code, {
     'content-type': 'application/json',
+    ...(gz ? { 'content-encoding': 'gzip' } : {}),
     ...(origin ? { 'access-control-allow-origin': origin, 'access-control-allow-headers': 'authorization,content-type', 'access-control-allow-methods': 'GET,POST,OPTIONS' } : {}),
   })
-  res.end(JSON.stringify(body))
+  res.end(gz ? gzipSync(payload) : payload)
 }
 const readBody = req => new Promise(resolve => {
   let raw = ''; req.on('data', c => { raw += c; if (raw.length > 30e6) req.destroy() })
