@@ -4,7 +4,7 @@
 // veut expo-router, seul ce fichier change — les écrans reçoivent déjà
 // ({ user, params, nav }) comme contrat stable.
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
-import { View, Text, Pressable, Animated, Platform } from 'react-native'
+import { View, Text, Pressable, Animated, Platform, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { NAV } from '@core/nav.js'
 import { canAccess } from '@core/access.js'
@@ -12,7 +12,7 @@ import { logout as coreLogout } from '@core/auth.js'
 import { ROLE } from '@core/theme.js'
 import { Ic } from './icons.js'
 import { C, F } from './ui.js'
-import { Screen, EmptyState, Row, tap } from './components.js'
+import { Screen, EmptyState, Row, Btn, tap } from './components.js'
 import { SCREENS } from './registry.js'
 
 // 4 onglets clés par rôle ; tout le reste vit dans « Plus ».
@@ -30,6 +30,10 @@ function ComingSoon({ title }) {
     <Screen title={title}>
       <EmptyState icon="Hammer" title="Bientôt sur mobile"
         sub="Cet écran existe déjà sur le web et arrive dans l'application. Rien ne se perd : mêmes données des deux côtés." />
+      <View style={{ marginTop: 14, alignItems: 'center' }}>
+        <Btn label="Ouvrir sur le web" icon="ExternalLink" color="#7539E4"
+          onPress={() => Linking.openURL('https://edu.kogiagroup.com/')} />
+      </View>
     </Screen>
   )
 }

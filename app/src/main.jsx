@@ -7,6 +7,17 @@ import App from './App.jsx'
 import RemoteGate from './RemoteGate.jsx'
 import { isRemote } from './remote.js'
 setAssetBase(import.meta.env.BASE_URL)
+// Après un déploiement, les noms des morceaux (code-splitting) changent : un
+// onglet resté ouvert clique un module → l'ancien fichier n'existe plus → le
+// clic « ne fait rien ». Vite émet vite:preloadError dans ce cas exact : on
+// recharge UNE fois pour récupérer la nouvelle version (garde anti-boucle).
+window.addEventListener('vite:preloadError', e => {
+  e.preventDefault()
+  if (sessionStorage.getItem('coreon_chunk_reload')) return   // déjà tenté
+  sessionStorage.setItem('coreon_chunk_reload', '1')
+  location.reload()
+})
+window.addEventListener('load', () => setTimeout(() => sessionStorage.removeItem('coreon_chunk_reload'), 10000))
 // Tant qu'aucune vraie école n'utilise le produit : première visite en mode
 // démonstration (journée de classe simulée), comme sur mobile. ?live=0 ou le
 // bouton « revenir au réel » désactivent, et le choix est mémorisé.

@@ -26,6 +26,7 @@ import Journal from './screens/Journal.js'
 import Gallery from './screens/Gallery.js'
 import Canteen from './screens/Canteen.js'
 import Accidents from './screens/Accidents.js'
+import Behavior from './screens/Behavior.js'
 
 export const SCREENS = {
   '/app': Dashboard,
@@ -33,6 +34,7 @@ export const SCREENS = {
   '/app/gallery': Gallery,
   '/app/canteen': Canteen,
   '/app/accidents': Accidents,
+  '/app/behavior': Behavior,
   '/app/live': Live,
   '/app/social': Social,
   '/app/events': Events,

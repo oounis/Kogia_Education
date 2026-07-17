@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Dialog } from '@headlessui/react'
 import { db, classById } from '@core/db.js'
 import { NAV } from '@core/nav.js'
+import { featureEnabled } from '@core/features.js'
 import { Avatar } from './ui.jsx'
 import { Search, CornerDownLeft } from 'lucide-react'
 import { Ic } from '../icons.jsx'
@@ -21,7 +22,9 @@ export default function CommandPalette({ open, onClose, user }){
 
   const items=useMemo(()=>{
     const out=[]
-    NAV.filter(n=>n.roles.includes(user.role)&&(!query||n.label.toLowerCase().includes(query)))
+    // Un module éteint (features.js) ne doit pas apparaître ici : le proposer puis
+    // rebondir en silence vers l'accueil = « le clic ne marche pas » pour l'utilisateur.
+    NAV.filter(n=>n.roles.includes(user.role)&&featureEnabled(n.to)&&(!query||n.label.toLowerCase().includes(query)))
       .slice(0,query?6:9)
       .forEach(n=>out.push({group:t('Pages'),label:t(n.labelFor?.[user.role]||n.label),icon:n.icon,run:()=>navigate(n.to)}))
     const canStudents=['schooladmin','admin','supervisor','teacher'].includes(user.role)
