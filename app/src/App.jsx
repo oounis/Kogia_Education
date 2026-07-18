@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast'
 import toast from 'react-hot-toast'
 import { current } from '@core/auth.js'
 import AppShell from './components/AppShell.jsx'
+import ScrollToTop from './components/ScrollToTop.jsx'
 import Landing from './pages/Landing.jsx'
 import Login from './pages/Login.jsx'
 // ── Le reste se charge À LA DEMANDE : le premier écran n'embarque plus les 40 pages,
@@ -78,6 +79,7 @@ const R=(el,path)=> <Protected el={el} roles={ROUTE_ROLES[path]} path={path}/>
 export default function App(){
   return (
     <HashRouter>
+      <ScrollToTop/>
       <Toaster position="top-right" toastOptions={{ style:{ borderRadius:'12px', fontSize:'14px' } }}/>
       <Suspense fallback={<div className="min-h-screen grid place-items-center"><div className="skeleton w-40 h-10" aria-label="Chargement…"/></div>}>
       <Routes>

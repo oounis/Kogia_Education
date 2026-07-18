@@ -71,8 +71,10 @@ function StudentsInsights(){
         ps[st]!=null&&ps[st]++
       }
     }
+    // Index local : studentById() par élève rappelait db() (parse du blob) ~120 fois.
+    const sMap=new Map(d.students.map(s=>[s.id,s]))
     const chronic=Object.entries(perStudent)
-      .map(([sid,c])=>({s:studentById(sid),...c,total:c.present+c.absent+c.late}))
+      .map(([sid,c])=>({s:sMap.get(sid),...c,total:c.present+c.absent+c.late}))
       .filter(x=>x.s&&x.absent>=4)
       .sort((a,b)=>b.absent-a.absent)
     const trend=dates.slice(-20).map(iso=>{ const x=days[iso]; const t=x.present+x.absent+x.late
