@@ -229,4 +229,4 @@ export function financials() {
   }
 }
 
-export const money = n => `${(n || 0).toLocaleString('fr-FR')} DT`
+export { money, setCurrency, currency } from './currency.js'

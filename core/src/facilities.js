@@ -217,5 +217,5 @@ export function revenue() {
   }
 }
 
-export const money = n => `${(n || 0).toLocaleString('fr-FR')} DT`
+export { money } from './currency.js'
 export const todayStr = () => todayIso()

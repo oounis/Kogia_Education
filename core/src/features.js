@@ -84,7 +84,26 @@ const ROUTE_MODULE = {
   '/app/timetable': 'timetable',
 }
 export const moduleOf = path => ROUTE_MODULE[String(path || '').split('?')[0]]
+
+// ── Activation PAR ÉCOLE ─────────────────────────────────────────────────────
+// Un directeur active/désactive les modules optionnels depuis Paramètres. Le
+// choix vit dans sa propre petite clé (`coreon_modules`), pas dans le gros blob :
+// il est lu SYNCHRONEMENT à l'import, donc la navigation (NAV, calculée à
+// l'import) le reflète dès le chargement, sans relire la base à chaque appel.
+// Un `true`/`false` explicite l'emporte ; sinon on retombe sur le défaut FEATURES.
+import { getItem } from './storage.js'
+let OVERRIDES = {}
+try { OVERRIDES = JSON.parse(getItem('coreon_modules') || '{}') || {} } catch { OVERRIDES = {} }
+export const moduleOverrides = () => ({ ...OVERRIDES })
+export const setModuleOverrides = o => { OVERRIDES = o && typeof o === 'object' ? o : {} }
+export const moduleActive = m => {
+  const v = OVERRIDES[m]
+  if (v === true || v === false) return v
+  return FEATURES[m] !== false
+}
 export const featureEnabled = path => {
   const m = moduleOf(path)
-  return m ? FEATURES[m] !== false : true
+  return m ? moduleActive(m) : true
 }
+// Les modules que l'école peut allumer/éteindre (les autres sont le cœur).
+export const OPTIONAL_MODULES = ['homework', 'exams', 'library', 'transport']
