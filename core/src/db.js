@@ -4,7 +4,7 @@ import { getItem, setItem, removeItem } from './storage.js'
 import { subjectHue } from './subjects.js'
 import { BRAND } from './tokens.js'
 const KEY="coreon_db"
-const SCHEMA=21
+const SCHEMA=22
 const LEGACY_KEYS=Array.from({length:18},(_,i)=>`coreon_db_v${18-i}`)
 const MONTHS=["Sep","Oct","Nov","Déc","Jan","Fév","Mar","Avr","Mai","Juin"]
 export const FEE_MONTHS=MONTHS
@@ -305,6 +305,43 @@ function seed(){
     {id:"t3",name:"Sami Gabsi",subject:"Français",classes:["c6a","c9a"],gender:"Garçon",qualification:"Maîtrise de Français",experience:11,joiningDate:"2019-09-01",designation:"Professeur",phone:"+216 20 999 000",email:"sgabsi@alnour.tn",address:"Tunis",salary:1900},
   ]
   const users=demoUsers()
+  // ── L'ÉCOLE PLEINE : ~120 élèves, pour que chaque écran ait la densité d'une
+  //    vraie école (tables, graphiques, filtres). DÉTERMINISTE (h32) : la même
+  //    école à chaque semence. On AJOUTE — aucune donnée historique modifiée,
+  //    les identifiants des 36 premiers élèves (s1…) restent intacts. Placé AVANT
+  //    les générateurs (paiements, évaluations, appels…) pour qu'ils couvrent
+  //    AUSSI ces élèves — sinon la page Finance lit d.payments[id] indéfini.
+  {
+    classes.push(
+      {id:"c1a",name:"1ère A",grade:"1ère année",level:"g1",cycle:"Primaire"},
+      {id:"c2a",name:"2ème A",grade:"2ème année",level:"g2",cycle:"Primaire"},
+      {id:"kg_2",name:"Maternelle 2 A",grade:"Maternelle 2",level:"kg2",cycle:"Petite enfance"},
+    )
+    // Prénoms/noms tunisiens — sans « Amira » ni « Adam » (réservés aux dossiers de démo).
+    const F=["Yasmine","Mohamed","Nour","Rania","Aziz","Sana","Wael","Ines","Ghassen","Meriem","Sami","Rim","Khalil","Asma","Bilel","Chaima","Oussama","Salma","Anis","Marwa","Seif","Emna","Tarek","Hiba","Zied","Amani","Fares","Cyrine","Hamza","Lina","Nadia","Rayen","Sirine","Wassim","Mouna"]
+    const L=["Bouazizi","Gharbi","Mansouri","Chebbi","Dridi","Saidi","Amri","Baccouche","Guedri","Hamdi","Jaziri","Karoui","Louati","Mathlouthi","Nasri","Oueslati","Rekik","Sfaxi","Turki","Zaoui","Ferchichi","Ghanmi","Haddad","Kacem","Lassoued"]
+    const ALL=["Aucune","Aucune","Aucune","Aucune","Aucune","Aucune","Aucune","Aucune","Aucune","Aucune","Arachides","Lait de vache","Œufs","Gluten"]
+    const Rg=x=>h32('kogia:pleine:'+x)/4294967295
+    const CLS=classes.map(c=>c.id)
+    const yearOf=cid=>({kg_ns:2024,kg_pk:2022,kg_1:2021,kg_2:2020,c1a:2019,c2a:2018,c9a:2017,c4a:2016,c5a:2015,c6a:2014}[cid]||2016)
+    for(let i=0;i<85;i++){
+      const sid='sg'+(100+i)
+      const first=F[Math.floor(Rg('f'+i)*F.length)], last=L[Math.floor(Rg('l'+i)*L.length)]
+      const cid=CLS[i%CLS.length]
+      const dobY=yearOf(cid), dob=`${dobY}-${String(1+Math.floor(Rg('m'+i)*12)).padStart(2,'0')}-${String(1+Math.floor(Rg('d'+i)*28)).padStart(2,'0')}`
+      let pid=null
+      if(Rg('p'+i)<0.62){
+        pid='pg'+(100+i)
+        const pf=F[Math.floor(Rg('pf'+i)*F.length)]
+        users.push({id:pid,role:'parent',name:`${pf} ${last}`,email:`${pf}.${last}.${i}@parent.tn`.toLowerCase(),pw:'1234',
+          gender:Rg('pg'+i)<0.5?'Homme':'Femme',phone:`+216 2${String(1000000+Math.floor(Rg('ph'+i)*8999999)).slice(0,7)}`,childIds:[sid]})
+      }
+      students.push(S(sid,first,last,cid,pid,{gender:Rg('g'+i)<0.5?'Garçon':'Fille',dob,
+        bloodGroup:['O+','A+','B+','AB+','O-','A-'][Math.floor(Rg('b'+i)*6)],
+        allergies:ALL[Math.floor(Rg('a'+i)*ALL.length)],
+        fatherName:`${F[Math.floor(Rg('fn'+i)*F.length)]} ${last}`}))
+    }
+  }
   const payments={}; students.forEach((s,i)=>{payments[s.id]=MONTHS.map((m,mi)=>{let st="paid";if(mi>=6)st="due";else if((i+mi)%7===0)st="overdue";else if((i+mi)%5===0)st="pending";return{month:m,status:st}})})
   // pre-seeded evaluation for 5ème A so dashboards/parents are not empty
   const c5=students.filter(s=>s.classId==="c5a"); const Bk=["excellent","good","average","weak"]
@@ -533,6 +570,16 @@ const COLLECTIONS={classes:[],students:[],teachers:[],users:[],evaluations:[],in
 
 function migrate(d){
   const from=d._v||0
+  // v22 — « l'école pleine » : les bases de DÉMONSTRATION (et elles seules)
+  // sont resemées pour recevoir les ~120 élèves. Garde-fous : l'empreinte de
+  // la démo doit être intacte (Al-Nour + s1 Amira) ET l'école petite (<60) —
+  // une base modifiée sérieusement ou une vraie école ne sont JAMAIS touchées.
+  if(from<22
+     && d.settings?.schoolName==='École Al-Nour'
+     && (d.students||[]).some(s=>s.id==='s1'&&s.name==='Amira Ben Salah')
+     && (d.students||[]).length<60){
+    return seed()
+  }
   for(const [k,def] of Object.entries(COLLECTIONS)) if(d[k]==null) d[k]=Array.isArray(def)?[]:{}
   if(!Object.keys(d.timetables).length) d.timetables=genTimetables(d.classes)
   if(!d.settings) d.settings={...DEFAULT_SETTINGS}

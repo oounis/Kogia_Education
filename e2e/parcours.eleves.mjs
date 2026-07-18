@@ -31,10 +31,13 @@ await scenario(8986, async ({ page, ok, login, base }) => {
   const file = await dl
   ok((file.suggestedFilename() || '').includes('eleves'), 'l\'export CSV part avec le bon nom')
 
-  // 5. Le filtre par cycle réduit la liste
+  // 5. Le filtre par cycle réduit la liste — on lit le TOTAL du pied (« N lignes »),
+  //    jamais les lignes visibles (plafonnées par la pagination à 15/page).
+  const total = async () => { const m = (await page.locator('body').innerText()).match(/(\d+)\s+lignes?/); return m ? +m[1] : 0 }
+  const tousTotal = await total()
   await page.locator('select[aria-label="Filtrer par cycle"]').selectOption('Petite enfance'); await page.waitForTimeout(400)
-  const petits = await page.locator('tbody tr').count()
-  ok(petits > 0 && petits < 15, `le filtre cycle réduit la table (${petits} lignes petite enfance)`)
+  const petits = await total()
+  ok(petits > 0 && petits < tousTotal, `le filtre cycle réduit la table (${petits} sur ${tousTotal})`)
   await page.locator('select[aria-label="Filtrer par cycle"]').selectOption('all'); await page.waitForTimeout(300)
 
   // 6. Une ligne mène à la FICHE ÉLÈVE 360°

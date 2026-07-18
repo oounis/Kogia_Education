@@ -24,8 +24,16 @@ await scenario(8971, async ({ page, ok, login, base }) => {
       const h = e => errs.push(e.message.slice(0, 90))
       page.on('pageerror', h)
       await page.goto(`${base}/#${r.slice(4) ? r : r}`.replace('/#/app','/#/app'))
-      await page.goto(`${base}/#${r}`); await page.waitForTimeout(450)
-      const txt = await page.locator('body').innerText().catch(()=> '')
+      await page.goto(`${base}/#${r}`)
+      // On ATTEND le contenu (jusqu'à 3 s) au lieu d'un sommeil fixe : le smoke
+      // détecte une page CASSÉE/vide, pas une page lente (la perf a son parcours).
+      // Sur une école pleine (120 élèves), une page riche peut peindre en ~1–2 s.
+      let txt = ''
+      for (let w = 0; w < 30; w++) {
+        await page.waitForTimeout(100)
+        txt = await page.locator('body').innerText().catch(() => '')
+        if (txt.trim().length >= 40) break
+      }
       page.off('pageerror', h)
       const flags = []
       if (errs.length) flags.push('JS:' + errs[0])

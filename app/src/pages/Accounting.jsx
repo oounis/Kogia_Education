@@ -235,8 +235,8 @@ function Eleves({ refresh }) {
     <>
       <div className="grid gap-2">
         {(d.students || []).map(s => {
-          const due = dueFor(s.id)
-          const gs = discountsOf(s.id)
+          const due = dueFor(s.id, d)
+          const gs = discountsOf(s.id, d)
           return (
             <Card key={s.id} className="p-4 flex items-center gap-3 flex-wrap">
               <Avatar name={s.name} seed={s.id} />

@@ -35,10 +35,12 @@ export const FEE_KINDS = {
   transport:   { key: 'transport',   label: 'Transport',           once: false, optional: true },
 }
 
-export const feeSchedule = () => db().feeSchedule || {}
+export const feeSchedule = (d = db()) => d.feeSchedule || {}
 
-/** Le barème d'un niveau. Sans barème, on ne facture pas — et on le dit. */
-export const feesOf = level => feeSchedule()[level] || null
+/** Le barème d'un niveau. Sans barème, on ne facture pas — et on le dit.
+ *  `d` optionnel : passer un instantané déjà chargé évite de re-parser le blob
+ *  (une page qui calcule le dû de 120 élèves ne doit pas rappeler db() par ligne). */
+export const feesOf = (level, d = db()) => feeSchedule(d)[level] || null
 
 export function setFees(level, fees) {
   const d = db()
@@ -54,8 +56,8 @@ export const DISCOUNT_KINDS = {
   bourse:   { key: 'bourse',   label: 'Bourse',             pct: null }, // montant libre, décidé
 }
 
-export const discounts = () => db().discounts || []
-export const discountsOf = studentId => discounts().filter(x => x.studentId === studentId)
+export const discounts = (d = db()) => d.discounts || []
+export const discountsOf = (studentId, d = db()) => discounts(d).filter(x => x.studentId === studentId)
 
 /** Accorder une remise. Qui, quand, pourquoi — sinon ce n'est pas une remise, c'est un trou. */
 export function grantDiscount({ studentId, kind, pct, amount = 0, reason, by }) {
@@ -83,12 +85,11 @@ export function revokeDiscount(id) {
  * Ce qu'un élève doit pour l'année : barème du niveau − remises (%) − bourse (montant).
  * Retourne le détail, pas juste un total : une famille a le droit de comprendre.
  */
-export function dueFor(studentId) {
-  const d = db()
+export function dueFor(studentId, d = db()) {
   const st = (d.students || []).find(s => s.id === studentId)
   if (!st) return null
   const cls = (d.classes || []).find(c => c.id === st.classId)
-  const fees = feesOf(cls?.level)
+  const fees = feesOf(cls?.level, d)
   if (!fees) return { error: `Aucun barème pour le niveau « ${labelOf(cls?.level)} ».`, lines: [], total: 0 }
 
   const lines = Object.entries(fees)
@@ -96,7 +97,7 @@ export function dueFor(studentId) {
     .map(([k, v]) => ({ kind: k, label: FEE_KINDS[k]?.label || k, amount: v }))
   const gross = lines.reduce((s, l) => s + l.amount, 0)
 
-  const gs = discountsOf(studentId)
+  const gs = discountsOf(studentId, d)
   const pctTotal = gs.filter(g => g.pct).reduce((s, g) => s + g.pct, 0)
   const pctCut = Math.round(gross * Math.min(pctTotal, 100) / 100)
   const bourse = gs.filter(g => !g.pct).reduce((s, g) => s + g.amount, 0)

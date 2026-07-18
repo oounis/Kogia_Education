@@ -47,11 +47,17 @@ export default function Students(){
         a.t++; if (st === 'present') a.p++
       }
     }
+    // Index locaux : sur une école pleine (120+ élèves), appeler classById/userById
+    // par ligne rappelait db() (donc un JSON.parse du blob entier) des centaines de
+    // fois par rendu — ~2 s d'attente. Une Map construite une fois : O(élèves).
+    const classMap = new Map(d.classes.map(c => [c.id, c]))
+    const userMap = new Map(d.users.map(u => [u.id, u]))
     return d.students.map(s => {
       const a = att[s.id]
+      const cls = classMap.get(s.classId)
       const unpaid = (d.payments[s.id] || []).filter(m => m.status === 'due' || m.status === 'overdue').length
-      return { ...s, _classe: classById(s.classId)?.name || '—', _cycle: classById(s.classId)?.cycle || '—',
-        _parent: userById(s.parentId)?.name || '', _tel: s.guardianPhone || s.phone || '',
+      return { ...s, _classe: cls?.name || '—', _cycle: cls?.cycle || '—',
+        _parent: userMap.get(s.parentId)?.name || '', _tel: s.guardianPhone || s.phone || '',
         _presence: a ? Math.round(a.p / a.t * 100) : null, _impayes: unpaid,
         _allerg: s.allergies && s.allergies !== 'Aucune' ? s.allergies : '' }
     })
