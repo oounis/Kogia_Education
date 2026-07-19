@@ -1,7 +1,7 @@
 # Coreon Edu — SaaS Plan (Zero → Production)
 
 > **Product:** A multi-tenant SaaS for **quick, in-classroom student evaluation**.
-> **Company:** Kogia Group · **Repo:** `oounis/Kogia_Education`
+> **Company:** Kogia Group · **Repo:** `oounis/coreon-edu`
 
 ---
 

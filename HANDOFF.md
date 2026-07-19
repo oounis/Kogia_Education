@@ -114,7 +114,7 @@ gratuit) — décision à prendre quand Othman voudra le montrer.
 
 ## Secrets
 Coffre **hors de tout repo** : `/mnt/c/Current LAB/_Private/Kogia/KOGIA_credentials.txt`.
-`Kogia_Group` (site) et `Kogia_Education` sont **publics** → rien de sensible dedans.
+`Kogia_Group` (site) et `coreon-edu` sont **publics** → rien de sensible dedans.
 
 ---
 

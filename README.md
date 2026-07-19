@@ -4,7 +4,7 @@
 le quotidien de l'école — évaluer une classe en 30 secondes, suivre la journée de son
 enfant en direct, laisser parents et enseignants organiser la vie commune.
 
-**Démo en ligne :** https://oounis.github.io/Kogia_Education/ · **Site :** https://kogiagroup.com
+**Démo en ligne :** https://edu.kogiagroup.com · **Site :** https://kogiagroup.com
 Sur l'écran de connexion, entrez d'un clic dans n'importe quel portail (Direction,
 Enseignant, Parent…). La première visite simule une journée de classe (mode démo,
 réversible).
