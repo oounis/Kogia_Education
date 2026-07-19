@@ -7,6 +7,7 @@ import { SERIES, LEVELS, axis as chartAxis, grid as chartGrid, tooltip as chartT
 import { Users, GraduationCap, Wallet, ShieldAlert, ClipboardCheck, CreditCard, Star, ArrowRight, Bell, FileText, TrendingUp, CalendarCheck, Radio, Stethoscope, UserX, CalendarDays, ChevronRight, Building2, Search, CheckCircle2 } from 'lucide-react'
 import { current } from '@core/auth.js'
 import { db, FEE_MONTHS, studentById, classById, settings, attParts } from '@core/db.js'
+import { money } from '@core/accounting.js'
 import { decisionsFor } from '@core/workbench.js'
 import { menuFor } from '@core/nav.js'
 import { t, dateLocale } from '@core/i18n.js'
@@ -289,7 +290,7 @@ function PlatformDashboard({ d, greet }){
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
       <StatCard label="Écoles clientes" value={schools.filter(s=>s.status!=='suspended').length} tint="brand" icon={<Building2/>} to="/app/schools"/>
       <StatCard label="Élèves gérés" value={totalStudents} tint="sky" icon={<Users/>}/>
-      <StatCard label="Revenu mensuel" value={`${mrr} DT`} sub="abonnements actifs" tint="mint" icon={<Wallet/>}/>
+      <StatCard label="Revenu mensuel" value={money(mrr)} sub="abonnements actifs" tint="mint" icon={<Wallet/>}/>
       <StatCard label="En essai" value={trials.length} tint="butter" icon={<FileText/>}/>
     </div>
     <div className="grid lg:grid-cols-[340px_1fr] gap-4">
@@ -306,7 +307,7 @@ function PlatformDashboard({ d, greet }){
               <span className="min-w-0 flex-1"><span className="block text-sm font-semibold truncate group-hover:accent-text">{sc.name}</span>
                 <span className="block text-[12px] text-muted">{sc.city} · {count(sc)} élèves · depuis {sc.since}</span></span>
               <span className="text-[12px] font-bold px-2 py-0.5 rounded-full" style={{background:col+'1E',color:col}}>{lbl}</span>
-              <span className="text-sm font-extrabold w-20 text-right">{sc.status==='active'?`${sc.price} DT/m`:'—'}</span>
+              <span className="text-sm font-extrabold w-20 text-right">{sc.status==='active'?`${money(sc.price)}/m`:'—'}</span>
             </Link>) })}
         </div>
       </Card>

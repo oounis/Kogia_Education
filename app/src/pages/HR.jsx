@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { current } from '@core/auth.js'
 import { db } from '@core/db.js'
+import { currency } from '@core/currency.js'
 import {
   CONTRACTS, LEAVE_KINDS, LEAVE_STAGES, PAYROLL_STAGES,
   contractOf, setContract, leaves, decideLeave, leaveBalance,
@@ -15,7 +16,7 @@ import {
 import { Ic } from '../icons.jsx'
 import toast from 'react-hot-toast'
 
-const money = n => `${(n || 0).toLocaleString('fr-FR')} DT`
+const money = n => `${(n || 0).toLocaleString('fr-FR')} ${currency()}`
 const day = d => new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
 
 /** Le personnel de l'école : enseignants + administration. Une seule liste. */
@@ -108,7 +109,7 @@ function Team({ staff, refresh }) {
               {Object.values(CONTRACTS).map(c => <option key={c.key} value={c.key}>{c.label}</option>)}
             </Select>
           </Field>
-          <Field label="Salaire mensuel brut (DT) *" hint="La paie se calcule à partir de ce montant.">
+          <Field label={`Salaire mensuel brut (${currency()}) *`} hint="La paie se calcule à partir de ce montant.">
             <Input type="number" value={f.salary} onChange={e => setF({ ...f, salary: e.target.value })} />
           </Field>
           <Field label="Date d’entrée">

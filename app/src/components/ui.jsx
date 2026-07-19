@@ -34,11 +34,18 @@ const TINTS = {
 export function Card({ className='', children }){ return <div className={`card ${className}`}>{children}</div> }
 export function StatCard({ label, value, sub, tint='brand', icon, to, onClick }){
   const [bg,fg]=TINTS[tint]||TINTS.brand
-  const inner=<><span className="w-12 h-12 rounded-2xl grid place-items-center shrink-0" style={{background:bg,color:fg}}>{icon}</span>
-    <div className="min-w-0"><div className="text-2xl font-extrabold leading-none">{value}</div><div className="text-xs text-muted mt-1 truncate">{label}{sub&&<span className="ml-1">· {sub}</span>}</div></div></>
-  if(to) return <Link to={to} className="card p-4 flex items-center gap-3 k-lift">{inner}</Link>
-  if(onClick) return <button onClick={onClick} className="card p-4 flex items-center gap-3 k-lift k-press text-left w-full">{inner}</button>
-  return <div className="card p-4 flex items-center gap-3">{inner}</div>
+  const inner=<>
+    {/* filet d'accent qui se révèle au survol — la carte réagit sans crier */}
+    <span className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" style={{background:`linear-gradient(90deg,${fg},${bg})`}} aria-hidden="true"/>
+    <span className="w-12 h-12 rounded-2xl grid place-items-center shrink-0 relative overflow-hidden" style={{background:bg,color:fg}}>
+      <span className="absolute inset-0" style={{background:`radial-gradient(130% 130% at 25% 15%, ${fg}26, transparent 62%)`}} aria-hidden="true"/>
+      <span className="relative">{icon}</span>
+    </span>
+    <div className="min-w-0 flex-1"><div className="text-[1.7rem] font-extrabold leading-none tabular-nums">{value}</div><div className="text-xs text-muted mt-1.5 truncate">{label}{sub&&<span className="ml-1">· {sub}</span>}</div></div></>
+  const base="group card p-4 flex items-center gap-3.5 relative overflow-hidden"
+  if(to) return <Link to={to} className={`${base} k-lift`}>{inner}</Link>
+  if(onClick) return <button onClick={onClick} className={`${base} k-lift k-press text-left w-full`}>{inner}</button>
+  return <div className="card p-4 flex items-center gap-3.5 relative overflow-hidden">{inner}</div>
 }
 export function Badge({ status, label: lbl, tone }){
   const OKp=[STATUS.okSoft,STATUS.ok], WARNp=[STATUS.warnSoft,STATUS.warn], DANGp=[STATUS.dangerSoft,STATUS.danger], NEUTp=[STATUS.neutralSoft,STATUS.neutral]
@@ -110,7 +117,8 @@ export function Table({ head, children }){
     <tbody className="divide-y divide-line">{children}</tbody></table></div></div>
 }
 export function PageHead({ title, sub, action }){
-  return <div className="flex items-end justify-between gap-3 mb-5 flex-wrap"><div><h1 className="text-2xl font-extrabold">{title}</h1>{sub&&<p className="text-muted mt-0.5">{sub}</p>}</div>{action}</div>
+  return <div className="flex items-end justify-between gap-3 mb-5 flex-wrap">
+    <div><h1 className="text-[1.7rem] font-extrabold tracking-tight leading-tight">{title}</h1>{sub&&<p className="text-muted mt-1">{sub}</p>}</div>{action}</div>
 }
 export function IconTile({ icon, tint='brand', size=44, radius='rounded-2xl', className='' }){
   const [bg,fg]=TINTS[tint]||TINTS.brand

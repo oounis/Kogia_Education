@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { current } from '@core/auth.js'
 import { db, mutate, uid } from '@core/db.js'
+import { currency } from '@core/currency.js'
 import { PageHead, Avatar, Btn, Modal, Field, Input, Select, Section, SearchInput, EmptyState, Card } from '../components/ui.jsx'
 import { SubjectDot } from '../subjects.jsx'
 import { GOVERNORATES, DOC_TYPES, validCIN } from '@core/tunisia.js'
@@ -62,7 +63,7 @@ export default function Teachers(){
         <Field label="Téléphone"><Input value={f.phone} onChange={e=>setF({...f,phone:e.target.value})}/></Field>
         <Field label="E-mail"><Input value={f.email} onChange={e=>setF({...f,email:e.target.value})}/></Field>
         <Field label="Adresse"><Input value={f.address} onChange={e=>setF({...f,address:e.target.value})}/></Field>
-        <Field label="Salaire mensuel (DT)"><Input type="number" value={f.salary} onChange={e=>setF({...f,salary:e.target.value})}/></Field>
+        <Field label={`Salaire mensuel (${currency()})`}><Input type="number" value={f.salary} onChange={e=>setF({...f,salary:e.target.value})}/></Field>
       </Section>
       <div className="mt-1"><div className="text-xs font-bold uppercase tracking-wide accent-text mb-2">Pièces à fournir</div>
         <Attach types={DOC_TYPES.teacher} value={f.attachments} onChange={a=>setF({...f,attachments:a})}/></div>

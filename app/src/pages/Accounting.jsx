@@ -9,7 +9,7 @@ import {
   FEE_KINDS, DISCOUNT_KINDS, INVOICE_STAGES, METHODS,
   feesOf, setFees, discountsOf, grantDiscount, revokeDiscount,
   dueFor, invoices, issueInvoice, cancelInvoice, collect, receipts,
-  financials, money,
+  financials, money, currency
 } from '@core/accounting.js'
 import {
   PageHead, Card, Btn, Badge, Modal, Field, Input, Select, Tabs, EmptyState, Avatar, STATUS,
@@ -186,7 +186,7 @@ function Factures({ refresh }) {
         footer={<><Btn variant="ghost" onClick={() => setPay(null)}>Annuler</Btn><Btn onClick={doCollect}>Encaisser & éditer le reçu</Btn></>}>
         {pay && (
           <div className="grid gap-4">
-            <Field label="Montant (DT)" hint={`Reste dû : ${money(pay.total - pay.paid)}`}>
+            <Field label={`Montant (${currency()})`} hint={`Reste dû : ${money(pay.total - pay.paid)}`}>
               <Input type="number" value={amt} onChange={e => setAmt(e.target.value)} />
             </Field>
             <Field label="Moyen de paiement">
@@ -275,7 +275,7 @@ function Eleves({ refresh }) {
             </Select>
           </Field>
           {kind === 'bourse' && (
-            <Field label="Montant de la bourse (DT) *">
+            <Field label={`Montant de la bourse (${currency()}) *`}>
               <Input type="number" value={amount} onChange={e => setAmount(e.target.value)} />
             </Field>
           )}

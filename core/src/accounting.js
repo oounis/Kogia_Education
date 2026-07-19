@@ -24,6 +24,7 @@
 //     produit — on ne la casse pas ici.)
 // ════════════════════════════════════════════════════════════════════════════
 import { db, save } from './db.js'
+import { currency } from './currency.js'
 import { now, todayIso } from './clock.js'
 import { labelOf } from './levels.js'
 
@@ -184,7 +185,7 @@ export function collect(invoiceId, amount, method, by) {
   const a = Number(amount) || 0
   if (a <= 0) return { error: 'Le montant doit être positif.' }
   const rest = inv.total - inv.paid
-  if (a > rest) return { error: `Le reste dû n’est que de ${rest} DT.` }
+  if (a > rest) return { error: `Le reste dû n’est que de ${rest} ${currency()}.` }
 
   const d = db()
   const r = {

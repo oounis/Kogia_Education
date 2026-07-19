@@ -28,6 +28,7 @@
 //    l'organisateur : dans les trois cas, aucun paiement n'est dû.
 
 import { STATUS, BRAND } from './tokens.js'
+import { currency } from './currency.js'
 export const MIN_LEAD_DAYS = 3        // délai minimum entre la proposition et l'événement
 export const RSVP_WINDOW_H = 24       // fenêtre d'inscription
 export const DEFAULT_MIN = 8          // quorum par défaut (un match de foot : 8 joueurs)
@@ -39,7 +40,7 @@ export const CANCEL_WINDOW_H = 48     // au-delà, un désistement est « tardif
 // la même exigence ici : c'est aussi la meilleure protection contre le parent qui
 // arrive au terrain en pensant que c'est gratuit.
 export const joinButtonLabel = ev => (ev.pricePerPerson || 0) > 0
-  ? `Réserver ma place — ${ev.pricePerPerson} DT si confirmé`
+  ? `Réserver ma place — ${ev.pricePerPerson} ${currency()} si confirmé`
   : 'Réserver ma place — gratuit'
 
 // ── États ───────────────────────────────────────────────────────────────────

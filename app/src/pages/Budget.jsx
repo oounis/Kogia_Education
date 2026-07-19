@@ -7,7 +7,7 @@ import { useState } from 'react'
 import { current } from '@core/auth.js'
 import { studentById } from '@core/db.js'
 import { monthlyReport, yearSeries, addExpense, voidExpense, EXPENSE_CATS, expenseCatOf } from '@core/budget.js'
-import { money } from '@core/accounting.js'
+import { money, currency } from '@core/accounting.js'
 import { todayIso } from '@core/clock.js'
 import { PageHead, Card, StatCard, SectionCard, Btn, Modal, Field, Input, Select, EmptyState, STATUS } from '../components/ui.jsx'
 import { Wallet, BriefcaseBusiness, ReceiptText, Scale, Plus, TrendingUp, Download, X } from 'lucide-react'
@@ -50,7 +50,7 @@ export default function Budget() {
     refresh()
   }
   const exportCSV = () => {
-    const lines = [['Type', 'Date', 'Libellé', 'Montant DT']]
+    const lines = [['Type', 'Date', 'Libellé', `Montant ${currency()}`]]
     R.receipts.forEach(r => lines.push(['Scolarité', format(new Date(r.at), 'yyyy-MM-dd'), `Reçu ${r.number} · ${studentById(r.studentId)?.name || ''}`, r.amount]))
     R.rentals.forEach(b => lines.push(['Location', b.date, `${b.who}`, b.price]))
     R.payrolls.forEach(p => lines.push(['Paie', p.month, `Paie ${p.month} (${p.lines?.length || 0} employés)`, -p.total]))
@@ -79,7 +79,7 @@ export default function Budget() {
     </div>
 
     <SectionCard icon={<TrendingUp size={16} />} tint="mint" title={`Solde mensuel · ${year}`} sub="Encaissements moins salaires et dépenses, mois par mois">
-      <SoftArea data={series} dataKey="solde" color={STATUS.ok} id="gBud" unit=" DT" height={220} />
+      <SoftArea data={series} dataKey="solde" color={STATUS.ok} id="gBud" unit={` ${currency()}`} height={220} />
     </SectionCard>
 
     {tile && (() => {
@@ -134,7 +134,7 @@ export default function Budget() {
         <Field label="Catégorie"><Select value={f.category} onChange={e => setF({ ...f, category: e.target.value })}>
           {Object.values(EXPENSE_CATS).map(c => <option key={c.key} value={c.key}>{c.label}</option>)}</Select></Field>
         <Field label="Libellé *"><Input value={f.label} onChange={e => setF({ ...f, label: e.target.value })} placeholder="Ramettes de papier, peinture atelier…" /></Field>
-        <Field label="Montant (DT) *"><Input type="number" min="0" value={f.amount} onChange={e => setF({ ...f, amount: e.target.value })} /></Field>
+        <Field label={`Montant (${currency()}) *`}><Input type="number" min="0" value={f.amount} onChange={e => setF({ ...f, amount: e.target.value })} /></Field>
       </div>
       <p className="text-[12px] text-muted mt-3">Une dépense inscrite ne s'efface pas : elle s'annule, motivée — la trace reste.</p>
     </Modal>
