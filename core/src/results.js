@@ -1,6 +1,7 @@
 import { QUESTIONS, BUCKETS, BADGES } from './data.js'
 import { studentById } from './db.js'
 import { STATUS, BRAND } from './tokens.js'
+import { t } from './i18n.js'
 export const bucketOf=k=>BUCKETS.find(b=>b.key===k)
 export const badgeOf =k=>BADGES.find(b=>b.key===k)
 export function bucketTotals(ev){
@@ -32,11 +33,11 @@ export function evaluationHistory(allEvals, sid){
 // livre de marque, et toujours avec son libellé — jamais la couleur seule.
 export function mentionFor(score){
   if(score==null) return {label:'—',color:STATUS.neutral}
-  if(score>=85) return {label:'Excellent',color:STATUS.ok}
-  if(score>=70) return {label:'Très bien',color:STATUS.info}
-  if(score>=55) return {label:'Bien',color:BRAND.indigo}
-  if(score>=40) return {label:'Passable',color:STATUS.warn}
-  return {label:'Insuffisant',color:STATUS.danger}
+  if(score>=85) return {label:t('Excellent'),color:STATUS.ok}
+  if(score>=70) return {label:t('Très bien'),color:STATUS.info}
+  if(score>=55) return {label:t('Bien'),color:BRAND.indigo}
+  if(score>=40) return {label:t('Passable'),color:STATUS.warn}
+  return {label:t('Insuffisant'),color:STATUS.danger}
 }
 
 // Agrège toutes les évaluations + la présence d'un élève pour le bulletin

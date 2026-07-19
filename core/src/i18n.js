@@ -219,11 +219,14 @@ export const AR = {
   'Les évaluations des enseignants apparaîtront ici.': 'ستظهر هنا تقييمات المعلّمين.',
 
   // ── Tableaux de bord par rôle (Dashboard.jsx) — tranche 2026-07-19 ─────────
-  // Enseignant
+  // Mentions (results.js mentionFor — statut d'appréciation, /100)
   'Excellent': 'ممتاز',
+  'Très bien': 'جيّد جدًّا',
   'Bien': 'جيّد',
-  'Moyen': 'متوسّط',
+  'Passable': 'مقبول',
   'Insuffisant': 'ضعيف',
+  // Enseignant : niveaux de la classe
+  'Moyen': 'متوسّط',
   "Votre journée d'enseignement en un coup d'œil.": 'يوم تدريسك في لمحة.',
   'Classe en cours': 'قسم جارٍ',
   'Prochaine séance': 'الحصّة القادمة',
