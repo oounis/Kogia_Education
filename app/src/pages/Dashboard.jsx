@@ -46,7 +46,7 @@ export default function Dashboard(){
     const cls=currentClass()||classForSlot(SCHEDULE[0])
     // répartition de la dernière évaluation de la classe
     const ev=d.evaluations.find(e=>e.classId===cls.cls.id)
-    const dist=[['Excellent',LEVELS[0]],['Bien',LEVELS[1]],['Moyen',LEVELS[2]],['Insuffisant',LEVELS[3]]]
+    const dist=[[t('Excellent'),LEVELS[0]],[t('Bien'),LEVELS[1]],[t('Moyen'),LEVELS[2]],[t('Insuffisant'),LEVELS[3]]]
     const buckets=['excellent','good','average','weak']
     const distData=dist.map(([n,c],i)=>{ let v=0; if(ev) cls.students.forEach(s=>{ const sum=studentSummary(ev,s.id); if(sum.score!=null){ const k=sum.score>=85?0:sum.score>=60?1:sum.score>=40?2:3; if(k===i)v++ } }); return {name:n,value:v,color:c} })
     const hasDist=distData.some(x=>x.value>0)
@@ -54,30 +54,30 @@ export default function Dashboard(){
     // les évaluations de l'école, y compris celles des collègues.
     const myEvals=d.evaluations.filter(e=>e.teacher===u.name)
     const decisions=decisionsFor(u)   // le travail qui m'est confié (requests.js)
-    return (<><PageHead title={greet} sub="Votre journée d'enseignement en un coup d'œil."/>
+    return (<><PageHead title={greet} sub={t("Votre journée d'enseignement en un coup d'œil.")}/>
       {decisions.length>0&&<Workbench items={decisions} className="mb-5"/>}
       <div className="grid sm:grid-cols-3 gap-4 mb-5">
-        <StatCard label={cls.isLive?"Classe en cours":"Prochaine séance"} value={cls.cls.name} sub={cls.slot.subject} tint="mint" icon={<ClipboardCheck/>} to="/app/evaluate"/>
+        <StatCard label={cls.isLive?t("Classe en cours"):t("Prochaine séance")} value={cls.cls.name} sub={cls.slot.subject} tint="mint" icon={<ClipboardCheck/>} to="/app/evaluate"/>
         <StatCard label={t('Élèves')} value={cls.students.length} tint="sky" icon={<Users/>} to="/app/students"/>
-        <StatCard label="Mes demandes" value={d.requests.filter(r=>r.by===u.id).length} tint="butter" icon={<FileText/>} to="/app/requests"/>
+        <StatCard label={t('Mes demandes')} value={d.requests.filter(r=>r.by===u.id).length} tint="butter" icon={<FileText/>} to="/app/requests"/>
       </div>
       <div className="grid lg:grid-cols-2 gap-4">
         <Card className="p-6 flex flex-col justify-between gap-4">
-          <div><div className="text-xs font-bold uppercase accent-text">{cls.isLive?'Cours en direct':'Prochain cours'}</div>
+          <div><div className="text-xs font-bold uppercase accent-text">{cls.isLive?t('Cours en direct'):t('Prochain cours')}</div>
             <div className="text-xl font-extrabold">{cls.cls.name} · {cls.slot.subject}</div>
-            <div className="text-muted text-sm">{cls.slot.start}–{cls.slot.end} · {cls.students.length} élèves {cls.isLive&&<span className="ml-1 text-xs font-bold text-white px-2 py-0.5 rounded-full" style={{background:STATUS.live}}>● EN COURS</span>}</div></div>
-          <Link to="/app/evaluate" className={`${BTN_PRIMARY} w-full sm:w-auto`}>Évaluer la classe <ArrowRight size={17}/></Link>
+            <div className="text-muted text-sm">{cls.slot.start}–{cls.slot.end} · {cls.students.length} {t('élèves')} {cls.isLive&&<span className="ml-1 text-xs font-bold text-white px-2 py-0.5 rounded-full" style={{background:STATUS.live}}>● {t('EN COURS')}</span>}</div></div>
+          <Link to="/app/evaluate" className={`${BTN_PRIMARY} w-full sm:w-auto`}>{t('Évaluer la classe')} <ArrowRight size={17}/></Link>
         </Card>
-        <Card className="p-5"><h3 className="font-bold mb-1">Niveau de la classe</h3>
-          <p className="text-xs text-muted mb-3">Répartition de la dernière évaluation</p>
+        <Card className="p-5"><h3 className="font-bold mb-1">{t('Niveau de la classe')}</h3>
+          <p className="text-xs text-muted mb-3">{t('Répartition de la dernière évaluation')}</p>
           {hasDist? <SoftBarsH data={distData} height={176}/>
-           : <EmptyState icon={<ClipboardCheck size={22}/>} title="Aucune évaluation" sub="Évaluez cette classe pour voir la répartition des niveaux."/>}
+           : <EmptyState icon={<ClipboardCheck size={22}/>} title={t('Aucune évaluation')} sub={t('Évaluez cette classe pour voir la répartition des niveaux.')}/>}
         </Card>
       </div>
-      <Card className="p-5 mt-4"><div className="flex items-center justify-between mb-3"><h3 className="font-bold flex items-center gap-1.5"><ClipboardCheck size={16}/> Mes évaluations enregistrées</h3><span className="text-xs text-muted">{myEvals.length} au total</span></div>
+      <Card className="p-5 mt-4"><div className="flex items-center justify-between mb-3"><h3 className="font-bold flex items-center gap-1.5"><ClipboardCheck size={16}/> {t('Mes évaluations enregistrées')}</h3><span className="text-xs text-muted">{myEvals.length} {t('au total')}</span></div>
         {myEvals.length? <div className="space-y-2">{myEvals.slice(0,6).map(ev=>{ const studs=d.students.filter(s=>s.classId===ev.classId); const scores=studs.map(s=>studentSummary(ev,s.id).score).filter(x=>x!=null); const avg=scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):null; const m=mentionFor(avg)
-          return (<div key={ev.id} className="flex items-center justify-between text-sm border-b border-line pb-2 last:border-0"><div><span className="font-medium">{ev.className} · {ev.subject}</span><span className="text-xs text-muted ml-2">{new Date(ev.at).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</span></div><div className="text-right"><span className="text-muted text-xs mr-2">{scores.length} notés</span><span className="font-bold" style={{color:m.color}}>{avg!=null?`${avg}/100`:'—'}</span></div></div>) })}</div>
-         : <EmptyState icon={<ClipboardCheck size={22}/>} title="Aucune évaluation enregistrée" sub="Vos évaluations enregistrées apparaîtront ici."/>}
+          return (<div key={ev.id} className="flex items-center justify-between text-sm border-b border-line pb-2 last:border-0"><div><span className="font-medium">{ev.className} · {ev.subject}</span><span className="text-xs text-muted ml-2">{new Date(ev.at).toLocaleDateString(dateLocale(),{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</span></div><div className="text-right"><span className="text-muted text-xs mr-2">{scores.length} {t('notés')}</span><span className="font-bold" style={{color:m.color}}>{avg!=null?`${avg}/100`:'—'}</span></div></div>) })}</div>
+         : <EmptyState icon={<ClipboardCheck size={22}/>} title={t('Aucune évaluation enregistrée')} sub={t('Vos évaluations enregistrées apparaîtront ici.')}/>}
       </Card></>)
   }
 
@@ -95,17 +95,17 @@ export default function Dashboard(){
     const lastRound=(d.rounds||[]).filter(r=>r.date===today).sort((a,b)=>(b.startAt||'').localeCompare(a.startAt||''))[0]
     const open=d.incidents.filter(i=>i.status==='open')
     const decisions=decisionsFor(u)
-    return (<><PageHead title={greet} sub="Le poste de sécurité, en un coup d'œil."/>
+    return (<><PageHead title={greet} sub={t("Le poste de sécurité, en un coup d'œil.")}/>
       {decisions.length>0&&<Workbench items={decisions} className="mb-5"/>}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-        <StatCard label="À couvrir ce soir" value={tonight.length} sub={tonight.length?tonight[0].time:'rien de prévu'} tint="brand" icon={<ShieldAlert/>} to="/app/security"/>
-        <StatCard label="Visiteurs dans l'école" value={inside.length} tint="grape" icon={<Users/>} to="/app/security"/>
-        <StatCard label="Dernière ronde" value={lastRound?lastRound.startAt:'—'} sub={lastRound?`${lastRound.points.length} zones`:'aucune aujourd\'hui'} tint="sky" icon={<CalendarCheck/>} to="/app/security"/>
+        <StatCard label={t("À couvrir ce soir")} value={tonight.length} sub={tonight.length?tonight[0].time:t('rien de prévu')} tint="brand" icon={<ShieldAlert/>} to="/app/security"/>
+        <StatCard label={t("Visiteurs dans l'école")} value={inside.length} tint="grape" icon={<Users/>} to="/app/security"/>
+        <StatCard label={t("Dernière ronde")} value={lastRound?lastRound.startAt:'—'} sub={lastRound?`${lastRound.points.length} ${t('zones')}`:t('aucune aujourd’hui')} tint="sky" icon={<CalendarCheck/>} to="/app/security"/>
         <StatCard label={t('Incidents ouverts')} value={open.length} tint="coral" icon={<ShieldAlert/>} to="/app/incidents"/>
       </div>
       <div className="grid lg:grid-cols-2 gap-4">
-        <Card className="p-5"><h3 className="font-bold mb-1">Prochains événements à couvrir</h3>
-          <p className="text-xs text-muted mb-3">Approuvés par la Direction — soirées, affluence, personnes extérieures</p>
+        <Card className="p-5"><h3 className="font-bold mb-1">{t('Prochains événements à couvrir')}</h3>
+          <p className="text-xs text-muted mb-3">{t('Approuvés par la Direction — soirées, affluence, personnes extérieures')}</p>
           {toCover.length? <div className="space-y-2">{toCover.slice(0,5).map(e=>(
             <Link key={e.id} to="/app/security" className="flex items-center gap-3 text-sm border-b border-line pb-2 last:border-0 hover:bg-canvas rounded-lg px-1 transition">
               <span className="text-muted"><Ic n={isNightEvent(e) ? 'Moon' : 'Sun'} size={17} /></span>
@@ -113,38 +113,38 @@ export default function Dashboard(){
                 <span className="block text-xs text-muted">{e.date} · {e.time} · {e.place}</span></span>
               <ChevronRight size={15} className="text-muted"/>
             </Link>))}</div>
-           : <EmptyState icon={<CalendarCheck size={22}/>} title="Aucun événement à couvrir" sub="Les activités approuvées apparaîtront ici."/>}
+           : <EmptyState icon={<CalendarCheck size={22}/>} title={t('Aucun événement à couvrir')} sub={t('Les activités approuvées apparaîtront ici.')}/>}
         </Card>
-        <Card className="p-5"><h3 className="font-bold mb-1">Visiteurs actuellement dans l'école</h3>
-          <p className="text-xs text-muted mb-3">Entrés, badge remis, pas encore sortis</p>
+        <Card className="p-5"><h3 className="font-bold mb-1">{t("Visiteurs actuellement dans l'école")}</h3>
+          <p className="text-xs text-muted mb-3">{t('Entrés, badge remis, pas encore sortis')}</p>
           {inside.length? <div className="space-y-2">{inside.map(v=>(
             <div key={v.id} className="flex items-center gap-3 text-sm border-b border-line pb-2 last:border-0">
               <Avatar name={v.name} seed={v.id} size={30}/>
               <span className="min-w-0 flex-1"><span className="block font-semibold truncate">{v.name}</span>
-                <span className="block text-xs text-muted">{v.purpose} · reçu par {v.hostName}</span></span>
+                <span className="block text-xs text-muted">{v.purpose} · {t('reçu par')} {v.hostName}</span></span>
               <span className="text-xs font-bold tabular-nums">{v.inAt}</span>
             </div>))}</div>
-           : <EmptyState icon={<Users size={22}/>} title="Personne dans l'école" sub="Aucun visiteur enregistré à cette heure."/>}
+           : <EmptyState icon={<Users size={22}/>} title={t("Personne dans l'école")} sub={t('Aucun visiteur enregistré à cette heure.')}/>}
         </Card>
       </div></>)
   }
 
   if(u.role==='supervisor'){
     const open=d.incidents.filter(i=>i.status==='open')
-    const sevData=[['Faible','low',STATUS.info],['Moyenne','medium',STATUS.warn],['Élevée','high',STATUS.danger]].map(([n,k,c])=>({name:n,value:d.incidents.filter(i=>i.severity===k).length,color:c}))
+    const sevData=[[t('Faible'),'low',STATUS.info],[t('Modérée'),'medium',STATUS.warn],[t('Élevée'),'high',STATUS.danger]].map(([n,k,c])=>({name:n,value:d.incidents.filter(i=>i.severity===k).length,color:c}))
     const decisions=decisionsFor(u)
-    return (<><PageHead title={greet} sub="Gardez l'école sûre et informée."/>
+    return (<><PageHead title={greet} sub={t("Gardez l'école sûre et informée.")}/>
       {decisions.length>0&&<Workbench items={decisions} className="mb-5"/>}
       <div className="grid sm:grid-cols-3 gap-4 mb-5">
         <StatCard label={t('Incidents ouverts')} value={open.length} tint="coral" icon={<ShieldAlert/>} to="/app/incidents"/>
         <StatCard label={t('Élèves')} value={d.students.length} tint="sky" icon={<Users/>} to="/app/students"/>
-        <StatCard label="Signalés par moi" value={d.incidents.filter(i=>i.by===u.name).length} tint="butter" icon={<ShieldAlert/>} to="/app/incidents"/>
+        <StatCard label={t('Signalés par moi')} value={d.incidents.filter(i=>i.by===u.name).length} tint="butter" icon={<ShieldAlert/>} to="/app/incidents"/>
       </div>
       <div className="grid lg:grid-cols-2 gap-4">
-        <Card className="p-5"><h3 className="font-bold mb-3">Incidents par gravité</h3>
+        <Card className="p-5"><h3 className="font-bold mb-3">{t('Incidents par gravité')}</h3>
           <SoftBars data={sevData} height={176} showValues/>
         </Card>
-        <Card className="p-5"><h3 className="font-bold mb-3">Incidents récents</h3>
+        <Card className="p-5"><h3 className="font-bold mb-3">{t('Incidents récents')}</h3>
           <div className="space-y-2">
             {d.incidents.slice(0,4).map(i=>{ const s=i.studentId?studentById(i.studentId):null; return (
               <Link to="/app/incidents" key={i.id} className="flex items-center gap-2 text-sm border-b border-line pb-2 last:border-0 hover:bg-canvas rounded-lg px-1 transition">
@@ -153,11 +153,11 @@ export default function Dashboard(){
                 {s&&<span className="text-muted text-xs">{s.name.split(' ')[0]}</span>}
                 <Badge status={i.status}/>
               </Link>) })}
-            {d.incidents.length===0 && <EmptyState icon={<ShieldAlert size={22}/>} title="Aucun incident" sub="Tout est calme pour le moment."/>}
+            {d.incidents.length===0 && <EmptyState icon={<ShieldAlert size={22}/>} title={t('Aucun incident')} sub={t('Tout est calme pour le moment.')}/>}
           </div>
         </Card>
       </div>
-      <Link to="/app/incidents" className={`${BTN_PRIMARY} mt-4`}><ShieldAlert size={17}/> Signaler un incident</Link></>)
+      <Link to="/app/incidents" className={`${BTN_PRIMARY} mt-4`}><ShieldAlert size={17}/> {t('Signaler un incident')}</Link></>)
   }
 
   // schooladmin / admin — L'ATELIER, PAS LA VITRINE (recherche vérifiée 3-0 :
@@ -281,31 +281,31 @@ function PlatformDashboard({ d, greet }){
   const mrr=actives.reduce((n,s)=>n+s.price,0)
   const totalStudents=schools.filter(s=>s.status!=='suspended').reduce((n,s)=>n+count(s),0)
   const planPie=[
-    {name:'Plan Pro',value:actives.filter(s=>s.plan==='Pro').length,color:'#7539E4'},
-    {name:'Plan Essentiel',value:actives.filter(s=>s.plan==='Essentiel').length,color:'#0BA5D8'},
-    {name:'En essai',value:trials.length,color:STATUS.warn},
+    {name:t('Plan Pro'),value:actives.filter(s=>s.plan==='Pro').length,color:'#7539E4'},
+    {name:t('Plan Essentiel'),value:actives.filter(s=>s.plan==='Essentiel').length,color:'#0BA5D8'},
+    {name:t('En essai'),value:trials.length,color:STATUS.warn},
   ].filter(x=>x.value>0)
-  const STL={active:['Active',STATUS.ok],trial:["Essai",STATUS.warn],suspended:['Suspendue',STATUS.neutral]}
-  return (<><PageHead title={greet} sub="Console plateforme — vos écoles clientes en un coup d'œil."/>
+  const STL={active:[t('Active'),STATUS.ok],trial:[t("Essai"),STATUS.warn],suspended:[t('Suspendue'),STATUS.neutral]}
+  return (<><PageHead title={greet} sub={t("Console plateforme — vos écoles clientes en un coup d'œil.")}/>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
-      <StatCard label="Écoles clientes" value={schools.filter(s=>s.status!=='suspended').length} tint="brand" icon={<Building2/>} to="/app/schools"/>
-      <StatCard label="Élèves gérés" value={totalStudents} tint="sky" icon={<Users/>}/>
-      <StatCard label="Revenu mensuel" value={money(mrr)} sub="abonnements actifs" tint="mint" icon={<Wallet/>}/>
-      <StatCard label="En essai" value={trials.length} tint="butter" icon={<FileText/>}/>
+      <StatCard label={t("Écoles clientes")} value={schools.filter(s=>s.status!=='suspended').length} tint="brand" icon={<Building2/>} to="/app/schools"/>
+      <StatCard label={t("Élèves gérés")} value={totalStudents} tint="sky" icon={<Users/>}/>
+      <StatCard label={t("Revenu mensuel")} value={money(mrr)} sub={t("abonnements actifs")} tint="mint" icon={<Wallet/>}/>
+      <StatCard label={t("En essai")} value={trials.length} tint="butter" icon={<FileText/>}/>
     </div>
     <div className="grid lg:grid-cols-[340px_1fr] gap-4">
-      <Card className="p-5"><h3 className="font-bold mb-1">Répartition des abonnements</h3><p className="text-xs text-muted mb-4">Écoles actives et en essai</p>
+      <Card className="p-5"><h3 className="font-bold mb-1">{t('Répartition des abonnements')}</h3><p className="text-xs text-muted mb-4">{t('Écoles actives et en essai')}</p>
         <SoftBarsH data={planPie} height={150} width={92}/>
       </Card>
       <Card className="p-5">
-        <div className="flex items-center justify-between mb-3"><h3 className="font-bold">Écoles clientes</h3>
-          <Link to="/app/schools" className="text-xs font-semibold accent-text inline-flex items-center gap-1">Gérer les écoles <ArrowRight size={13}/></Link></div>
+        <div className="flex items-center justify-between mb-3"><h3 className="font-bold">{t('Écoles clientes')}</h3>
+          <Link to="/app/schools" className="text-xs font-semibold accent-text inline-flex items-center gap-1">{t('Gérer les écoles')} <ArrowRight size={13}/></Link></div>
         <div className="divide-y divide-line">
           {schools.map(sc=>{ const [lbl,col]=STL[sc.status]||STL.active
             return (<Link key={sc.id} to="/app/schools" className="flex items-center gap-3 py-2.5 group">
               <IconTile icon={<Building2 size={16}/>} tint={sc.live?'brand':'slate'} size={38} radius="rounded-xl"/>
               <span className="min-w-0 flex-1"><span className="block text-sm font-semibold truncate group-hover:accent-text">{sc.name}</span>
-                <span className="block text-[12px] text-muted">{sc.city} · {count(sc)} élèves · depuis {sc.since}</span></span>
+                <span className="block text-[12px] text-muted">{sc.city} · {count(sc)} {t('élèves')} · {t('depuis')} {sc.since}</span></span>
               <span className="text-[12px] font-bold px-2 py-0.5 rounded-full" style={{background:col+'1E',color:col}}>{lbl}</span>
               <span className="text-sm font-extrabold w-20 text-right">{sc.status==='active'?`${money(sc.price)}/m`:'—'}</span>
             </Link>) })}
@@ -378,96 +378,96 @@ function ParentDashboard({u,d,greet}){
   const ns=nowState()
   const phase=schoolPhase(new Date())
   const preview=phase==='live'?ns.nowMin:phase==='after'?900:phase==='before'?480:630
-  const pillTxt=phase==='live'?`EN DIRECT · ${fmt(preview)}`:phase==='after'?'Journée terminée':phase==='before'?'Ouvre à 08:00':phase==='vacances'?"Vacances d'été":'Week-end'
+  const pillTxt=phase==='live'?`${t('EN DIRECT')} · ${fmt(preview)}`:phase==='after'?t('Journée terminée'):phase==='before'?t('Ouvre à 08:00'):phase==='vacances'?t("Vacances d'été"):t('Week-end')
   const live=cls?statusAt(child.classId,ns.dayIdx,preview,false):null
   const larea=live?AREAS[live.place]:null
   const pm=live?placeMeta(live):null
   // ce qui attend LA décision du parent : signer un accident, régler un retard
   const decisions=decisionsFor(u)
-  if(!child) return <Card><EmptyState icon={<Users size={26}/>} title="Aucun enfant associé" sub="Demandez à la direction de lier votre compte à votre enfant."/></Card>
-  return (<><PageHead title={greet} sub="Votre enfant, en un coup d'œil."
-      action={kids.length>1&&<select aria-label="Choisir l'enfant" value={child.id} onChange={e=>setPickedId(e.target.value)} className="rounded-xl border border-line bg-white px-3 py-2 text-sm font-semibold">{kids.map(k=><option key={k.id} value={k.id}>{k.name}</option>)}</select>}/>
+  if(!child) return <Card><EmptyState icon={<Users size={26}/>} title={t('Aucun enfant associé')} sub={t('Demandez à la direction de lier votre compte à votre enfant.')}/></Card>
+  return (<><PageHead title={greet} sub={t("Votre enfant, en un coup d'œil.")}
+      action={kids.length>1&&<select aria-label={t("Choisir l'enfant")} value={child.id} onChange={e=>setPickedId(e.target.value)} className="rounded-xl border border-line bg-white px-3 py-2 text-sm font-semibold">{kids.map(k=><option key={k.id} value={k.id}>{k.name}</option>)}</select>}/>
     {decisions.length>0&&<Workbench items={decisions} className="mb-5"/>}
     {child&&live&&<Link to="/app/live" className="relative block rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition mb-5 group text-white" style={{background:`linear-gradient(120deg, ${larea.color} 0%, #0E2135 100%)`}}>
       <div className="relative flex items-center gap-4 p-5 min-h-[124px]">
         <div className="min-w-0">
           <div className="flex items-center gap-2 text-[12px] font-bold">
             <span className="flex items-center gap-1 px-2 py-0.5 rounded-full" style={{background:phase==='live'?STATUS.live:'rgba(255,255,255,.25)'}}><Radio size={11}/> {pillTxt}</span>
-            <span className="opacity-80 uppercase tracking-wide">Suivi en direct</span>
+            <span className="opacity-80 uppercase tracking-wide">{t('Suivi en direct')}</span>
           </div>
-          <div className="text-2xl font-extrabold mt-1.5 leading-tight">{phase==='vacances'?"Vacances d'été":live.title}</div>
-          <div className="opacity-90 text-sm">{child.name.split(' ')[0]} · {phase==='vacances'?`Reprise le ${rentreeLabel()}`:live.sub}</div>
-          <div className="inline-flex items-center gap-1 text-xs font-bold mt-2 bg-white text-ink px-3 py-1.5 rounded-full group-hover:gap-2 transition-all">Voir le parcours de la journée <ArrowRight size={13}/></div>
+          <div className="text-2xl font-extrabold mt-1.5 leading-tight">{phase==='vacances'?t("Vacances d'été"):live.title}</div>
+          <div className="opacity-90 text-sm">{child.name.split(' ')[0]} · {phase==='vacances'?`${t('Reprise le')} ${rentreeLabel()}`:live.sub}</div>
+          <div className="inline-flex items-center gap-1 text-xs font-bold mt-2 bg-white text-ink px-3 py-1.5 rounded-full group-hover:gap-2 transition-all">{t('Voir le parcours de la journée')} <ArrowRight size={13}/></div>
         </div>
         <span className="ml-auto w-16 h-16 rounded-full grid place-items-center shrink-0 mr-2 group-hover:scale-110 transition" style={{background:pm.color+'16',color:pm.color}}><pm.Icon size={30}/></span>
       </div>
     </Link>}
     <div className="grid sm:grid-cols-4 gap-4 mb-5">
-      <StatCard label="Moyenne générale" value={b?.overall!=null?`${b.overall}/100`:'—'} sub={b?.mention.label} tint="mint" icon={<Star/>} onClick={()=>child&&setBulletin(child)}/>
-      <StatCard label="Mois payés" value={`${paid}/${months.length}`} tint="sky" icon={<CreditCard/>} to="/app/payments"/>
-      <StatCard label="Présence" value={b?.attRate!=null?`${b.attRate}%`:'—'} tint="grape" icon={<CalendarCheck/>} to="/app/live"/>
+      <StatCard label={t("Moyenne générale")} value={b?.overall!=null?`${b.overall}/100`:'—'} sub={b?.mention.label} tint="mint" icon={<Star/>} onClick={()=>child&&setBulletin(child)}/>
+      <StatCard label={t("Mois payés")} value={`${paid}/${months.length}`} tint="sky" icon={<CreditCard/>} to="/app/payments"/>
+      <StatCard label={t("Présence")} value={b?.attRate!=null?`${b.attRate}%`:'—'} tint="grape" icon={<CalendarCheck/>} to="/app/live"/>
       {/* comptait toutes les notifications (lues comprises) et supposait le rôle parent */}
-      <StatCard label="Non lues" value={unreadFor(u)} tint="butter" icon={<Bell/>} to="/app/notifications"/>
+      <StatCard label={t("Non lues")} value={unreadFor(u)} tint="butter" icon={<Bell/>} to="/app/notifications"/>
     </div>
     <div className="grid lg:grid-cols-2 gap-4 mb-4">
-      <Card className="p-5"><div className="flex items-center justify-between mb-3"><h3 className="font-bold">Évolution des notes</h3>{child&&<Btn variant="soft" onClick={()=>setBulletin(child)}><FileText size={15}/> Bulletin</Btn>}</div>
+      <Card className="p-5"><div className="flex items-center justify-between mb-3"><h3 className="font-bold">{t('Évolution des notes')}</h3>{child&&<Btn variant="soft" onClick={()=>setBulletin(child)}><FileText size={15}/> {t('Bulletin')}</Btn>}</div>
         {trend.length>0? <div className="h-48"><ResponsiveContainer width="100%" height="100%"><AreaChart data={trend} margin={{top:8,right:8,left:-4,bottom:0}}>
           <defs><linearGradient id="gScore" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={SERIES[0]} stopOpacity={.22}/><stop offset="100%" stopColor={SERIES[0]} stopOpacity={0}/></linearGradient></defs>
           <CartesianGrid {...chartGrid}/>
           <XAxis dataKey="i" {...chartAxis}/><YAxis domain={[0,100]} {...chartAxis} width={42}/><Tooltip {...chartTip} formatter={(v,_n,p)=>[`${v}/100`,p.payload.subject]}/>
           <Area type="monotone" dataKey="score" stroke={SERIES[0]} strokeWidth={2} fill="url(#gScore)" dot={false} activeDot={{r:4,strokeWidth:2,stroke:'#fff'}}/>
         </AreaChart></ResponsiveContainer></div>
-        : <EmptyState icon={<TrendingUp size={22}/>} title="Aucune évaluation" sub="L'évolution des notes de votre enfant apparaîtra ici."/>}
+        : <EmptyState icon={<TrendingUp size={22}/>} title={t('Aucune évaluation')} sub={t("L'évolution des notes de votre enfant apparaîtra ici.")}/>}
       </Card>
-      <Card className="p-5"><h3 className="font-bold mb-3 flex items-center justify-between">Moyennes par matière <button onClick={()=>child&&setBulletin(child)} className="text-xs font-semibold accent-text inline-flex items-center gap-1">Bulletin <ChevronRight size={13}/></button></h3>
+      <Card className="p-5"><h3 className="font-bold mb-3 flex items-center justify-between">{t('Moyennes par matière')} <button onClick={()=>child&&setBulletin(child)} className="text-xs font-semibold accent-text inline-flex items-center gap-1">{t('Bulletin')} <ChevronRight size={13}/></button></h3>
         {b?.subjects.length? <div className="space-y-3">
           {b.subjects.map(s=>{ const m=mentionFor(s.avg); return (
             <div key={s.subject}><div className="flex justify-between text-sm mb-1"><span className="font-medium">{s.subject}</span><span className="font-bold" style={{color:m.color}}>{s.avg}/100</span></div>
               <div className="h-2 rounded-full bg-canvas overflow-hidden"><div className="h-full rounded-full" style={{width:`${s.avg}%`,background:m.color}}/></div></div>) })}
-        </div> : <EmptyState icon={<Star size={22}/>} title="Aucune note disponible" sub="Les moyennes par matière apparaîtront ici."/>}
+        </div> : <EmptyState icon={<Star size={22}/>} title={t('Aucune note disponible')} sub={t('Les moyennes par matière apparaîtront ici.')}/>}
       </Card>
     </div>
     {recentEvals.length>0 && <Card className="p-5 mb-4">
-      <div className="flex items-center justify-between mb-3"><h3 className="font-bold">Dernières évaluations</h3>
-        <span className="text-xs text-muted">{childEvals.length} au total</span></div>
+      <div className="flex items-center justify-between mb-3"><h3 className="font-bold">{t('Dernières évaluations')}</h3>
+        <span className="text-xs text-muted">{childEvals.length} {t('au total')}</span></div>
       <div className="divide-y divide-line">
         {recentEvals.map(e=>{ const m=mentionFor(e.score); return (
           <button key={e.id} onClick={()=>child&&setBulletin(child)} className="flex items-center gap-3 py-2 text-sm w-full text-left hover:bg-canvas rounded-lg px-1 transition">
             <span className="min-w-0 flex-1"><span className="font-semibold">{e.subject}</span>
               {e.lesson&&<span className="ml-1.5 text-[12px] font-bold px-2 py-0.5 rounded-full accent-soft accent-text">{e.lesson}</span>}
-              <span className="block text-[12px] text-muted">{new Date(e.at).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'})}</span></span>
+              <span className="block text-[12px] text-muted">{new Date(e.at).toLocaleDateString(dateLocale(),{weekday:'long',day:'numeric',month:'long'})}</span></span>
             <span className="font-extrabold" style={{color:m.color}}>{e.score}/100</span>
             <span className="text-[12px] font-bold px-2 py-0.5 rounded-full" style={{background:m.color+'1E',color:m.color}}>{m.label}</span>
           </button>)})}
       </div>
     </Card>}
     {bk.length>0 && <Card className="p-5 mb-4">
-      <h3 className="font-bold mb-1 flex items-center justify-between">Par matière & leçon <button onClick={()=>child&&setBulletin(child)} className="text-xs font-semibold accent-text inline-flex items-center gap-1">Bulletin <ChevronRight size={13}/></button></h3>
-      <p className="text-xs text-muted mb-3">La progression de {child?.name.split(' ')[0]}, leçon par leçon.</p>
+      <h3 className="font-bold mb-1 flex items-center justify-between">{t('Par matière & leçon')} <button onClick={()=>child&&setBulletin(child)} className="text-xs font-semibold accent-text inline-flex items-center gap-1">{t('Bulletin')} <ChevronRight size={13}/></button></h3>
+      <p className="text-xs text-muted mb-3">{t('La progression de')} {child?.name.split(' ')[0]}{t(', leçon par leçon.')}</p>
       <LessonMap data={bk} compact/>
     </Card>}
     {(sw.strong.length>0||sw.weak.length>0) && <Card className="p-5 mb-4">
-      <h3 className="font-bold mb-1">Où en est {child?.name.split(' ')[0]} ?</h3>
-      <p className="text-xs text-muted mb-3">Par leçon, d'après les évaluations des enseignants — pour l'aider là où ça compte.</p>
+      <h3 className="font-bold mb-1">{t('Où en est')} {child?.name.split(' ')[0]} {t('?')}</h3>
+      <p className="text-xs text-muted mb-3">{t("Par leçon, d'après les évaluations des enseignants — pour l'aider là où ça compte.")}</p>
       <div className="grid sm:grid-cols-2 gap-4">
-        <div><div className="text-xs font-bold uppercase tracking-wide mb-2" style={{color:STATUS.ok}}>Points forts</div>
+        <div><div className="text-xs font-bold uppercase tracking-wide mb-2" style={{color:STATUS.ok}}>{t('Points forts')}</div>
           <div className="space-y-1.5">{sw.strong.map(l=>(
             <div key={l.subject+l.lesson} className="flex items-center justify-between text-sm rounded-xl px-3 py-2" style={{background:STATUS.ok+'10'}}>
               <span className="font-medium truncate">{l.lesson} <span className="text-muted text-xs">· {l.subject}</span></span>
               <span className="font-bold shrink-0" style={{color:STATUS.ok}}>{l.avg}/100</span></div>))}
-            {sw.strong.length===0&&<div className="text-xs text-muted">Encore un peu tôt — les points forts apparaîtront ici.</div>}</div></div>
-        <div><div className="text-xs font-bold uppercase tracking-wide mb-2" style={{color:STATUS.warn}}>À renforcer</div>
+            {sw.strong.length===0&&<div className="text-xs text-muted">{t('Encore un peu tôt — les points forts apparaîtront ici.')}</div>}</div></div>
+        <div><div className="text-xs font-bold uppercase tracking-wide mb-2" style={{color:STATUS.warn}}>{t('À renforcer')}</div>
           <div className="space-y-1.5">{sw.weak.map(l=>(
             <div key={l.subject+l.lesson} className="flex items-center justify-between text-sm rounded-xl px-3 py-2" style={{background:STATUS.warn+'12'}}>
               <span className="font-medium truncate">{l.lesson} <span className="text-muted text-xs">· {l.subject}</span></span>
               <span className="font-bold shrink-0" style={{color:STATUS.warn}}>{l.avg}/100</span></div>))}
-            {sw.weak.length===0&&<div className="text-xs text-muted">Rien à signaler — tout est au vert !</div>}</div></div>
+            {sw.weak.length===0&&<div className="text-xs text-muted">{t('Rien à signaler — tout est au vert !')}</div>}</div></div>
       </div>
     </Card>}
     <div className="flex gap-3 flex-wrap">
-      <Link to="/app/payments" className={BTN_PRIMARY}>Voir les paiements</Link>
-      <Link to="/app/social" className={BTN_DEFAULT}><Ic n="Sparkles" size={15} /> Espace parents</Link>
-      <Link to="/app/notices" className={BTN_DEFAULT}>Annonces</Link>
+      <Link to="/app/payments" className={BTN_PRIMARY}>{t('Voir les paiements')}</Link>
+      <Link to="/app/social" className={BTN_DEFAULT}><Ic n="Sparkles" size={15} /> {t('Espace parents')}</Link>
+      <Link to="/app/notices" className={BTN_DEFAULT}>{t('Annonces')}</Link>
     </div>
     <Bulletin student={bulletin} onClose={()=>setBulletin(null)}/>
   </>)

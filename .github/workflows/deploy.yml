@@ -96,15 +96,34 @@ jobs:
         run: |
           set -e
           URL="https://edu.kogiagroup.com/"
-          code=$(curl -s -o page.html -w "%{http_code}" --retry 5 --retry-delay 10 --retry-all-errors "$URL")
-          echo "HTTP $code pour $URL"
-          test "$code" = "200"
-          grep -q '<div id="root">' page.html
-          asset=$(grep -oE 'assets/index-[^"]+\.js' page.html | head -1)
-          test -n "$asset"
-          acode=$(curl -s -o bundle.js -w "%{http_code}" "$URL$asset")
-          test "$acode" = "200"
-          # le bundle servi est bien le nôtre : il porte le cœur et l'arabe
-          grep -q "coreon_db" bundle.js
-          grep -q "لوحة المتابعة" bundle.js
-          echo "✅ Production saine : page, bundle, cœur et arabe servis."
+          # GitHub Pages met parfois un moment à propager un nouveau déploiement
+          # sur le CDN : on RÉESSAIE jusqu'à obtenir 200 + la coquille de l'app,
+          # plutôt qu'un unique appel qui attrape la fenêtre de propagation et
+          # rougit un déploiement pourtant sain (bug observé le 2026-07-19).
+          ok=0
+          for i in $(seq 1 20); do
+            code=$(curl -s -o page.html -w "%{http_code}" "$URL" || echo 000)
+            if [ "$code" = "200" ] && grep -q '<div id="root">' page.html; then
+              echo "Page servie (200, coquille présente) à l'essai $i."
+              ok=1; break
+            fi
+            echo "Essai $i : HTTP $code — nouvelle tentative dans 15 s…"
+            sleep 15
+          done
+          test "$ok" = "1" || { echo "::error::Le site n'a pas répondu 200 avec la coquille après ~5 min."; exit 1; }
+          # PREUVE que le bundle servi est bien le nôtre. L'arabe vit désormais
+          # dans SON PROPRE chunk (i18n-*.js) depuis le découpage de code : on ne
+          # peut plus le chercher dans index-*.js. On balaie donc TOUS les
+          # bundles JS référencés et on exige d'y trouver le cœur ET l'arabe —
+          # robuste au (re)découpage des chunks, quel que soit leur nom.
+          assets=$(grep -oE 'assets/[^"]+\.js' page.html | sort -u)
+          test -n "$assets"
+          found_core=0; found_ar=0
+          for a in $assets; do
+            curl -s -o chunk.js "$URL$a" || continue
+            grep -q "coreon_db" chunk.js && found_core=1
+            grep -q "لوحة المتابعة" chunk.js && found_ar=1
+          done
+          test "$found_core" = "1" || { echo "::error::cœur (coreon_db) absent des bundles servis"; exit 1; }
+          test "$found_ar"   = "1" || { echo "::error::arabe (لوحة المتابعة) absent des bundles servis"; exit 1; }
+          echo "✅ Production saine : page, cœur et arabe servis."
