@@ -10,6 +10,7 @@ import { mentionFor } from '../src/results.js'
 import { spaceOfRole, belongsToSpace, seesAllSpaces, canDecide } from '../src/social.js'
 import { db, uid } from '../src/db.js'
 import { loginAs, current, logout } from '../src/auth.js'
+import { schoolInsights, behaviorClimate, attendanceSignal, feeSignal } from '../src/insights.js'
 
 test('modules cachés : éteints mais présents', () => {
   for (const m of ['homework', 'exams', 'library', 'transport']) assert.equal(FEATURES[m], false)
@@ -705,4 +706,57 @@ test('calendrier : isoOf est LOCAL, jamais UTC (le bug des dates de minuit)', ()
   // 1er janvier à 00:30 locale ne doit pas devenir le 31 décembre (UTC)
   assert.equal(iso2(new Date(2026, 0, 1, 0, 30)), '2026-01-01')
   assert.equal(iso2(new Date(2026, 11, 31, 23, 30)), '2026-12-31')
+})
+
+// ── COREON INTELLIGENCE (core/insights.js) — la réponse à la « Focus AI ».
+// On lit les faits déjà là ; on ne classe personne ; on n'invente rien.
+test('intelligence : le climat se calcule des faits — récents et non retirés seulement', () => {
+  const t0 = Date.now()
+  const d = { behavior: [
+    { trait: 'entraide', positive: true,  points: 2,  at: t0 - 1e3, removed: null },
+    { trait: 'entraide', positive: true,  points: 2,  at: t0 - 2e3, removed: null },
+    { trait: 'effort',   positive: true,  points: 2,  at: t0 - 3e3, removed: null },
+    { trait: 'bavardage', positive: false, points: -1, at: t0 - 4e3, removed: null },
+    { trait: 'effort',   positive: true,  points: 2,  at: t0 - 999 * 86400000, removed: null }, // trop vieux
+    { trait: 'entraide', positive: true,  points: 2,  at: t0 - 5e3, removed: { by: 'x' } },      // retiré
+  ] }
+  const bc = behaviorClimate(d, 7)
+  assert.equal(bc.total, 4, 'seules les observations récentes et non retirées comptent')
+  assert.equal(bc.positives, 3)
+  assert.equal(bc.toImprove, 1)
+  assert.equal(bc.positiveRate, 75)
+  assert.equal(bc.topTrait, 'entraide', 'le trait le plus encouragé — jamais un palmarès d\'élèves')
+})
+
+test('intelligence : présence — tendance + enfants à surveiller (bien-être, pas sanction)', () => {
+  const iso = k => isoOf(new Date(Date.now() - k * 86400000))
+  const attendance = {
+    [attKey('c1', iso(1))]: { s_watch: 'absent', s_ok: 'present' },
+    [attKey('c1', iso(2))]: { s_watch: 'absent', s_ok: 'present' },
+    [attKey('c1', iso(3))]: { s_watch: 'late',   s_ok: 'present' },
+  }
+  const sig = attendanceSignal({ attendance }, 7)
+  assert.ok(sig.current != null, 'un taux d\'absence se calcule dès qu\'il y a des appels')
+  assert.deepEqual(sig.watch, ['s_watch'], 'seul l\'enfant aux absences répétées est signalé')
+})
+
+test('intelligence : recouvrement — le taux et les mois en retard, sans détour', () => {
+  const d = { payments: { s1: [{ status: 'paid' }, { status: 'paid' }, { status: 'overdue' }], s2: [{ status: 'due' }] } }
+  const fs = feeSignal(d)
+  assert.equal(fs.total, 4)
+  assert.equal(fs.paid, 2)
+  assert.equal(fs.rate, 50)
+  assert.equal(fs.overdue, 1)
+})
+
+test('intelligence : rien d\'inventé — pas de donnée, pas d\'insight ; la démo reste bien formée', () => {
+  assert.deepEqual(schoolInsights({}, {}), [], 'une école vide ne ment pas')
+  const items = schoolInsights(db())
+  assert.ok(Array.isArray(items))
+  const TONES = new Set(['ok', 'info', 'warn', 'danger'])
+  for (const it of items) {
+    assert.ok(it.key && it.value && it.label && it.to, 'chaque insight est complet')
+    assert.ok(TONES.has(it.tone), 'un ton valide')
+    assert.ok(it.to.startsWith('/app/'), 'pointe vers un écran où l\'on agit')
+  }
 })

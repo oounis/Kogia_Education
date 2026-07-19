@@ -9,6 +9,7 @@ import { current } from '@core/auth.js'
 import { db, FEE_MONTHS, studentById, classById, settings, attParts } from '@core/db.js'
 import { money } from '@core/accounting.js'
 import { decisionsFor } from '@core/workbench.js'
+import { schoolInsights } from '@core/insights.js'
 import { menuFor } from '@core/nav.js'
 import { t, dateLocale } from '@core/i18n.js'
 import { StatCard, Card, PageHead, Badge, Avatar, Btn, IconTile, EmptyState, STATUS } from '../components/ui.jsx'
@@ -166,6 +167,7 @@ export default function Dashboard(){
   // ① ce qui attend MA décision  ② la recherche  ③ aujourd'hui  ④ le métier.
   // Les chiffres existent toujours — en second rang, où ils doivent vivre.
   const decisions=decisionsFor(u)
+  const insights=schoolInsights(d)
   const fc={paid:0,pending:0,overdue:0,due:0}; Object.values(d.payments).forEach(arr=>arr.forEach(p=>fc[p.status]++))
   // « À confirmer » = versements signalés par les parents, pas encore encaissés :
   // ils ne comptent PAS dans le recouvrement (collected = fc.paid).
@@ -225,6 +227,9 @@ export default function Dashboard(){
         <span className="w-9 h-9 grid place-items-center rounded-xl bg-canvas text-muted group-hover:accent-soft group-hover:accent-text transition"><Ic n={s.icon} size={17}/></span>
         <span className="text-[12px] font-semibold leading-tight">{t(s.label)}</span></Link>))}
     </div>
+    {/* ── Coreon Intelligence — ce que les FAITS disent (core/insights.js).
+        L'idée d'Othman (suivre l'enfant) rendue lisible : le climat d'abord. ── */}
+    <Intelligence items={insights}/>
     {/* ── Les chiffres — en second rang, comme il se doit ─────────────────── */}
     <div className="flex items-baseline gap-2 mb-3"><h2 className="text-lg font-extrabold">{t('Les chiffres')}</h2>
       <span className="text-xs text-muted">{t("l'état de l'école, pour qui veut regarder")}</span></div>
@@ -327,6 +332,32 @@ function HeroSearch(){
       <span className="text-[11px] font-bold text-muted border border-line rounded-md px-1.5 py-0.5 bg-canvas">Ctrl</span>
       <span className="text-[11px] font-bold text-muted border border-line rounded-md px-1.5 py-0.5 bg-canvas">K</span></span>
   </button>)
+}
+
+// COREON INTELLIGENCE — une bande d'insights calculés des faits (core/insights.js).
+// Le climat de comportement d'abord : c'est l'idée d'Othman, et ce qu'aucun ERP
+// générique de la liste ne sait montrer. Vide, la bande disparaît (pas de mensonge).
+function Intelligence({ items }){
+  if(!items.length) return null
+  const TONE={ok:STATUS.ok,warn:STATUS.warn,info:STATUS.info,danger:STATUS.danger}
+  return (<div className="mb-6">
+    <div className="flex items-baseline gap-2 mb-3">
+      <h2 className="text-lg font-extrabold flex items-center gap-1.5"><Ic n="Sparkles" size={18} className="accent-text"/> Coreon Intelligence</h2>
+      <span className="text-xs text-muted">{t('ce que vos données disent cette semaine')}</span>
+    </div>
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {items.map(it=>{ const c=TONE[it.tone]||STATUS.info
+        return (<Link key={it.key} to={it.to} className="card p-5 block hover:shadow-lg hover:-translate-y-0.5 transition group">
+          <div className="flex items-center justify-between mb-3">
+            <span className="w-9 h-9 grid place-items-center rounded-xl shrink-0" style={{background:c+'16',color:c}}><Ic n={it.icon} size={17}/></span>
+            <ChevronRight size={15} className="text-muted group-hover:accent-text"/>
+          </div>
+          <div className="text-3xl font-extrabold tabular-nums leading-none" style={{color:c}}>{it.value}</div>
+          <div className="text-sm font-semibold mt-1.5">{it.label}</div>
+          <div className="text-[12px] text-muted mt-0.5 leading-snug">{it.sub}</div>
+        </Link>)})}
+    </div>
+  </div>)
 }
 
 // « À décider » — la liste de travail calculée des FAITS (core/workbench.js).
