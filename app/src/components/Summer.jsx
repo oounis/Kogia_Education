@@ -3,6 +3,7 @@ import { Ic } from '../icons.jsx'
 import { Whale } from './ui.jsx'
 import { schoolPhase } from '@core/livestatus.js'
 import { isDemoLive, setDemoLive, rentreeDate, rentreeLabel } from '@core/clock.js'
+import { t } from '@core/i18n.js'
 // La rentrée est calculée dans le cœur (partagée avec Android) — on ré-exporte
 // pour ne pas casser les imports existants.
 export { rentreeDate, rentreeLabel } from '@core/clock.js'
@@ -27,22 +28,22 @@ export function DemoLiveButton({ className = '' }) {
 export function SummerChip() {
   if (isDemoLive()) return (
     <div className="hidden xl:flex items-center gap-2 pl-3 pr-3.5 py-1.5 rounded-2xl select-none"
-      style={{ background: 'linear-gradient(135deg,#E0E7FF,#C7D2FE)' }} title="Mode démonstration : l'application simule une journée de classe">
+      style={{ background: 'linear-gradient(135deg,#E0E7FF,#C7D2FE)' }} title={t('Mode démonstration : l’application simule une journée de classe')}>
       <PlayCircle size={16} style={{ color: '#4338CA' }} />
       <div className="leading-none">
-        <div className="text-xs font-extrabold" style={{ color: '#3730A3' }}>Mode démonstration</div>
-        <button onClick={() => { setDemoLive(false); location.reload() }} className="text-[11px] font-semibold underline" style={{ color: '#4338CA' }}>revenir au réel</button>
+        <div className="text-xs font-extrabold" style={{ color: '#3730A3' }}>{t('Mode démonstration')}</div>
+        <button onClick={() => { setDemoLive(false); location.reload() }} className="text-[11px] font-semibold underline" style={{ color: '#4338CA' }}>{t('revenir au réel')}</button>
       </div>
     </div>
   )
   if (!isSummer()) return null
   return (
     <div className="hidden xl:flex items-center gap-2 pl-3 pr-3.5 py-1.5 rounded-2xl select-none"
-      style={{ background: 'linear-gradient(135deg,#FEF3C7,#FDE68A)' }} title={`Vacances d'été — reprise le ${rentreeLabel()}`}>
+      style={{ background: 'linear-gradient(135deg,#FEF3C7,#FDE68A)' }} title={`${t('Vacances d’été')} · ${rentreeLabel()}`}>
       <Sun size={16} style={{ color: '#B45309' }} />
       <div className="leading-none">
-        <div className="text-xs font-extrabold" style={{ color: '#92400E' }}>Vacances d'été</div>
-        <div className="text-[11px] font-semibold" style={{ color: '#B45309' }}>reprise le 15 sept.</div>
+        <div className="text-xs font-extrabold" style={{ color: '#92400E' }}>{t('Vacances d’été')}</div>
+        <div className="text-[11px] font-semibold" style={{ color: '#B45309' }}>{t('reprise le')} {rentreeLabel()}</div>
       </div>
     </div>
   )
