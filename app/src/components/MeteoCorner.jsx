@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Menu } from '@headlessui/react'
 import { fetchWeather, coordsOf } from '@core/meteo.js'
 import { settings } from '@core/db.js'
+import { t } from '@core/i18n.js'
 import WeatherIcon from './WeatherIcon.jsx'
 import { Wind, Droplets, ChevronDown } from 'lucide-react'
 
@@ -20,26 +21,26 @@ export default function MeteoCorner(){
       .catch(()=>{ if(alive) setTimeout(load,120000) })   // hors-ligne → on réessaie dans 2 min
     load(); const t=setInterval(load,600000)
     return ()=>{alive=false;clearInterval(t)} },[city,cacheKey])
-  if(!w) return <div className="hidden md:flex items-center gap-2 text-xs text-muted px-3 py-2 rounded-2xl bg-canvas animate-pulse">Météo…</div>
+  if(!w) return <div className="hidden md:flex items-center gap-2 text-xs text-muted px-3 py-2 rounded-2xl bg-canvas animate-pulse">{t('Météo…')}</div>
   const [c1,c2]=GRAD[w.mode]||GRAD.cloudy; const ink=w.mode==='clear'?INK.clear:INK.default
   return (
     <Menu as="div" className="relative hidden md:block">
-      <Menu.Button className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-2xl hover:shadow transition" style={{background:`linear-gradient(135deg,${c1},${c2})`}} title={`Météo · ${settings().city}`}>
+      <Menu.Button className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-2xl hover:shadow transition" style={{background:`linear-gradient(135deg,${c1},${c2})`}} title={`${t('Météo')} · ${settings().city}`}>
         <WeatherIcon mode={w.mode} size={30}/>
-        <div className="leading-none text-left" style={{color:ink}}><div className="text-sm font-extrabold">{w.temp}°</div><div className="text-[11px] font-semibold opacity-80">{w.label}</div></div>
+        <div className="leading-none text-left" style={{color:ink}}><div className="text-sm font-extrabold">{w.temp}°</div><div className="text-[11px] font-semibold opacity-80">{t(w.label)}</div></div>
         <ChevronDown size={13} style={{color:ink}}/>
       </Menu.Button>
       <Menu.Items className="absolute right-0 mt-2 w-64 card p-0 shadow-2xl z-50 overflow-hidden focus:outline-none">
         <div className="p-5 text-center" style={{background:`linear-gradient(160deg,${c1},${c2})`}}>
           <div className="grid place-items-center"><WeatherIcon mode={w.mode} size={72}/></div>
           <div className="text-4xl font-extrabold mt-1" style={{color:ink}}>{w.temp}°</div>
-          <div className="text-sm font-bold" style={{color:ink}}>{w.label}</div>
+          <div className="text-sm font-bold" style={{color:ink}}>{t(w.label)}</div>
           <div className="text-xs mt-0.5" style={{color:ink,opacity:.8}}>{settings().schoolName} · {settings().city}</div>
         </div>
         <div className="grid grid-cols-3 divide-x divide-line text-center text-xs py-3">
-          <div><div className="text-muted flex items-center justify-center gap-1"><Droplets size={12}/> Humidité</div><div className="font-bold mt-0.5">{w.humidity}%</div></div>
-          <div><div className="text-muted flex items-center justify-center gap-1"><Wind size={12}/> Vent</div><div className="font-bold mt-0.5">{w.wind} km/h</div></div>
-          <div><div className="text-muted">Min / Max</div><div className="font-bold mt-0.5">{w.lo}° / {w.hi}°</div></div>
+          <div><div className="text-muted flex items-center justify-center gap-1"><Droplets size={12}/> {t('Humidité')}</div><div className="font-bold mt-0.5">{w.humidity}%</div></div>
+          <div><div className="text-muted flex items-center justify-center gap-1"><Wind size={12}/> {t('Vent')}</div><div className="font-bold mt-0.5">{w.wind} km/h</div></div>
+          <div><div className="text-muted">{t('Min / Max')}</div><div className="font-bold mt-0.5">{w.lo}° / {w.hi}°</div></div>
         </div>
       </Menu.Items>
     </Menu>

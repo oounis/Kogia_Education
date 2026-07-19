@@ -9,6 +9,7 @@
 //     était enregistré la veille. isoOf() est local.
 
 import { getItem, setItem } from './storage.js'
+import { t } from './i18n.js'
 
 const DEMO_KEY = 'coreon_demo_live'
 const SCHOOL_OPEN = 8 * 60          // 08:00
@@ -78,8 +79,8 @@ export function rentreeDate(ref = now()) {
 }
 export function rentreeLabel(ref = now()) {
   const d = rentreeDate(ref)
-  return `${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]}`
+  return `${t(JOURS[d.getDay()])} ${d.getDate()} ${t(MOIS[d.getMonth()])}`
 }
-export const frDateLabel = d => `${JOURS[d.getDay()]} ${d.getDate()} ${MOIS[d.getMonth()]}`
+export const frDateLabel = d => `${t(JOURS[d.getDay()])} ${d.getDate()} ${t(MOIS[d.getMonth()])}`
 
 export { SCHOOL_OPEN, SCHOOL_CLOSE }

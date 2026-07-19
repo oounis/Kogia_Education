@@ -60,6 +60,46 @@ export function t(text) {
 // parent (pré-inscription, pièces, reçu) — ce qu'un directeur du Golfe touche
 // en premier. Les pages métier suivent, tranche par tranche.
 export const AR = {
+  // ── Bandeaux topbar (météo + vacances) — tranche métier 2026-07-19 ─────────
+  // Météo (libellés WMO de meteo.js) + jours/mois pour la date de rentrée.
+  'Météo…': 'الطقس…',
+  'Météo': 'الطقس',
+  'Humidité': 'الرطوبة',
+  'Vent': 'الرياح',
+  'Min / Max': 'الصغرى / الكبرى',
+  'Ensoleillé': 'مشمس',
+  'Plutôt ensoleillé': 'مشمس نسبيًا',
+  'Partiellement nuageux': 'غائم جزئيًا',
+  'Couvert': 'ملبّد بالغيوم',
+  'Nuageux': 'غائم',
+  'Brouillard': 'ضباب',
+  'Brouillard givrant': 'ضباب صقيعي',
+  'Bruine légère': 'رذاذ خفيف',
+  'Bruine': 'رذاذ',
+  'Bruine dense': 'رذاذ كثيف',
+  'Bruine verglaçante': 'رذاذ متجمّد',
+  'Pluie légère': 'مطر خفيف',
+  'Pluie': 'مطر',
+  'Forte pluie': 'مطر غزير',
+  'Pluie verglaçante': 'مطر متجمّد',
+  'Neige légère': 'ثلج خفيف',
+  'Neige': 'ثلج',
+  'Forte neige': 'ثلج غزير',
+  'Grains de neige': 'حبيبات ثلجية',
+  'Averses': 'زخات مطر',
+  'Fortes averses': 'زخات مطر غزيرة',
+  'Averses de neige': 'زخات ثلجية',
+  'Orage': 'عاصفة رعدية',
+  'Orage + grêle': 'عاصفة رعدية مع بَرَد',
+  'Orage violent': 'عاصفة رعدية عنيفة',
+  // Jours (clock.js JOURS)
+  'dimanche': 'الأحد', 'lundi': 'الاثنين', 'mardi': 'الثلاثاء', 'mercredi': 'الأربعاء',
+  'jeudi': 'الخميس', 'vendredi': 'الجمعة', 'samedi': 'السبت',
+  // Mois (clock.js MOIS — noms maghrébins, cohérents avec la Tunisie)
+  'janvier': 'جانفي', 'février': 'فيفري', 'mars': 'مارس', 'avril': 'أفريل',
+  'mai': 'ماي', 'juin': 'جوان', 'juillet': 'جويلية', 'août': 'أوت',
+  'septembre': 'سبتمبر', 'octobre': 'أكتوبر', 'novembre': 'نوفمبر', 'décembre': 'ديسمبر',
+
   // ── Paramètres (Settings v2) — tranche métier 2026-07-19 ───────────────────
   'Paramètres de l’école': 'إعدادات المدرسة',
   'Configurez votre établissement — appliqué partout dans l’application.': 'اضبط مؤسستك — يُطبَّق في كامل التطبيق.',
