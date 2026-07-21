@@ -7,13 +7,13 @@ import App from './App.jsx'
 import RemoteGate from './RemoteGate.jsx'
 import { isRemote, remoteMail } from './remote.js'
 import { setMailTransport } from '@core/admissions.js'
-import { mailReady, emailjsSend } from './mail.js'
+import { mailReady, sendViaWorker } from './mail.js'
 setAssetBase(import.meta.env.BASE_URL)
-// Emails du candidat (accusé de réception + chaque décision). Trois canaux, par
-// priorité : EmailJS (envoi réel depuis le site statique, expéditeur
-// contact@kogiagroup.com) → backend serveur → sinon rien (l'email est « préparé »
-// et journalisé sur le dossier, visible côté admin — jamais perdu ni faussé).
-if (mailReady()) setMailTransport(emailjsSend)
+// Emails du candidat (accusé de réception + chaque décision). Par priorité :
+// Worker Cloudflare coreon-mail (envoi réel via Zoho, expéditeur
+// contact@kogiagroup.com) → backend serveur → sinon rien (l'email reste
+// « préparé » et journalisé sur le dossier, visible côté admin — jamais faussé).
+if (mailReady()) setMailTransport(sendViaWorker)
 else if (isRemote()) setMailTransport(remoteMail)
 // Après un déploiement, les noms des morceaux (code-splitting) changent : un
 // onglet resté ouvert clique un module → l'ancien fichier n'existe plus → le
