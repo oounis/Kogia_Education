@@ -69,6 +69,13 @@ export async function remoteApply(payload) {
   const r = await call('/api/apply', payload)
   return r.json
 }
+/** Emails du candidat (accusé de réception, décision…) — envoyés par le serveur.
+ *  Branché comme transport de `admissions.js` en mode serveur (voir main.jsx). */
+export async function remoteMail(mail) {
+  const r = await call('/api/mail', mail)
+  if (r.status >= 400) throw new Error(r.json?.error || 'mail failed')
+  return r.json
+}
 
 // ── La synchronisation ────────────────────────────────────────────────────────
 let timer = null, pushing = false

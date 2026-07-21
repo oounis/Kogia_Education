@@ -20,13 +20,14 @@
 // ════════════════════════════════════════════════════════════════════════════
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { apply, docsFor, DOCS } from '@core/admissions.js'
+import { apply, docsFor } from '@core/admissions.js'
 import Attach from '../components/Attach.jsx'
 import { settings } from '@core/db.js'
 import { LEVELS, schoolLevels } from '@core/levels.js'
 import { Card, Btn, Input, Field, Mark } from '../components/ui.jsx'
 import { Ic } from '../icons.jsx'
 import { isRemote, remoteApply } from '../remote.js'
+import { mailReady } from '../mail.js'
 import { t } from '@core/i18n.js'
 import LangSwitch from '../components/Lang.jsx'
 
@@ -77,6 +78,16 @@ export default function Inscription() {
                 ? <> Nous avons bien reçu <b>{a.files.length} pièce(s)</b>.</>
                 : <> Les pièces manquantes vous seront demandées.</>}
           </p>
+          {a.parentEmail && mailReady() && (
+            <p className="text-muted mt-2 max-w-md mx-auto">
+              Un accusé de réception vient d’être envoyé à <b>{a.parentEmail}</b> — vous serez informé(e) par email à chaque étape (pièces, décision, inscription).
+            </p>
+          )}
+          {a.parentEmail && !mailReady() && (
+            <p className="text-muted mt-2 max-w-md mx-auto">
+              Vous serez informé(e) à <b>{a.parentEmail}</b> à chaque étape (pièces, décision, inscription).
+            </p>
+          )}
           <div className="mt-5 inline-block rounded-xl border border-line px-5 py-3">
             <div className="text-xs font-bold text-muted uppercase tracking-wider">{t('Votre référence')}</div>
             <div className="text-xl font-extrabold tabular-nums">{a.id.toUpperCase()}</div>

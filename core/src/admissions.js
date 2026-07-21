@@ -19,10 +19,11 @@
 // La CAPACITÉ est vérifiée au moment de l'inscription, pas à la candidature :
 // une place se libère, la liste d'attente avance. C'est comme ça dans la vraie vie.
 // ════════════════════════════════════════════════════════════════════════════
-import { db, save } from './db.js'
+import { db, save, classById } from './db.js'
 import { now, todayIso } from './clock.js'
 import { levelOf, labelOf } from './levels.js'
 import { notify } from './notify.js'
+import { applicantEmail, emailsApplicant } from './admissions-mail.js'
 
 /** Les étapes. `terminal` = plus rien ne bouge sans une action humaine explicite. */
 export const STAGES = {
@@ -52,6 +53,40 @@ export const appById = id => applications().find(a => a.id === id) || null
 
 function write(next) { const d = db(); d.applications = next; save(d) }
 
+// ── Emails au candidat ──────────────────────────────────────────────────────
+// Transport injecté par l'hôte (web/mobile) ; côté serveur ce sera le backend.
+// SANS transport, l'email est PRÉPARÉ et journalisé sur le dossier (jamais
+// perdu), prêt à partir dès qu'un canal est branché. Best-effort : l'envoi
+// n'interrompt jamais le parcours d'inscription.
+let mailTransport = null
+export function setMailTransport(fn) { mailTransport = typeof fn === 'function' ? fn : null }
+
+// Journalise (et tente d'envoyer) l'email d'une étape. Idempotent au sens large :
+// il n'y a qu'un email par changement d'étape effectif, décidé par l'appelant.
+function mailApplicant(id, stage, extra = {}) {
+  const a = appById(id)
+  if (!a || !a.parentEmail || !emailsApplicant(stage)) return
+  const mail = applicantEmail(a, stage, extra)
+  if (!mail) return
+  const eid = 'm' + now().toString(36) + ((a.emails || []).length)
+  const entry = { id: eid, at: now(), stage, to: mail.to, subject: mail.subject, status: mailTransport ? 'envoi' : 'préparé' }
+  write(applications().map(x => x.id !== id ? x : { ...x, emails: [...(x.emails || []), entry] }))
+  if (mailTransport) {
+    try {
+      Promise.resolve(mailTransport(mail)).then(
+        () => markEmail(id, eid, 'envoyé'),
+        () => markEmail(id, eid, 'échec'),
+      )
+    } catch { markEmail(id, eid, 'échec') }
+  }
+}
+function markEmail(id, eid, status) {
+  write(applications().map(x => x.id !== id ? x
+    : { ...x, emails: (x.emails || []).map(e => e.id === eid ? { ...e, status } : e) }))
+}
+// Les pièces obligatoires encore manquantes — pour l'email « pièces à fournir ».
+const missingDocs = a => docsFor(a.level).filter(d => d.required && !hasDoc(a, d.key)).map(d => d.label)
+
 /**
  * Une nouvelle candidature. Le parent la dépose ; l'école ne saisit rien.
  *
@@ -76,6 +111,7 @@ export function apply({ childName, dob, level, parentName, parentPhone, parentEm
     files,                          // [{ type, name, size, mime, data }]
     createdAt: now(),
     history: [{ at: now(), stage: 'nouvelle', by: 'Parent (en ligne)' }],
+    emails: [],                     // journal des emails envoyés au candidat
     studentId: null,                // rempli à l'inscription — la trace du lien
   }
   write([a, ...applications()])
@@ -100,6 +136,8 @@ function announced(r) {
       link: '/app/admissions',
     })
   }
+  // Le candidat, lui, reçoit un accusé de réception par email (son seul canal).
+  mailApplicant(app.id, 'nouvelle')
   return r
 }
 
@@ -131,6 +169,11 @@ export function advance(id, stage, by = 'Administration', note = '') {
   const next = applications().map(x => x.id !== id ? x
     : { ...x, stage, history: [...x.history, { at: now(), stage, by, note }] })
   write(next)
+  // Prévenir le candidat par email du changement d'étape (accepté, refusé,
+  // pièces à fournir, liste d'attente…). L'étape « nouvelle » a déjà son accusé.
+  if (stage !== 'nouvelle') {
+    mailApplicant(id, stage, stage === 'pieces' ? { missing: missingDocs(appById(id)) } : {})
+  }
   return { app: appById(id) }
 }
 
@@ -194,6 +237,8 @@ export function enrol(id, classId, by = 'Administration') {
     history: [...x.history, { at: now(), stage: 'inscrit', by, note: `Classe ${classId}` }],
   })
   save(d)
+  // « Bienvenue » — le candidat devient élève ; on le lui annonce par email.
+  mailApplicant(id, 'inscrit', { className: classById(classId)?.name || classId })
   return { studentId: sid }
 }
 

@@ -222,6 +222,33 @@ export default function Admissions() {
                 ))}
               </div>
             </div>
+
+            {/* Emails au candidat : accusé + chaque décision. Un prospect sans
+                compte n'est joignable QUE par email — on montre ce qui est parti. */}
+            <div>
+              <div className="text-sm font-bold mb-2 flex items-center gap-2">
+                <Ic n="Mail" size={15} /> Emails au candidat
+              </div>
+              {a.parentEmail ? (
+                (a.emails?.length ? (
+                  <div className="grid gap-1">
+                    {a.emails.map(e => (
+                      <div key={e.id} className="text-[12px] text-muted flex items-center gap-2">
+                        <Ic n={e.status === 'envoyé' ? 'MailCheck' : e.status === 'échec' ? 'MailX' : 'MailPlus'} size={14} />
+                        <b className="text-ink">{stageLabel(e.stage)}</b> · {fmt(e.at)}
+                        <Badge tone={e.status === 'envoyé' ? 'ok' : e.status === 'échec' ? 'danger' : 'info'} label={e.status} />
+                        <span className="truncate">— {e.subject}</span>
+                      </div>
+                    ))}
+                    <div className="text-[11px] text-muted mt-1">
+                      Envoyés à <b>{a.parentEmail}</b>{a.emails.some(e => e.status === 'préparé') && ' · « préparé » = prêt à partir dès qu’un serveur mail est branché.'}
+                    </div>
+                  </div>
+                ) : <div className="text-[12px] text-muted">Aucun email pour l’instant.</div>)
+              ) : (
+                <div className="text-[12px] text-muted">Ce candidat n’a pas laissé d’email — suivi par téléphone.</div>
+              )}
+            </div>
           </div>
         )}
       </Modal>
