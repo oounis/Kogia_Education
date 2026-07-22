@@ -1062,3 +1062,29 @@ test('pack de pays : tunisia.js délègue au pack actif sans rien casser', async
   assert.equal(tn.idLabelFor('student').includes('acte'), true)
   setLocalePack('TN')
 })
+
+// ── Fiche technique d'une école (CR-014) ────────────────────────────────────
+test('fiche technique : montre ce qu’on a, marque ce qu’on n’a pas — sans inventer', async () => {
+  const { techProfile, missingCount, domainOf } = await import('../src/opsprofile.js')
+  const school = { name: 'École El-Fateh', city: 'Sfax', plan: 'Essentiel', price: 79,
+    status: 'active', since: '2025-10-15', studentCount: 212, director: 'Mounir Kchaou', email: 'direction@elfateh.tn' }
+  const p = techProfile(school, { students: [] })
+
+  assert.equal(domainOf(school), 'elfateh.tn', 'le domaine est déduit de l’e-mail')
+  // ce qu'on a est rempli
+  assert.ok(p.identite.find(l => l.label === 'Nom' && l.value === 'École El-Fateh'))
+  assert.ok(p.contact.find(l => l.label === 'Domaine' && l.value === 'elfateh.tn' && !l.missing))
+  // ce qu'on n'a PAS est marqué, jamais inventé
+  const ip = p.infra.find(l => l.label === 'Adresse IP')
+  assert.ok(ip && ip.missing && ip.value == null, 'l’IP est « à collecter », pas une valeur bidon')
+  assert.ok(missingCount(p) >= 3, 'plusieurs champs sont honnêtement marqués manquants')
+})
+
+test('fiche technique : l’école de démo expose sa révision, une cliente non', async () => {
+  const { techProfile } = await import('../src/opsprofile.js')
+  const demo = techProfile({ name: 'Al-Nour', live: true, email: 'direction@alnour.tn' }, { students: [{}, {}, {}], revision: 42 })
+  assert.equal(demo.identite.find(l => l.label === 'Élèves').value, 3, 'compte les élèves réels en démo')
+  assert.ok(/Démonstration/.test(demo.diagnostic.find(l => l.label === 'Mode').value))
+  const client = techProfile({ name: 'El-Fateh', email: 'x@ef.tn', studentCount: 100 }, {})
+  assert.ok(/provisionner/.test(client.diagnostic.find(l => l.label === 'Mode').value), 'une cliente réelle : serveur à provisionner')
+})

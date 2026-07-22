@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { BRAND } from '@core/tokens.js'
 import { db, mutate, uid, resetDb } from '@core/db.js'
 import { PageHead, Card, StatCard, SectionCard, Avatar, IconTile, Btn, Modal, Field, Input, Select, EmptyState, STATUS } from '../components/ui.jsx'
-import { Building2, Users, Wallet, Hourglass, KeyRound, Plus, Ban, Check, ShieldAlert, MapPin } from 'lucide-react'
+import { Building2, Users, Wallet, Hourglass, KeyRound, Plus, Ban, Check, ShieldAlert, MapPin, Server, ExternalLink } from 'lucide-react'
+import { techProfile, missingCount } from '@core/opsprofile.js'
 import toast from 'react-hot-toast'
 import { todayIso } from '@core/clock.js'
 
@@ -23,6 +24,7 @@ export default function Schools(){
   const sadmin=d.users.find(u=>u.role==='schooladmin')
   // Chaque tuile s'ouvre : derrière le chiffre, les écoles concernées.
   const [tile,setTile]=useState(null) // schools | students | mrr | trials
+  const [tech,setTech]=useState(null)  // école dont on ouvre la fiche technique
 
   const add=()=>{
     if(!f.name.trim()||!f.director.trim()||!f.email.trim()) return toast.error('Nom, directeur et e-mail requis')
@@ -94,8 +96,11 @@ export default function Schools(){
                 <span className="text-xs text-muted">{count(sc)} élèves</span>
               </div>
             </div>
-            <Btn size="sm" variant={sc.status==='suspended'?'primary':'danger'} onClick={()=>toggle(sc)}>
-              {sc.status==='suspended'?<><Check size={14}/> Réactiver</>:<><Ban size={14}/> Suspendre</>}</Btn>
+            <div className="flex flex-col gap-2 shrink-0">
+              <Btn size="sm" variant="soft" onClick={()=>setTech(sc)}><Server size={14}/> Fiche technique</Btn>
+              <Btn size="sm" variant={sc.status==='suspended'?'primary':'danger'} onClick={()=>toggle(sc)}>
+                {sc.status==='suspended'?<><Check size={14}/> Réactiver</>:<><Ban size={14}/> Suspendre</>}</Btn>
+            </div>
           </div>
           <div className="mt-4 rounded-2xl bg-canvas p-3.5">
             <div className="text-xs font-bold text-muted flex items-center gap-1.5 mb-2"><KeyRound size={13}/> Compte Direction (créé par la plateforme)</div>
@@ -115,6 +120,47 @@ export default function Schools(){
         <Btn variant="danger" onClick={()=>setConfirmReset(true)}>Réinitialiser les données de démo</Btn>
       </div>
     </Card>
+
+    {/* CR-014 : la fiche technique. Ce qu'on A aujourd'hui, et — franchement —
+        ce qu'on n'a PAS encore, marqué « à collecter » plutôt qu'inventé. */}
+    <Modal open={!!tech} onClose={()=>setTech(null)} title={tech?`Fiche technique · ${tech.name}`:''} size="lg"
+      footer={<Btn variant="ghost" onClick={()=>setTech(null)}>Fermer</Btn>}>
+      {tech && (()=>{ const prof=techProfile(tech,d); const missing=missingCount(prof)
+        const Section=({title,rows,icon})=>(
+          <div className="mb-4">
+            <div className="text-xs font-bold text-muted flex items-center gap-1.5 mb-2">{icon} {title}</div>
+            <div className="rounded-xl border border-line divide-y divide-line">
+              {rows.map(r=>(
+                <div key={r.label} className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
+                  <span className="text-muted">{r.label}</span>
+                  {r.missing
+                    ? <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full" style={{background:STATUS.warnSoft,color:STATUS.warn}}>à collecter</span>
+                    : <span className="font-semibold text-right truncate">{String(r.value)}</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+        return (<>
+          {prof.dom && (
+            <a href={`https://${prof.dom}`} target="_blank" rel="noreferrer"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold accent-text hover:underline mb-4">
+              <ExternalLink size={14}/> {prof.dom}
+            </a>
+          )}
+          {missing>0 && (
+            <div className="rounded-xl border px-3 py-2 text-xs font-semibold mb-4"
+              style={{borderColor:STATUS.warn+'55',background:STATUS.warnSoft,color:STATUS.warn}}>
+              {missing} information(s) pas encore collectée(s). On montre ce qu'on a, on ne l'invente pas.
+            </div>
+          )}
+          <Section title="Identité" icon={<Building2 size={13}/>} rows={prof.identite}/>
+          <Section title="Contact" icon={<KeyRound size={13}/>} rows={prof.contact}/>
+          <Section title="Infrastructure" icon={<Server size={13}/>} rows={prof.infra}/>
+          <Section title="Diagnostic" icon={<ShieldAlert size={13}/>} rows={prof.diagnostic}/>
+        </>)
+      })()}
+    </Modal>
 
     <Modal open={open} onClose={()=>setOpen(false)} title="Ajouter une école cliente"
       footer={<><Btn variant="ghost" onClick={()=>setOpen(false)}>Annuler</Btn><Btn onClick={add}>Créer l'école & le compte Direction</Btn></>}>
