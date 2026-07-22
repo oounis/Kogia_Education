@@ -19,7 +19,7 @@
 // La CAPACITÉ est vérifiée au moment de l'inscription, pas à la candidature :
 // une place se libère, la liste d'attente avance. C'est comme ça dans la vraie vie.
 // ════════════════════════════════════════════════════════════════════════════
-import { db, save, classById } from './db.js'
+import { db, save, classById, assignRef} from './db.js'
 import { now, todayIso } from './clock.js'
 import { levelOf, labelOf } from './levels.js'
 import { notify } from './notify.js'
@@ -112,6 +112,7 @@ export function apply(payload) {
     emails: [],                     // journal des emails envoyés au candidat
     studentId: null,                // rempli à l'inscription — la trace du lien
   }
+  assignRef(db(), 'application', a)   // référence structurée ADM-AAAA-NNNN-K (CR-017)
   write([a, ...applications()])
   // La preuve, pas l'espoir : on relit le stockage.
   if (appById(a.id)) return announced({ app: a, filesDropped: false })

@@ -1088,3 +1088,46 @@ test('fiche technique : l’école de démo expose sa révision, une cliente non
   const client = techProfile({ name: 'El-Fateh', email: 'x@ef.tn', studentCount: 100 }, {})
   assert.ok(/provisionner/.test(client.diagnostic.find(l => l.label === 'Mode').value), 'une cliente réelle : serveur à provisionner')
 })
+
+// ── Numérotation structurée (CR-017) ─────────────────────────────────────────
+test('références : format PRÉFIXE-ANNÉE-SÉQUENCE-CLÉ, sans trou, par type et par an', async () => {
+  const { nextRef, isValidRef, PREFIX } = await import('../src/refs.js')
+  let refs = []
+  const r1 = nextRef('student', refs, '2026'); refs.push(r1)
+  const r2 = nextRef('student', refs, '2026'); refs.push(r2)
+  assert.match(r1, /^ELV-2026-0001-\d$/, 'première référence élève')
+  assert.match(r2, /^ELV-2026-0002-\d$/, 'la suivante incrémente sans trou')
+  // une autre entité a sa PROPRE série, indépendante
+  const f1 = nextRef('invoice', refs, '2026')
+  assert.match(f1, /^FAC-2026-0001-\d$/, 'la facture a sa propre série, repart à 1')
+  // l'année suivante repart à 1
+  const y1 = nextRef('student', refs, '2027')
+  assert.match(y1, /^ELV-2027-0001-\d$/, 'nouvelle année, nouvelle série')
+  assert.ok(isValidRef(r1) && isValidRef(f1) && isValidRef(y1))
+})
+
+test('références : la clé de contrôle attrape une référence mal recopiée', async () => {
+  const { nextRef, isValidRef } = await import('../src/refs.js')
+  const ref = nextRef('invoice', [], '2026')         // ex. FAC-2026-0001-K
+  assert.ok(isValidRef(ref), 'la vraie référence est valide')
+  // on change un chiffre de la séquence : la clé ne colle plus
+  const broken = ref.replace('0001', '0002')
+  assert.ok(!isValidRef(broken), 'une séquence trafiquée est détectée')
+  // confondre deux séries (même numéro, mauvais préfixe) est détecté par la clé
+  const wrongPrefix = ref.replace('FAC', 'ELV')
+  assert.ok(!isValidRef(wrongPrefix), 'citer la mauvaise série se voit')
+})
+
+test('références : ne recule jamais, même si la liste est en désordre', async () => {
+  const { nextRef } = await import('../src/refs.js')
+  const existing = ['ELV-2026-0003-0', 'ELV-2026-0001-0', 'ELV-2026-0002-0']
+  const next = nextRef('student', existing, '2026')
+  assert.match(next, /^ELV-2026-0004-\d$/, 'la séquence suit le PLUS HAUT, pas le compte')
+})
+
+test('références : le type se retrouve depuis le préfixe', async () => {
+  const { nextRef, typeOfRef } = await import('../src/refs.js')
+  assert.equal(typeOfRef(nextRef('accident', [], '2026')), 'accident')
+  assert.equal(typeOfRef(nextRef('booking', [], '2026')), 'booking')
+  assert.equal(typeOfRef('XXX-2026-0001-0'), null, 'un préfixe inconnu ne ment pas')
+})

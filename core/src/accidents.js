@@ -23,7 +23,7 @@
 //     Un accident non accusé est une bombe à retardement.
 //  4. RIEN NE S'EFFACE. On corrige par un ajout daté, jamais en réécrivant.
 // ════════════════════════════════════════════════════════════════════════════
-import { db, save } from './db.js'
+import { db, save, assignRef} from './db.js'
 import { now } from './clock.js'
 
 /** Le schéma corporel. Un adulte pointe où l'enfant s'est fait mal — il n'écrit pas. */
@@ -110,6 +110,7 @@ export function declare({ childId, zones, kind, severity, whatHappened, care, at
     reminders: [],                                     // les relances, datées
     notes: [],                                         // les ajouts — on ne réécrit rien
   }
+  assignRef(db(), 'accident', a)
   write([a, ...accidents()])
   return { accident: a }
 }

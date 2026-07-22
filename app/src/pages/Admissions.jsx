@@ -99,7 +99,7 @@ export default function Admissions() {
                 className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-canvas transition group">
                 <Avatar name={x.childName} seed={x.id} size={34} />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-bold truncate group-hover:accent-text">{x.childName}</span>
+                  <span className="block text-sm font-bold truncate group-hover:accent-text">{x.childName}{x.ref && <code className="ms-2 text-[10px] font-semibold text-muted tabular-nums">{x.ref}</code>}</span>
                   <span className="block text-xs text-muted truncate">
                     {labelOf(x.level)} · {x.parentName} · {fmt(x.createdAt)}
                   </span>

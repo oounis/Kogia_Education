@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { current } from '@core/auth.js'
-import { db, mutate, uid, classById, userById, CYCLES, studentsOfClass, setStudentParent } from '@core/db.js'
+import { db, mutate, uid, classById, userById, CYCLES, studentsOfClass, setStudentParent, assignRef } from '@core/db.js'
 import { PageHead, Avatar, Btn, Modal, Field, Input, Select, Section, SearchInput, EmptyState, Card } from '../components/ui.jsx'
 import { regionsOf, regionLabel, DOC_TYPES, LEGAL } from '@core/tunisia.js'
 import Attach from '../components/Attach.jsx'
@@ -31,7 +31,7 @@ export default function Students(){
     let cid; mutate(db=>{ let cls=db.classes.find(c=>c.grade===f.grade && c.name.endsWith(' '+f.section))
       if(!cls){ cls={id:uid('c'),name:`${f.grade} ${f.section}`,grade:f.grade,cycle:cycleOf(f.grade)}; db.classes.push(cls) }
       cid=cls.id; const sid=uid('s')
-      db.students.push({...f,id:sid,name:f.name.trim(),initials:f.name.trim().split(' ').map(w=>w[0]).slice(0,2).join(''),classId:cid,parentId:null})
+      const st={...f,id:sid,name:f.name.trim(),initials:f.name.trim().split(' ').map(w=>w[0]).slice(0,2).join(''),classId:cid,parentId:null}; assignRef(db,'student',st); db.students.push(st)
       setStudentParent(db,sid,f.parentId||null)   // écrit aussi user.childIds
       db.payments[sid]=["Sep","Oct","Nov","Déc","Jan","Fév","Mar","Avr","Mai","Juin"].map(m=>({month:m,status:'due'})) })
     toast.success(t('Élève inscrit')); setOpen(false); setF(BLANK); refresh() }
@@ -68,6 +68,10 @@ export default function Students(){
   const archived = enrich.filter(s => s.archived).length
 
   const columns = [
+    // CR-017 : la référence structurée — ce qui fait un ERP. Copiable, citable.
+    { key: 'ref', label: t('Référence'), value: r => r.ref || '', render: r => r.ref
+        ? <code className="text-[11px] font-semibold tabular-nums text-muted">{r.ref}</code>
+        : <span className="text-muted">·</span> },
     { key: 'name', label: t('Élève'), value: r => r.name, render: r => (
         <span className="flex items-center gap-2.5 min-w-[180px]"><Avatar name={r.name} seed={r.id} size={30}/>
           <span className="font-semibold">{r.name}</span>

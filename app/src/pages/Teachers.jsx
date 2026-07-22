@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { current } from '@core/auth.js'
-import { db, mutate, uid } from '@core/db.js'
+import { db, mutate, uid, assignRef } from '@core/db.js'
 import { currency } from '@core/currency.js'
 import { PageHead, Avatar, Btn, Modal, Field, Input, Select, Section, SearchInput, EmptyState, Card } from '../components/ui.jsx'
 import { SubjectDot } from '../subjects.jsx'
@@ -18,7 +18,7 @@ export default function Teachers(){
   const add=()=>{ if(!f.name.trim())return toast.error('Le nom est requis')
     // le champ annonce « CIN (8 chiffres) » : on le vérifie vraiment (validCIN était importé sans être utilisé)
     if(f.cin && !validCIN(f.cin)) return toast.error('Pièce d’identité invalide pour ce pays.')
-    mutate(db=>{db.teachers.push({...f,id:uid('t'),classes:[],experience:Number(f.experience)||0,salary:Number(f.salary)||0})})
+    mutate(db=>{const tt={...f,id:uid('t'),classes:[],experience:Number(f.experience)||0,salary:Number(f.salary)||0}; assignRef(db,'teacher',tt); db.teachers.push(tt)})
     toast.success('Enseignant ajouté'); setOpen(false); setF(BLANK); force(x=>x+1) }
   const query=q.trim().toLowerCase()
   const list=query? d.teachers.filter(t=>t.name.toLowerCase().includes(query)||(t.subject||'').toLowerCase().includes(query)) : d.teachers
@@ -27,7 +27,7 @@ export default function Teachers(){
   const TCard=({t})=>(
     <button onClick={()=>setView(t)} className="card p-4 flex items-center gap-3 text-left hover:shadow-lg hover:-translate-y-0.5 transition w-full">
       <Avatar name={t.name} seed={t.id} size={44}/>
-      <div className="min-w-0 flex-1"><div className="font-semibold truncate">{t.name}</div><div className="text-xs text-muted truncate">{t.designation} · {t.experience} ans</div></div>
+      <div className="min-w-0 flex-1"><div className="font-semibold truncate">{t.name}{t.ref && <code className="ms-1.5 text-[10px] font-semibold text-muted tabular-nums">{t.ref}</code>}</div><div className="text-xs text-muted truncate">{t.designation} · {t.experience} ans</div></div>
       <ChevronRight size={16} className="text-muted"/>
     </button>
   )

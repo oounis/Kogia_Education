@@ -93,6 +93,7 @@ export default function StudentProfile() {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <h1 className="text-2xl font-extrabold">{s.name}</h1>
+            {s.ref && <code className="text-[12px] font-semibold tabular-nums text-muted bg-canvas px-2 py-0.5 rounded-lg">{s.ref}</code>}
             {s.archived && <Badge tone="neutral" label="Dossier archivé" status="archived" />}
             {allergic && <Badge tone="warn" label={`Allergie : ${s.allergies}`} status="allergy" />}
           </div>

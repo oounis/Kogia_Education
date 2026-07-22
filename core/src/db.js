@@ -3,8 +3,27 @@
 import { getItem, setItem, removeItem } from './storage.js'
 import { subjectHue } from './subjects.js'
 import { BRAND } from './tokens.js'
+import { nextRef, PREFIX } from './refs.js'
 const KEY="coreon_db"
-const SCHEMA=22
+const SCHEMA=23
+
+// ── Références structurées (CR-017) ───────────────────────────────────────────
+// Où vivent les entités numérotées, et sous quelle clé de collection.
+const REF_COLLECTIONS={ student:'students', teacher:'teachers', application:'applications',
+  request:'requests', accident:'accidents', incident:'incidents', document:'documents',
+  booking:'bookings', expense:'expenses' }
+
+/** Stampe une référence structurée sur `entity` si elle n'en a pas déjà une.
+ *  Lit les références DÉJÀ émises du même type dans la base pour rester sans trou.
+ *  Immuable : si `entity.ref` existe, on n'y touche jamais. */
+export function assignRef(d, type, entity){
+  if(entity.ref) return entity.ref
+  const coll=REF_COLLECTIONS[type]
+  const existing=(coll?(d[coll]||[]):[]).map(x=>x&&x.ref).filter(Boolean)
+  const year=(d.settings?.year||'').slice(0,4) || new Date().getFullYear().toString()
+  entity.ref=nextRef(type, existing, /^\d{4}$/.test(year)?year:'2026')
+  return entity.ref
+}
 const LEGACY_KEYS=Array.from({length:18},(_,i)=>`coreon_db_v${18-i}`)
 const MONTHS=["Sep","Oct","Nov","Déc","Jan","Fév","Mar","Avr","Mai","Juin"]
 export const FEE_MONTHS=MONTHS
@@ -595,6 +614,18 @@ function migrate(d){
   for(const [k,def] of Object.entries(COLLECTIONS)) if(d[k]==null) d[k]=Array.isArray(def)?[]:{}
   if(!Object.keys(d.timetables).length) d.timetables=genTimetables(d.classes)
   if(!d.settings) d.settings={...DEFAULT_SETTINGS}
+
+  // v23 — CR-017 : numérotation structurée. On stampe une référence sur chaque
+  // entité qui n'en a pas, dans un ordre stable, pour que les séries soient
+  // sans trou. Immuable ensuite : jamais recalculée.
+  if(from<23){
+    if(d.applications==null) d.applications=[]
+    if(d.bookings==null) d.bookings=[]
+    const stamp=(coll,type)=>{ (d[coll]||[]).forEach(x=>{ if(x && !x.ref) assignRef(d,type,x) }) }
+    stamp('students','student'); stamp('teachers','teacher'); stamp('applications','application')
+    stamp('requests','request'); stamp('accidents','accident'); stamp('incidents','incident')
+    stamp('documents','document'); stamp('bookings','booking'); stamp('expenses','expense')
+  }
 
   if(from<21){
     // Poste de sécurité : registre des visiteurs, rondes, main courante.
