@@ -1,5 +1,13 @@
-// Référentiel tunisien — gouvernorats, fonctions, documents, cadre légal
-export const GOVERNORATES=["Ariana","Béja","Ben Arous","Bizerte","Gabès","Gafsa","Jendouba","Kairouan","Kasserine","Kébili","Le Kef","Mahdia","Manouba","Médenine","Monastir","Nabeul","Sfax","Sidi Bouzid","Siliana","Sousse","Tataouine","Tozeur","Tunis","Zaghouan"]
+// Référentiel scolaire — désormais PILOTÉ PAR LE PACK DE PAYS ACTIF (locales.js).
+// Ce fichier garde son nom et ses exports pour ne rien casser, mais tout ce qui
+// est propre à un pays (régions, pièce d'identité, cadre légal) délègue au pack :
+// la Tunisie reste le défaut, sans être une supposition (CR-004).
+import { regions as packRegions, idLabelFor as packIdLabel, validId as packValidId, legal as packLegal, regionLabel as packRegionLabel } from './locales.js'
+
+// Les régions du pays choisi (les 24 gouvernorats en Tunisie, la liste du pays
+// actif ailleurs). Fonctions : le pack peut changer à l'exécution.
+export const regionsOf = () => packRegions()
+export const regionLabel = () => packRegionLabel()
 
 // Fonctions du personnel d'un établissement scolaire tunisien (groupées)
 export const STAFF_POSITIONS=[
@@ -21,9 +29,11 @@ export const DOC_TYPES={
 }
 export const docTypesFor=role=> role==='parent'?DOC_TYPES.parent : role==='teacher'?DOC_TYPES.teacher : DOC_TYPES.staff
 
-// Pièce d'identité : adultes = CIN (8 chiffres), élèves mineurs = N° acte de naissance
-export const idLabelFor=role=> role==='student' ? "N° acte de naissance" : "CIN (8 chiffres)"
-export const validCIN=v=>/^\d{8}$/.test(String(v||"").trim())
+// Pièce d'identité : le libellé ET la validation viennent du pack de pays.
+// validCIN garde son nom (des écrans l'importent) mais valide selon le pack :
+// 8 chiffres en Tunisie, règle souple ailleurs tant qu'on ne connaît pas le pays.
+export const idLabelFor=role=> packIdLabel(role)
+export const validCIN=v=> packValidId(v)
 
 // Demandes — schémas détaillés par type (champs + circuit de validation)
 export const REQUEST_DEFS={
@@ -62,9 +72,7 @@ export const typesForRole=role=>REQUEST_LIST.filter(t=>REQUEST_DEFS[t].audience.
 // rétro-compat
 export const REQUEST_TYPES=Object.fromEntries(Object.entries(REQUEST_DEFS).map(([k,v])=>[k,{chain:v.chain,doc:v.doc}]))
 
-// Cadre légal (référence affichée dans le produit)
-export const LEGAL={
-  law:"Loi organique n° 2004-63 du 27 juillet 2004",
-  authority:"INPDP : Instance Nationale de Protection des Données Personnelles",
-  consent:"J'autorise l'établissement à traiter ces données personnelles dans le cadre de la scolarité, conformément à la loi organique n° 2004-63 relative à la protection des données à caractère personnel (INPDP).",
-}
+// Cadre légal : lu depuis le pack actif (RGPD en France, INPDP en Tunisie…).
+// Proxy pour rester une lecture d'objet — LEGAL.consent, LEGAL.law — tout en
+// reflétant le pack courant au moment du rendu.
+export const LEGAL = new Proxy({}, { get: (_, k) => packLegal()[k] })

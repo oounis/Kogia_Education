@@ -5,7 +5,7 @@ import { db, mutate, uid } from '@core/db.js'
 import { currency } from '@core/currency.js'
 import { PageHead, Avatar, Btn, Modal, Field, Input, Select, Section, SearchInput, EmptyState, Card } from '../components/ui.jsx'
 import { SubjectDot } from '../subjects.jsx'
-import { GOVERNORATES, DOC_TYPES, validCIN } from '@core/tunisia.js'
+import { regionsOf, regionLabel, DOC_TYPES, validCIN, idLabelFor } from '@core/tunisia.js'
 import Attach from '../components/Attach.jsx'
 import { UserPlus, Search, ChevronRight } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -17,7 +17,7 @@ export default function Teachers(){
   useEffect(()=>{ const id=loc.state?.openTeacher; if(id){ const t=d.teachers.find(x=>x.id===id); if(t) setView(t) } },[loc.state])
   const add=()=>{ if(!f.name.trim())return toast.error('Le nom est requis')
     // le champ annonce « CIN (8 chiffres) » : on le vérifie vraiment (validCIN était importé sans être utilisé)
-    if(f.cin && !validCIN(f.cin)) return toast.error('Le CIN doit comporter exactement 8 chiffres')
+    if(f.cin && !validCIN(f.cin)) return toast.error('Pièce d’identité invalide pour ce pays.')
     mutate(db=>{db.teachers.push({...f,id:uid('t'),classes:[],experience:Number(f.experience)||0,salary:Number(f.salary)||0})})
     toast.success('Enseignant ajouté'); setOpen(false); setF(BLANK); force(x=>x+1) }
   const query=q.trim().toLowerCase()
@@ -49,8 +49,8 @@ export default function Teachers(){
         {/* adulte : civilité Homme/Femme (« Garçon/Fille » est réservé aux élèves) */}
         <Field label="Civilité"><Select value={f.gender} onChange={e=>setF({...f,gender:e.target.value})}><option>Homme</option><option>Femme</option></Select></Field>
         <Field label="Date de naissance"><Input type="date" value={f.dob} onChange={e=>setF({...f,dob:e.target.value})}/></Field>
-        <Field label="CIN (8 chiffres)"><Input value={f.cin} onChange={e=>setF({...f,cin:e.target.value})} maxLength={8}/></Field>
-        <Field label="Gouvernorat"><Select value={f.governorate} onChange={e=>setF({...f,governorate:e.target.value})}>{GOVERNORATES.map(g=><option key={g}>{g}</option>)}</Select></Field>
+        <Field label={idLabelFor('staff')}><Input value={f.cin} onChange={e=>setF({...f,cin:e.target.value})}/></Field>
+        <Field label={regionLabel()}><Select value={f.governorate} onChange={e=>setF({...f,governorate:e.target.value})}>{regionsOf().length?regionsOf().map(g=><option key={g}>{g}</option>):<option value="">(saisie libre)</option>}</Select></Field>
       </Section>
       <Section title="Informations professionnelles">
         <Field label="Matière"><Input value={f.subject} onChange={e=>setF({...f,subject:e.target.value})} placeholder="Mathématiques"/></Field>

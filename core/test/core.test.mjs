@@ -1025,3 +1025,40 @@ test('saisie par classe : les moyennes ligne et colonne se calculent', async () 
   assert.equal(columnAverage({ s1: { m: 10 }, s2: { m: 14 }, s3: {} }, 'm'), 12, 'les cases vides ne comptent pas')
   assert.equal(columnAverage({ s1: {} }, 'm'), null)
 })
+
+// ── Packs de pays : internationalisation (CR-004 / CR-005) ───────────────────
+test('pack de pays : la Tunisie reste le défaut, intacte', async () => {
+  const { pack, setLocalePack, regions, idLabelFor, validId, regionLabel, legal } = await import('../src/locales.js')
+  setLocalePack(undefined)                       // aucun choix → défaut
+  assert.equal(pack().key, 'TN', 'défaut = Tunisie')
+  assert.equal(regionLabel(), 'Gouvernorat')
+  assert.equal(regions().length, 24, 'les 24 gouvernorats sont là')
+  assert.ok(validId('12345678') && !validId('123'), 'CIN = 8 chiffres')
+  assert.match(idLabelFor('staff'), /CIN/)
+  assert.match(legal().law, /2004-63/, 'cadre légal tunisien conservé')
+})
+
+test('pack de pays : changer de pays change régions, pièce d’identité et loi', async () => {
+  const { setLocalePack, regions, regionLabel, validId, legal, pack } = await import('../src/locales.js')
+  setLocalePack('FR')
+  assert.equal(pack().currency, 'EUR', 'la France est en euros')
+  assert.equal(regionLabel(), 'Département')
+  assert.equal(regions().length, 0, 'liste libre (pas de présupposé)')
+  assert.ok(validId('AB123') && !validId('x'), 'validation souple, pas la règle tunisienne')
+  assert.match(legal().law, /RGPD/, 'RGPD en France')
+  setLocalePack('INTL')
+  assert.match(regionLabel(), /Région/)
+  setLocalePack('TN')                            // on remet le défaut pour la suite
+})
+
+test('pack de pays : tunisia.js délègue au pack actif sans rien casser', async () => {
+  const { setLocalePack } = await import('../src/locales.js')
+  const tn = await import('../src/tunisia.js')
+  setLocalePack('TN')
+  assert.equal(tn.regionsOf().length, 24)
+  assert.equal(tn.LEGAL.law, 'Loi organique n° 2004-63 du 27 juillet 2004', 'le Proxy LEGAL lit le pack')
+  setLocalePack('FR')
+  assert.match(tn.LEGAL.law, /RGPD/, 'et suit le changement de pays')
+  assert.equal(tn.idLabelFor('student').includes('acte'), true)
+  setLocalePack('TN')
+})

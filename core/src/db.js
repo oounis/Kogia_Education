@@ -457,7 +457,7 @@ function seed(){
   }
   const settings={ levels:['nursery','prekg','kg1','kg2','g1','g2','g3','g4','g5','g6'], schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026',
     director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis',
-    brand:BRAND.indigo, logoText:'AN', currency:'DT' }
+    brand:BRAND.indigo, logoText:'AN', currency:'DT', country:'TN' }
   // ── écoles clientes de la plateforme (console Kogia Group). Al-Nour est
   // l'école de démo « vivante » ; les autres sont des abonnements clients. ──
   const schools=[
@@ -570,7 +570,7 @@ function seedCanteen(students){
 // `levels` : les niveaux que l'école accueille RÉELLEMENT. C'est ce qui décide
 // des modules visibles (core/src/levels.js). L'école de démo fait crèche ET
 // primaire — c'est justement le cas que personne d'autre ne sait servir.
-export const DEFAULT_SETTINGS={ levels:['nursery','prekg','kg1','kg2','g1','g2','g3','g4','g5','g6'], schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026', director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis', brand:BRAND.indigo, logoText:'AN', currency:'DT' }
+export const DEFAULT_SETTINGS={ levels:['nursery','prekg','kg1','kg2','g1','g2','g3','g4','g5','g6'], schoolName:'École Al-Nour', shortName:'Al-Nour', city:'Tunis', year:'2025–2026', director:'Lina Aderra', phone:'+216 71 000 000', email:'contact@alnour.tn', address:'Avenue Habib Bourguiba, Tunis', brand:BRAND.indigo, logoText:'AN', currency:'DT', country:'TN' }
 export const settings=()=>({...DEFAULT_SETTINGS, ...(db().settings||{})})
 export function saveSettings(patch){ return mutate(d=>{ d.settings={...DEFAULT_SETTINGS, ...(d.settings||{}), ...patch} }) }
 // ── Chargement + MIGRATION ──────────────────────────────────────────────────

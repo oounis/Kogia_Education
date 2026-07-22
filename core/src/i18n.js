@@ -687,4 +687,16 @@ Object.assign(AR, {
   '13h-15h, avec sa doudou': 'من 13 إلى 15، مع دميته',
   'Mange seul, n’aime pas les épinards': 'يأكل بمفرده، لا يحبّ السبانخ',
   'Allergie à l’arachide : trousse d’urgence fournie.': 'حساسية من الفول السوداني: حقيبة إسعاف مقدَّمة.',
+
+  // ── Pack de pays (CR-004 / CR-005) ──────────────────────────────────────
+  'Détermine les régions, la pièce d’identité et le cadre légal.': 'يحدّد الجهات ووثيقة الهوية والإطار القانوني.',
+  '(saisie libre)': '(إدخال حر)',
+  'Région': 'الجهة',
+  'Département': 'المقاطعة',
+  'Pièce d’identité invalide pour ce pays.': 'وثيقة الهوية غير صالحة لهذا البلد.',
+  'International': 'دولي',
+  'France': 'فرنسا',
+  'Tunisie': 'تونس',
+  'Oui. Toute l’interface bascule en arabe, de droite à gauche, d’un seul geste : la connexion, la pré-inscription, les tableaux de bord. Le français reste disponible pour chaque utilisateur.': 'نعم. تتحوّل الواجهة بأكملها إلى العربية، من اليمين إلى اليسار، بحركة واحدة: تسجيل الدخول، والترسيم الأولي، ولوحات المتابعة. ويبقى الفرنسي متاحًا لكل مستخدم.',
+  'Crèche & primaire': 'الحضانة والابتدائي',
 })

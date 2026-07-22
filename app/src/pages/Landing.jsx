@@ -73,7 +73,7 @@ const FAQ = [
   [t('Quels niveaux couvrez-vous ?'),t('De la crèche à la 6ème année : Crèche, Pré-maternelle, Maternelle 1 et 2, puis les six niveaux du primaire. Chaque école déclare SES niveaux, et ne voit que les modules qui la concernent : une crèche n’a pas d’emploi du temps, une école primaire n’a pas de journal de change.')],
   [t('Et si j’ai un enfant en crèche et un autre en primaire ?'),t('C’est exactement pour vous que Coreon EDU existe. Un seul compte parent : le journal du jour du petit et les évaluations du grand, dans la même application.')],
   [t('Nos données nous appartiennent-elles vraiment ?'),t('Oui, et ce n’est pas une phrase : l’export OneRoster v1.2 (le standard international) est intégré et se fait en un clic, sans demande ni frais. Vous pouvez partir quand vous voulez : c’est précisément pour ça que vous resterez.')],
-  [t('L’arabe est-il disponible ?'),t('Pas encore : il est en préparation, et c’est notre priorité après la version actuelle. L’interface est aujourd’hui en français.')],
+  [t('L’arabe est-il disponible ?'),t('Oui. Toute l’interface bascule en arabe, de droite à gauche, d’un seul geste : la connexion, la pré-inscription, les tableaux de bord. Le français reste disponible pour chaque utilisateur.')],
   [t('Faut-il installer quelque chose ?'),t('Non. Coreon EDU fonctionne dans le navigateur, sur ordinateur, tablette et mobile.')],
   [t('Combien de temps pour démarrer ?'),t('Une journée : on importe vos classes et vos élèves, on crée les comptes, et l’école tourne le lendemain.')],
 ]
@@ -85,7 +85,7 @@ const FAQ = [
 // navigateur ait pu défiler. Résultat : les cinq entrées du menu ne faisaient
 // STRICTEMENT RIEN. On défile donc nous-mêmes, sans jamais toucher au hash.
 const SECTIONS = [
-  ['deux-mondes', 'Deux mondes'],
+  ['deux-mondes', 'Crèche & primaire'],
   ['modules', 'Modules'],
   ['donnees', 'Vos données'],
   ['tarifs', 'Tarifs'],
@@ -363,7 +363,7 @@ export default function Landing(){
             <motion.div key={name} {...up} className={`card p-7 relative ${pop?'ring-2 shadow-2xl':''}`} style={pop?{borderColor:A,boxShadow:'0 24px 50px -20px '+A}:{}}>
               {pop&&<span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[12px] font-bold text-white px-3 py-1 rounded-full" style={{background:A}}>Le plus complet</span>}
               <div className="font-bold text-lg">{name}</div>
-              <div className="mt-2 flex items-end gap-1"><span className="text-4xl font-extrabold">{price}</span>{price!=='Sur devis'&&<span className="text-muted mb-1 text-sm">TND / mois</span>}</div>
+              <div className="mt-2 flex items-end gap-1"><span className="text-4xl font-extrabold">{/^\d/.test(price)?`€${price}`:price}</span>{/^\d/.test(price)&&<span className="text-muted mb-1 text-sm">€ / mois</span>}</div>
               <ul className="mt-5 space-y-2.5">{feats.map(f=><li key={f} className="flex items-start gap-2 text-sm"><Check size={16} className="mt-0.5 shrink-0" style={{color:STATUS.ok}}/>{f}</li>)}</ul>
               <button onClick={()=>nav('/login')} className={`${BTN_LG} w-full mt-6 ${pop?'text-white shadow-sm hover:opacity-90':'bg-white border border-line hover:bg-canvas'}`} style={pop?{background:A}:{}}>Commencer</button>
             </motion.div>

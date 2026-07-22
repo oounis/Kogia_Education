@@ -11,7 +11,7 @@ import { ROLE } from '@core/theme.js'
 import { notify } from '@core/notify.js'
 import { t } from '@core/i18n.js'
 import { createAccount, updateAccount, setDisabled, resetPassword, directory, MANAGEABLE_ROLES } from '@core/accounts.js'
-import { STAFF_POSITIONS, GOVERNORATES, docTypesFor, validCIN } from '@core/tunisia.js'
+import { STAFF_POSITIONS, regionsOf, regionLabel, docTypesFor, validCIN, idLabelFor } from '@core/tunisia.js'
 import { PageHead, Avatar, Btn, Modal, Field, Input, Select, Section, SearchInput, STATUS } from '../components/ui.jsx'
 import Attach from '../components/Attach.jsx'
 import { UserPlus, KeyRound, Ban, Check, Paperclip, Pencil, Users } from 'lucide-react'
@@ -30,7 +30,7 @@ export default function Accounts(){
   const match=u=>!query||u.name.toLowerCase().includes(query)||String(u.email||'').toLowerCase().includes(query)
 
   const create=()=>{
-    if(f.cin && !validCIN(f.cin))return toast.error(t('CIN invalide (8 chiffres)'))
+    if(f.cin && !validCIN(f.cin))return toast.error(t('Pièce d’identité invalide pour ce pays.'))
     const r=createAccount(f)
     if(r.error)return toast.error(r.error)
     notify({to:r.user.id,email:true,kind:'info',actor:t('Direction'),title:t('compte créé'),body:`${t('Bienvenue · rôle')} ${ROLE[f.role].label}.`,link:'/app'})
@@ -106,9 +106,9 @@ export default function Accounts(){
         <Field label={t('Mot de passe temporaire')}><Input value={f.pw} onChange={e=>setF({...f,pw:e.target.value})} placeholder={t('défaut 1234')}/></Field>
       </Section>
       <Section title={t('Identité (Tunisie)')}>
-        <Field label={t('CIN (8 chiffres)')}><Input value={f.cin} onChange={e=>setF({...f,cin:e.target.value})} placeholder="12345678" maxLength={8}/></Field>
+        <Field label={idLabelFor('staff')}><Input value={f.cin} onChange={e=>setF({...f,cin:e.target.value})} placeholder="12345678"/></Field>
         <Field label={t('Civilité')}><Select value={f.gender} onChange={e=>setF({...f,gender:e.target.value})}><option value="Homme">{t('Homme')}</option><option value="Femme">{t('Femme')}</option></Select></Field>
-        <Field label={t('Gouvernorat')}><Select value={f.governorate} onChange={e=>setF({...f,governorate:e.target.value})}>{GOVERNORATES.map(g=><option key={g}>{g}</option>)}</Select></Field>
+        <Field label={t(regionLabel())}><Select value={f.governorate} onChange={e=>setF({...f,governorate:e.target.value})}>{regionsOf().length?regionsOf().map(g=><option key={g}>{g}</option>):<option value="">{t('(saisie libre)')}</option>}</Select></Field>
       </Section>
       {isStaff && <Section title={t('Fonction')} cols={2}>
         <Field label={t('Poste / fonction')}><Select value={f.position} onChange={e=>setF({...f,position:e.target.value})}>{STAFF_POSITIONS.map(g=><optgroup key={g.group} label={g.group}>{g.items.map(p=><option key={p}>{p}</option>)}</optgroup>)}</Select></Field>

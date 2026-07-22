@@ -7,6 +7,7 @@ import { setItem } from '@core/storage.js'
 import { LEVELS, EARLY_YEARS, PRIMARY } from '@core/levels.js'
 import { OPTIONAL_MODULES, moduleActive, setModuleOverrides } from '@core/features.js'
 import { setCurrency } from '@core/currency.js'
+import { setLocalePack, PACK_LIST, PACKS } from '@core/locales.js'
 import { t } from '@core/i18n.js'
 import { N, SERIES, BRAND } from '@core/tokens.js'
 import { Building2, Layers, Boxes, Globe, Palette, Database, Save, Check, Download, ShieldCheck, AlertTriangle } from 'lucide-react'
@@ -77,6 +78,7 @@ export default function Settings() {
     if (!f.levels.length) return toast.error(t('Une école accueille au moins un niveau.'))
     const levelsChanged = JSON.stringify(f.levels) !== JSON.stringify(orig.levels || DEFAULT_SETTINGS.levels)
     const modsChanged = OPTIONAL_MODULES.some(m => mods[m] !== moduleActive(m))
+    setLocalePack(f.country)
     setCurrency(f.currency)
     saveSettings({ ...f })
     const overrides = Object.fromEntries(OPTIONAL_MODULES.map(m => [m, mods[m]]))
@@ -185,6 +187,17 @@ export default function Settings() {
           <Card className="p-6">
             <h3 className="font-bold flex items-center gap-2 mb-4"><Globe size={18} className="accent-text" /> {t('Localisation & finances')}</h3>
             <div className="grid sm:grid-cols-2 gap-3">
+              {/* CR-004/005 : le PAYS pilote régions, pièce d'identité et cadre
+                  légal. La Tunisie reste le défaut ; on ne suppose plus rien. */}
+              <Field label={t('Pays')} hint={t('Détermine les régions, la pièce d’identité et le cadre légal.')}>
+                <Select value={f.country || 'TN'} onChange={e => {
+                  const k = e.target.value; const pk = PACKS[k]
+                  set('country', k)
+                  if (pk?.currency) set('currency', pk.currency)   // devise suggérée du pays
+                }}>
+                  {PACK_LIST.map(p => <option key={p.key} value={p.key}>{t(p.label)}</option>)}
+                </Select>
+              </Field>
               <Field label={t('Devise')} hint={t('Utilisée pour tous les montants (frais, paie, budget).')}>
                 <Select value={f.currency || 'DT'} onChange={e => set('currency', e.target.value)}>
                   {CURRENCIES.map(([code, name]) => <option key={code} value={code}>{code} · {t(name)}</option>)}

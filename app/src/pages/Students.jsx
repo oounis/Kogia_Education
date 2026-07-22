@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { current } from '@core/auth.js'
 import { db, mutate, uid, classById, userById, CYCLES, studentsOfClass, setStudentParent } from '@core/db.js'
 import { PageHead, Avatar, Btn, Modal, Field, Input, Select, Section, SearchInput, EmptyState, Card } from '../components/ui.jsx'
-import { GOVERNORATES, DOC_TYPES, LEGAL } from '@core/tunisia.js'
+import { regionsOf, regionLabel, DOC_TYPES, LEGAL } from '@core/tunisia.js'
 import Attach from '../components/Attach.jsx'
 import DataTable from '../components/DataTable.jsx'
 import { UserPlus, ShieldCheck } from 'lucide-react'
@@ -130,7 +130,7 @@ export default function Students(){
         <Field label={t('Date d\'inscription')}><Input type="date" value={f.admissionDate} onChange={e=>setF({...f,admissionDate:e.target.value})}/></Field>
         <Field label={t('École précédente')}><Input value={f.prevSchool} onChange={e=>setF({...f,prevSchool:e.target.value})}/></Field>
         <Field label={t('N° acte de naissance')}><Input value={f.cin} onChange={e=>setF({...f,cin:e.target.value})} placeholder="ACTE-..."/></Field>
-        <Field label={t('Gouvernorat')}><Select value={f.governorate} onChange={e=>setF({...f,governorate:e.target.value})}>{GOVERNORATES.map(g=><option key={g}>{g}</option>)}</Select></Field>
+        <Field label={t(regionLabel())}><Select value={f.governorate} onChange={e=>setF({...f,governorate:e.target.value})}>{regionsOf().length?regionsOf().map(g=><option key={g}>{g}</option>):<option value="">{t('(saisie libre)')}</option>}</Select></Field>
       </Section>
       <Section title={t('Tuteur / parent')}>
         <Field label={t('Nom du père')}><Input value={f.fatherName} onChange={e=>setF({...f,fatherName:e.target.value})}/></Field>
