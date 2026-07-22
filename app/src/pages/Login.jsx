@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { login, loginAs } from '@core/auth.js'
 import { BRAND, N } from '@core/tokens.js'
@@ -98,7 +98,10 @@ export default function Login() {
       </div>
 
       {/* ── FORMULAIRE ── */}
-      <div className="relative flex items-center justify-center p-6 sm:p-10">
+      {/* overflow-hidden : le halo décoratif fait 440px de large et débordait de
+          25px sur téléphone (390px), créant une barre de défilement horizontale.
+          Il est décoratif — on le coupe, on ne rétrécit pas la page. */}
+      <div className="relative flex items-center justify-center p-6 sm:p-10 overflow-hidden">
         <div className="absolute pointer-events-none" style={{ width: 440, height: 440, borderRadius: '50%', background: BRAND.mark, filter: 'blur(100px)', opacity: .1 }} />
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5, ease: [.2, .8, .2, 1] }} className="relative w-full max-w-sm">
           <div className="lg:hidden flex items-center gap-2 mb-8">
@@ -131,6 +134,12 @@ export default function Login() {
                 </button>
               </div>
               {err && <div className="text-sm text-coral">{typeof err === 'string' ? err : t('E-mail ou mot de passe incorrect.')}</div>}
+              {/* CR-013 : il n'existait AUCUN moyen de récupérer un accès. */}
+              <div className="flex justify-end">
+                <Link to="/mot-de-passe-oublie" className="text-xs font-semibold text-muted hover:text-ink">
+                  {t('Mot de passe oublié ?')}
+                </Link>
+              </div>
               <button onClick={go}
                 className="lg-cta w-full flex items-center justify-center gap-2 rounded-xl text-white font-bold text-sm py-3.5 mt-1"
                 style={{ background: `linear-gradient(135deg,${BRAND.action},${BRAND.mark})`, boxShadow: '0 10px 24px -10px rgba(117,57,228,.6)' }}>

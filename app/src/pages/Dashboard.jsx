@@ -293,10 +293,14 @@ function PlatformDashboard({ d, greet }){
   const STL={active:[t('Active'),STATUS.ok],trial:[t("Essai"),STATUS.warn],suspended:[t('Suspendue'),STATUS.neutral]}
   return (<><PageHead title={greet} sub={t("Console plateforme — vos écoles clientes en un coup d'œil.")}/>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+      {/* Les quatre chiffres mènent au même endroit : la liste des écoles, seul
+          écran où l'on peut agir dessus. Trois d'entre eux n'avaient ni `to` ni
+          `onClick` — StatCard les rendait alors en <div> inerte, et le chiffre
+          ne menait nulle part (défaut signalé par Othman, 22/07/2026). */}
       <StatCard label={t("Écoles clientes")} value={schools.filter(s=>s.status!=='suspended').length} tint="brand" icon={<Building2/>} to="/app/schools"/>
-      <StatCard label={t("Élèves gérés")} value={totalStudents} tint="sky" icon={<Users/>}/>
-      <StatCard label={t("Revenu mensuel")} value={money(mrr)} sub={t("abonnements actifs")} tint="mint" icon={<Wallet/>}/>
-      <StatCard label={t("En essai")} value={trials.length} tint="butter" icon={<FileText/>}/>
+      <StatCard label={t("Élèves gérés")} value={totalStudents} tint="sky" icon={<Users/>} to="/app/schools"/>
+      <StatCard label={t("Revenu mensuel")} value={money(mrr)} sub={t("abonnements actifs")} tint="mint" icon={<Wallet/>} to="/app/schools"/>
+      <StatCard label={t("En essai")} value={trials.length} tint="butter" icon={<FileText/>} to="/app/schools"/>
     </div>
     <div className="grid lg:grid-cols-[340px_1fr] gap-4">
       <Card className="p-5"><h3 className="font-bold mb-1">{t('Répartition des abonnements')}</h3><p className="text-xs text-muted mb-4">{t('Écoles actives et en essai')}</p>
@@ -341,8 +345,14 @@ function Intelligence({ items }){
   if(!items.length) return null
   const TONE={ok:STATUS.ok,warn:STATUS.warn,info:STATUS.info,danger:STATUS.danger}
   return (<div className="mb-6">
-    <div className="flex items-baseline gap-2 mb-3">
-      <h2 className="text-lg font-extrabold flex items-center gap-1.5"><Ic n="Sparkles" size={18} className="accent-text"/> Coreon Intelligence</h2>
+    {/* L'icône est INLINE, pas un élément flex : la ligne de base d'un conteneur
+        flex est celle de son premier élément, et un SVG n'en a pas — le titre
+        retombait alors sur le BAS de l'icône et décrochait du sous-titre.
+        En inline, la ligne de base du h2 redevient celle de son texte. */}
+    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 mb-3">
+      <h2 className="text-lg font-extrabold">
+        <Ic n="Sparkles" size={18} className="accent-text inline-block align-[-3px] me-1.5"/>Coreon Intelligence
+      </h2>
       <span className="text-xs text-muted">{t('ce que vos données disent cette semaine')}</span>
     </div>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

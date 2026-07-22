@@ -4,7 +4,7 @@
 import { test, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync, rmSync } from 'node:fs'
+import { mkdtempSync, rmSync, readFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -137,4 +137,74 @@ test('concurrence : 20 écritures simultanées — le verrou tient, aucune corru
   const final = await api('/api/db', { token: dir.token })
   assert.equal(final.status, 200)
   assert.ok(final.json.blob.classes.length > 0, 'les données ne sont pas corrompues')
+})
+
+// ── Mot de passe oublié (CR-013) ─────────────────────────────────────────────
+// Le jeton est un secret : le test le lit dans le registre d'auth du serveur,
+// exactement là où un attaquant n'a PAS accès. Il ne transite jamais en réponse.
+const resetsOf = () => {
+  const a = JSON.parse(readFileSync(join(DATA, 'auth.json'), 'utf8'))
+  return a.resets || {}
+}
+const tokenFor = email => {
+  const a = JSON.parse(readFileSync(join(DATA, 'auth.json'), 'utf8'))
+  const cred = a.users.find(u => u.email.toLowerCase() === email.toLowerCase())
+  return Object.entries(a.resets || {}).find(([, r]) => r.userId === cred.id)?.[0]
+}
+
+test('oubli : la réponse ne dit JAMAIS si le compte existe', async () => {
+  const connu = await api('/api/forgot', { method: 'POST', body: { email: 'direction@alnour.tn' } })
+  const inconnu = await api('/api/forgot', { method: 'POST', body: { email: 'personne@nulle-part.tn' } })
+  assert.equal(connu.status, 200)
+  assert.equal(inconnu.status, 200)
+  assert.deepEqual(connu.json, inconnu.json, 'même réponse, mot pour mot')
+  assert.ok(!JSON.stringify(connu.json).includes('token'), 'le jeton ne part jamais dans la réponse')
+  // mais un jeton n'existe que pour le compte réel
+  assert.ok(tokenFor('direction@alnour.tn'), 'jeton créé pour un compte connu')
+  assert.equal(Object.keys(resetsOf()).length, 1, 'aucun jeton pour une adresse inconnue')
+})
+
+test('oubli : le lien réinitialise, à usage unique, et ferme les sessions ouvertes', async () => {
+  // une session est ouverte AVANT la réinitialisation.
+  // (compte « sécurité » : l'enseignant est désactivé par un test précédent —
+  //  les tests partagent un serveur, l'ordre compte.)
+  const avant = await login('securite@alnour.tn', 'secu')
+  assert.equal((await api('/api/rev', { token: avant.token })).status, 200)
+
+  await api('/api/forgot', { method: 'POST', body: { email: 'securite@alnour.tn' } })
+  const tok = tokenFor('securite@alnour.tn')
+  assert.ok(tok, 'un jeton a été créé')
+
+  // trop court → refusé
+  assert.equal((await api('/api/reset', { method: 'POST', body: { token: tok, pw: 'court' } })).status, 400)
+  // correct → accepté
+  assert.equal((await api('/api/reset', { method: 'POST', body: { token: tok, pw: 'nouveau-mot-de-passe' } })).status, 200)
+
+  // l'ancien mot de passe ne marche plus, le nouveau si
+  assert.equal((await api('/api/login', { method: 'POST', body: { email: 'securite@alnour.tn', pw: 'secu' } })).status, 401)
+  const apres = await api('/api/login', { method: 'POST', body: { email: 'securite@alnour.tn', pw: 'nouveau-mot-de-passe' } })
+  assert.equal(apres.status, 200)
+
+  // la session ouverte AVANT est morte
+  assert.equal((await api('/api/rev', { token: avant.token })).status, 401, 'la session d\'avant est éjectée')
+  // le jeton ne resservira pas
+  assert.equal((await api('/api/reset', { method: 'POST', body: { token: tok, pw: 'encore-un-autre-mdp' } })).status, 400)
+})
+
+test('oubli : un compte désactivé ne reçoit aucun jeton', async () => {
+  const dir = await login('direction@alnour.tn', 'admin')
+  const blob = (await api('/api/db', { token: dir.token })).json.blob
+  const cible = blob.users.find(u => u.email === 'surveillant@alnour.tn')
+  const rev = (await api('/api/rev', { token: dir.token })).json.rev
+  await api('/api/db', { method: 'POST', token: dir.token, body: { baseRev: rev,
+    blob: { ...blob, users: blob.users.map(u => u.id === cible.id ? { ...u, disabled: true } : u) } } })
+  const avant = Object.keys(resetsOf()).length
+  assert.equal((await api('/api/forgot', { method: 'POST', body: { email: 'surveillant@alnour.tn' } })).status, 200)
+  assert.equal(Object.keys(resetsOf()).length, avant, 'aucun jeton créé pour un compte désactivé')
+})
+
+test('oubli : au-delà de 5 demandes par heure, on refuse', async () => {
+  const codes = []
+  for (let i = 0; i < 8; i++) codes.push((await api('/api/forgot', { method: 'POST', body: { email: 'admin@alnour.tn' } })).status)
+  assert.ok(codes.includes(429), 'la limite finit par tomber')
 })
