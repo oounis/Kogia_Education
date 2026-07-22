@@ -94,7 +94,7 @@ export default function Login() {
           </div>
         </div>
 
-        <div className="relative text-white/55 text-sm">par Kogia Group · © 2026 · Tunisie</div>
+        <div className="relative text-white/55 text-sm">par Kogia Group · © 2026</div>
       </div>
 
       {/* ── FORMULAIRE ── */}
