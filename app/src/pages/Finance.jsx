@@ -46,7 +46,7 @@ export default function Finance(){
     toast.success(`${toConfirm.length} versement(s) confirmé(s) · parents notifiés`); force(x=>x+1) }
   const remind=(sid)=>{ const s=studentById(sid); const unpaid=d.payments[sid].filter(p=>p.status!=='paid').map(p=>p.month)
     const parent=d.users.find(u=>u.id===s.parentId)
-    if(parent) notify({to:parent.id,kind:'payment',title:'Rappel de paiement',body:`${unpaid.length} mois impayé(s) pour ${s.name} : ${unpaid.join(', ')}`})
+    if(parent) notify({to:parent.id,email:true,kind:'payment',title:'Rappel de paiement',body:`${unpaid.length} mois impayé(s) pour ${s.name} : ${unpaid.join(', ')}`})
     toast.success(parent?`Rappel envoyé au parent de ${s.name}`:'Aucun parent lié') }
   // relance groupée : tous les élèves avec au moins un mois en retard, en un clic
   const lateStudents=d.students.filter(s=>(d.payments[s.id]||[]).some(p=>p.status==='overdue'))
@@ -55,7 +55,7 @@ export default function Finance(){
     lateStudents.forEach(s=>{
       const parent=d.users.find(u=>u.id===s.parentId)
       const months=d.payments[s.id].filter(p=>p.status==='overdue').map(p=>p.month)
-      if(parent){ notify({to:parent.id,kind:'payment',actor:'Administration',title:'Rappel de paiement',body:`Mois en retard pour ${s.name} : ${months.join(', ')}. Merci de régulariser auprès de l'administration.`,link:'/app/payments'}); sent++ }
+      if(parent){ notify({to:parent.id,email:true,kind:'payment',actor:'Administration',title:'Rappel de paiement',body:`Mois en retard pour ${s.name} : ${months.join(', ')}. Merci de régulariser auprès de l'administration.`,link:'/app/payments'}); sent++ }
       else noParent++
     })
     toast.success(`${sent} parent(s) relancé(s)${noParent?` · ${noParent} élève(s) sans compte parent lié`:''}`)

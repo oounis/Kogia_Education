@@ -813,3 +813,41 @@ test('email candidat : le cycle de vie journalise les envois sur le dossier', as
   const r2 = apply({ childName: 'Sans Mail', dob: '2021-01-01', level: 'kg1', parentName: 'X', parentPhone: '+216 20 2', parentEmail: '' })
   assert.equal(appById(r2.app.id).emails.length, 0, 'pas d\'email fourni → aucun envoi')
 })
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LE MAILER CENTRAL — un seul canal, tous les modules. Une notification peut
+// aussi partir par email (opt-in `email:true`) vers le bon destinataire.
+// ═══════════════════════════════════════════════════════════════════════════
+import { sendMail, emailOfUser, parentEmailsOfStudent, parentEmailsOfClass } from '../src/mailer.js'
+import { notify } from '../src/notify.js'
+
+test('mailer : best-effort sans transport + résolution des destinataires', async () => {
+  setMailTransport(null)
+  const r0 = await sendMail({ to: 'x@y.tn', subject: 's', text: 't' })
+  assert.equal(r0.ok, false); assert.equal(r0.via, 'no-transport')           // ne jette jamais
+  assert.equal(await sendMail({ subject: 's', text: 't' }).then(r => r.via), 'no-recipient')
+  assert.equal(emailOfUser('p1'), 'parent@alnour.tn')
+  assert.ok(parentEmailsOfStudent('s1').includes('parent@alnour.tn'))         // p1 est parent de s1
+  assert.ok(parentEmailsOfClass(db().students.find(s => s.id === 's1').classId).length >= 1)
+})
+
+test('notify email:true → part aussi par email, au bon destinataire', async () => {
+  const sent = []
+  setMailTransport(m => { sent.push(m); return Promise.resolve(true) })
+
+  notify({ to: 'p1', email: true, kind: 'info', title: 'test direct', body: 'coucou' })
+  await new Promise(r => setTimeout(r, 0))
+  assert.ok(sent.some(m => m.to === 'parent@alnour.tn'), 'destinataire nommé → son email')
+
+  sent.length = 0
+  notify({ studentId: 's1', email: true, kind: 'incident', title: 'incident', body: 'x' })
+  await new Promise(r => setTimeout(r, 0))
+  assert.ok(sent.some(m => m.to === 'parent@alnour.tn'), 'studentId → email des parents')
+
+  sent.length = 0
+  notify({ to: 'p1', kind: 'info', title: 'silencieux', body: 'b' })          // pas d'email:true
+  await new Promise(r => setTimeout(r, 0))
+  assert.equal(sent.length, 0, 'sans email:true → aucun email (in-app seulement)')
+
+  setMailTransport(null) // ne pas polluer les autres tests
+})

@@ -24,6 +24,7 @@ import { now, todayIso } from './clock.js'
 import { levelOf, labelOf } from './levels.js'
 import { notify } from './notify.js'
 import { applicantEmail, emailsApplicant } from './admissions-mail.js'
+import { sendMail, mailReady } from './mailer.js'
 
 /** Les étapes. `terminal` = plus rien ne bouge sans une action humaine explicite. */
 export const STAGES = {
@@ -54,31 +55,22 @@ export const appById = id => applications().find(a => a.id === id) || null
 function write(next) { const d = db(); d.applications = next; save(d) }
 
 // ── Emails au candidat ──────────────────────────────────────────────────────
-// Transport injecté par l'hôte (web/mobile) ; côté serveur ce sera le backend.
-// SANS transport, l'email est PRÉPARÉ et journalisé sur le dossier (jamais
-// perdu), prêt à partir dès qu'un canal est branché. Best-effort : l'envoi
-// n'interrompt jamais le parcours d'inscription.
-let mailTransport = null
-export function setMailTransport(fn) { mailTransport = typeof fn === 'function' ? fn : null }
+// On passe par le MAILER CENTRAL (mailer.js) : un seul transport pour toute
+// l'app, injecté une fois par l'hôte. `setMailTransport` reste exporté ici par
+// commodité (rétro-compatibilité), mais règle le transport central.
+export { setMailTransport } from './mailer.js'
 
-// Journalise (et tente d'envoyer) l'email d'une étape. Idempotent au sens large :
-// il n'y a qu'un email par changement d'étape effectif, décidé par l'appelant.
+// Journalise (et tente d'envoyer) l'email d'une étape. Sans transport, l'email
+// est « préparé » et gardé sur le dossier — jamais perdu ni faussé.
 function mailApplicant(id, stage, extra = {}) {
   const a = appById(id)
   if (!a || !a.parentEmail || !emailsApplicant(stage)) return
   const mail = applicantEmail(a, stage, extra)
   if (!mail) return
   const eid = 'm' + now().toString(36) + ((a.emails || []).length)
-  const entry = { id: eid, at: now(), stage, to: mail.to, subject: mail.subject, status: mailTransport ? 'envoi' : 'préparé' }
+  const entry = { id: eid, at: now(), stage, to: mail.to, subject: mail.subject, status: mailReady() ? 'envoi' : 'préparé' }
   write(applications().map(x => x.id !== id ? x : { ...x, emails: [...(x.emails || []), entry] }))
-  if (mailTransport) {
-    try {
-      Promise.resolve(mailTransport(mail)).then(
-        () => markEmail(id, eid, 'envoyé'),
-        () => markEmail(id, eid, 'échec'),
-      )
-    } catch { markEmail(id, eid, 'échec') }
-  }
+  if (mailReady()) sendMail(mail).then(r => markEmail(id, eid, r.ok ? 'envoyé' : 'échec'))
 }
 function markEmail(id, eid, status) {
   write(applications().map(x => x.id !== id ? x

@@ -105,8 +105,8 @@ function StudentsInsights(){
   const notifyParent=(s,body)=>{
     const parent=d.users.find(x=>x.id===s.parentId)
     if(!parent) return toast.error(`${s.name} n'a pas de compte parent lié`)
-    notify({to:parent.id,kind:'info',actor:'Direction',title:`Présence de ${s.name.split(' ')[0]}`,body})
-    toast.success(`Parent de ${s.name.split(' ')[0]} prévenu`); force(x=>x+1)
+    notify({to:parent.id,studentId:s.id,email:true,kind:'info',actor:'Direction',title:`Présence de ${s.name.split(' ')[0]}`,body})
+    toast.success(`Parent de ${s.name.split(' ')[0]} prévenu${parent.email?' (in-app + email)':''}`); force(x=>x+1)
   }
 
   return (<>

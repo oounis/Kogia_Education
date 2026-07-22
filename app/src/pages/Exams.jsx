@@ -14,7 +14,7 @@ export default function Exams(){
     mutate(db=>{db.exams.unshift({...f,id:uid('x'),total:Number(f.total)||100})})
     // l'examen ne concerne qu'une classe : seuls ses parents sont notifiés
     const examClassId=d.classes.find(c=>c.name===f.class)?.id||null
-    notify({role:'parent',classId:examClassId,kind:'notice',title:'Nouvel examen programmé',body:`${f.subject} · ${f.class} le ${f.date}`,link:'/app/exams'})
+    notify({role:'parent',classId:examClassId,email:true,kind:'notice',title:'Nouvel examen programmé',body:`${f.subject} · ${f.class} le ${f.date}`,link:'/app/exams'})
     notify({role:'teacher',kind:'info',title:'Examen ajouté au calendrier',body:`${f.subject} · ${f.class} le ${f.date}`,link:'/app/exams'})
     toast.success('Examen programmé · parents notifiés'); setOpen(false); force(x=>x+1) }
   // un parent ne voit que les examens des classes de ses enfants (les examens sont

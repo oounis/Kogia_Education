@@ -57,8 +57,8 @@ export default function Requests(){
       if(decision==='rejected') req.status='rejected'
       else { req.currentLevel++; if(req.currentLevel>=req.chain.length) req.status='approved' } })
     const req=db().requests.find(x=>x.id===r.id)
-    if(decision==='rejected') notify({to:r.by,kind:'request',actor:u.name,title:'demande rejetée',body:`${r.type} — ${comment||'sans motif'}`,link:'/app/requests'})
-    else if(req.status==='approved') notify({to:r.by,kind:'request',actor:'Administration',title:'demande approuvée',body:`${r.type} — validée${REQUEST_DEFS[r.type]?.doc?', document disponible':''}.`,link:'/app/requests'})
+    if(decision==='rejected') notify({to:r.by,email:true,kind:'request',actor:u.name,title:'demande rejetée',body:`${r.type} — ${comment||'sans motif'}`,link:'/app/requests'})
+    else if(req.status==='approved') notify({to:r.by,email:true,kind:'request',actor:'Administration',title:'demande approuvée',body:`${r.type} — validée${REQUEST_DEFS[r.type]?.doc?', document disponible':''}.`,link:'/app/requests'})
     else { notify({role:req.chain[req.currentLevel],kind:'request',actor:u.name,title:`validation requise : ${r.type}`,body:`De ${r.byName}`,link:'/app/requests'}); notify({to:r.by,kind:'request',actor:u.name,title:'demande validée (étape)',body:`${r.type} — en cours`,link:'/app/requests'}) }
     toast.success(decision==='approved'?'Demande approuvée':'Demande rejetée'); setView(null); setComment(''); refresh()
   }

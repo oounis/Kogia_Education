@@ -71,7 +71,7 @@ export default function Evaluate(){
     const cleanBadges=Object.fromEntries(Object.entries(badges).filter(([sid])=>graded.some(s=>s.id===sid)))
     const ev={ id:uid('ev'), at:Date.now(), classId:cls.cls.id, className:cls.cls.name, subject:cls.slot.subject, lesson:lesson.trim()||null, teacher, placements:cleanPlacements, badges:cleanBadges, note }
     mutate(db=>{ db.evaluations.unshift(ev) })
-    students.forEach(s=>{ if(s.parentId){ const sum=studentSummary(ev,s.id); if(sum.score!=null) notify({to:s.parentId,kind:'evaluation',title:`Nouvelle évaluation pour ${s.name.split(' ')[0]}`,body:`${cls.slot.subject} : ${sum.score}/100${sum.badge?` · ${sum.badge.label}`:''}`,link:'/app'}) } })
+    students.forEach(s=>{ if(s.parentId){ const sum=studentSummary(ev,s.id); if(sum.score!=null) notify({to:s.parentId,studentId:s.id,email:true,kind:'evaluation',title:`Nouvelle évaluation pour ${s.name.split(' ')[0]}`,body:`${cls.slot.subject} : ${sum.score}/100${sum.badge?` · ${sum.badge.label}`:''}`,link:'/app'}) } })
     notify({role:'admin',kind:'evaluation',actor:teacher,title:`Évaluation enregistrée — ${cls.cls.name}`,body:`${cls.slot.subject} · ${graded.length} élèves notés`,link:'/app/students'})
     notify({role:'schooladmin',kind:'evaluation',actor:teacher,title:`Évaluation enregistrée — ${cls.cls.name}`,body:`${cls.slot.subject} · ${graded.length} élèves notés`,link:'/app/students'})
     setSaved(graded.map(s=>{const sum=studentSummary(ev,s.id);return {name:s.name,...sum,mention:mentionFor(sum.score)}}))

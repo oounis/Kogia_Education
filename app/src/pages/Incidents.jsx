@@ -22,7 +22,7 @@ export default function Incidents(){
     mutate(db=>{ db.incidents.unshift({id,at:Date.now(),by:u.name,studentId:f.studentId||null,type:f.type,title:f.title.trim(),body:f.body.trim(),severity:f.severity,status:'open'}) })
     notify({role:'admin',kind:'incident',title:`Incident : ${f.type}`,body:`${u.name} a signalé : ${f.title}${s?` (${s.name})`:''}`})
     notify({role:'schooladmin',kind:'incident',title:`Incident : ${f.type}`,body:`${f.title}${s?` (${s.name})`:''}`})
-    if(s?.parentId) notify({to:s.parentId,kind:'incident',title:'Note de l\'école concernant votre enfant',body:`${f.type} : ${f.title}`})
+    if(s?.parentId) notify({to:s.parentId,studentId:s.id,email:true,kind:'incident',title:'Note de l\'école concernant votre enfant',body:`${f.type} : ${f.title}`})
     toast.success('Incident signalé · personnes notifiées'); setOpen(false); setF({type:'Bagarre',studentId:'',title:'',body:'',severity:'medium'}); force(x=>x+1)
   }
   const resolve=(id)=>{ mutate(db=>{ const i=db.incidents.find(x=>x.id===id); if(i)i.status='resolved' }); toast.success('Marqué comme résolu'); force(x=>x+1) }

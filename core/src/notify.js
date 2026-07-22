@@ -1,4 +1,5 @@
 import { mutate, db, uid, studentById } from './db.js'
+import { sendMail, emailOfUser, parentEmailsOfStudent, parentEmailsOfClass } from './mailer.js'
 
 // Une notification vise soit UNE personne (`to`), soit un RÔLE (`role`).
 //
@@ -8,11 +9,27 @@ import { mutate, db, uid, studentById } from './db.js'
 // de rôle peut être restreinte à une classe, et un parent ne reçoit alors que ce qui
 // concerne réellement ses enfants. Les notifications destinées au personnel ne sont
 // pas filtrées par classe (un directeur voit toute l'école).
-export function notify({ to = null, role = null, classId = null, kind = 'info', actor = null, title, body, link = null }) {
+export function notify({ to = null, role = null, classId = null, studentId = null, kind = 'info', actor = null, title, body, link = null, email = false }) {
   mutate(d => {
     d.notifications = d.notifications || []
     d.notifications.unshift({ id: uid('n'), to, role, classId, kind, actor, title, body, link, at: Date.now(), read: false })
   })
+  // Canal EMAIL (opt-in) : la même notification part aussi par email vers les
+  // destinataires concernés qui ont une adresse. Un seul drapeau `email:true`
+  // suffit à n'importe quel module (présence, paiements, bulletins, incidents…).
+  // Fire-and-forget : ne bloque jamais l'écriture in-app.
+  if (email) emailNotification({ to, role, classId, studentId, actor, title, body })
+}
+
+function emailNotification({ to, role, classId, studentId, actor, title, body }) {
+  const rcpts = new Set()
+  if (to) { const e = emailOfUser(to); if (e) rcpts.add(e) }
+  if (studentId) parentEmailsOfStudent(studentId).forEach(e => rcpts.add(e))
+  if (role === 'parent' && classId) parentEmailsOfClass(classId).forEach(e => rcpts.add(e))
+  if (!rcpts.size) return
+  const subject = title ? title.charAt(0).toUpperCase() + title.slice(1) : 'École Al-Nour'
+  const text = `${actor ? actor + ' — ' : ''}${body || ''}\n\n— École Al-Nour (Coreon EDU)`
+  rcpts.forEach(addr => { sendMail({ to: addr, subject, text }) })
 }
 
 // Les classes des enfants d'un parent (via childIds).

@@ -72,8 +72,8 @@ export default function StudentProfile() {
   const go = anchor => document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   const tellParent = () => {
     if (!parent) return toast.error('Aucun compte parent lié')
-    notify({ to: parent.id, kind: 'info', actor: u.name, title: `Au sujet de ${s.name.split(' ')[0]}`, body: 'La direction souhaite vous parler — merci de passer ou d\'appeler l\'école.' })
-    toast.success(`Parent de ${s.name.split(' ')[0]} prévenu`)
+    notify({ to: parent.id, studentId: s.id, email: true, kind: 'info', actor: u.name, title: `Au sujet de ${s.name.split(' ')[0]}`, body: 'La direction souhaite vous parler — merci de passer ou d\'appeler l\'école.' })
+    toast.success(`Parent de ${s.name.split(' ')[0]} prévenu${parent.email ? ' (in-app + email)' : ''}`)
   }
 
   const Tile = ({ icon, value, label, tone, anchor }) => (
