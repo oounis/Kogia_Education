@@ -7,7 +7,7 @@ import { setItem } from '@core/storage.js'
 import { LEVELS, EARLY_YEARS, PRIMARY } from '@core/levels.js'
 import { OPTIONAL_MODULES, moduleActive, setModuleOverrides } from '@core/features.js'
 import { setCurrency } from '@core/currency.js'
-import { setLocalePack, PACK_LIST, PACKS } from '@core/locales.js'
+import { setLocalePack, PACK_LIST, PACKS, citiesOf, regionLabel } from '@core/locales.js'
 import { t } from '@core/i18n.js'
 import { N, SERIES, BRAND } from '@core/tokens.js'
 import { Building2, Layers, Boxes, Globe, Palette, Database, Save, Check, Download, ShieldCheck, AlertTriangle } from 'lucide-react'
@@ -123,7 +123,14 @@ export default function Settings() {
             <div className="grid sm:grid-cols-2 gap-3">
               <Field label={t('Nom de l’école *')}><Input value={f.schoolName} onChange={e => set('schoolName', e.target.value)} placeholder="École Al-Nour" /></Field>
               <Field label={t('Nom court (sidebar)')}><Input value={f.shortName} onChange={e => set('shortName', e.target.value)} placeholder="Al-Nour" /></Field>
-              <Field label={t('Ville')}><Input value={f.city} onChange={e => set('city', e.target.value)} /></Field>
+              {/* CR-023 : Pays → Ville. On choisit dans la liste du pays, jamais
+                  au clavier. Changer de pays recharge SES villes. */}
+              <Field label={regionLabel()}>
+                <Select value={f.city || ''} onChange={e => set('city', e.target.value)}>
+                  <option value="">{t('Choisir…')}</option>
+                  {citiesOf(f.country || 'TN').map(c => <option key={c} value={c}>{c}</option>)}
+                </Select>
+              </Field>
               <Field label={t('Année scolaire')}><Input value={f.year} onChange={e => set('year', e.target.value)} placeholder="2025–2026" /></Field>
               <Field label={t('Directeur / directrice')}><Input value={f.director} onChange={e => set('director', e.target.value)} /></Field>
               <Field label={t('Initiales du logo')}><Input value={f.logoText} onChange={e => set('logoText', e.target.value.slice(0, 3).toUpperCase())} maxLength={3} placeholder="AN" /></Field>
@@ -194,6 +201,7 @@ export default function Settings() {
                   const k = e.target.value; const pk = PACKS[k]
                   set('country', k)
                   if (pk?.currency) set('currency', pk.currency)   // devise suggérée du pays
+                  set('city', '')                                  // CR-023 : la ville dépend du pays
                 }}>
                   {PACK_LIST.map(p => <option key={p.key} value={p.key}>{t(p.label)}</option>)}
                 </Select>

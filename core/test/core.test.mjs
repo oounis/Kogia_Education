@@ -1040,14 +1040,14 @@ test('pack de pays : la Tunisie reste le défaut, intacte', async () => {
 
 test('pack de pays : changer de pays change régions, pièce d’identité et loi', async () => {
   const { setLocalePack, regions, regionLabel, validId, legal, pack } = await import('../src/locales.js')
-  setLocalePack('FR')
-  assert.equal(pack().currency, 'EUR', 'la France est en euros')
-  assert.equal(regionLabel(), 'Département')
-  assert.equal(regions().length, 0, 'liste libre (pas de présupposé)')
-  assert.ok(validId('AB123') && !validId('x'), 'validation souple, pas la règle tunisienne')
-  assert.match(legal().law, /RGPD/, 'RGPD en France')
-  setLocalePack('INTL')
-  assert.match(regionLabel(), /Région/)
+  setLocalePack('BH')
+  assert.equal(pack().currency, 'BHD', 'Bahreïn est en dinar bahreïni')
+  assert.equal(regionLabel(), 'Ville')
+  assert.ok(regions().includes('Manama'), 'les villes de Bahreïn sont là')
+  assert.ok(validId('123456789') && !validId('x'), 'validation CPR souple, pas la règle tunisienne')
+  assert.match(legal().law, /PDPL/, 'PDPL à Bahreïn')
+  setLocalePack('QA')
+  assert.equal(regionLabel(), 'Ville')
   setLocalePack('TN')                            // on remet le défaut pour la suite
 })
 
@@ -1057,9 +1057,8 @@ test('pack de pays : tunisia.js délègue au pack actif sans rien casser', async
   setLocalePack('TN')
   assert.equal(tn.regionsOf().length, 24)
   assert.equal(tn.LEGAL.law, 'Loi organique n° 2004-63 du 27 juillet 2004', 'le Proxy LEGAL lit le pack')
-  setLocalePack('FR')
-  assert.match(tn.LEGAL.law, /RGPD/, 'et suit le changement de pays')
-  assert.equal(tn.idLabelFor('student').includes('acte'), true)
+  setLocalePack('LY')
+  assert.match(tn.LEGAL.law, /libyenne/, 'et suit le changement de pays')
   setLocalePack('TN')
 })
 
@@ -1168,11 +1167,11 @@ test('identité : le type de pièce est proposé selon le pays et le profil', as
   const staffTN = idTypesFor('staff').map(t => t.key)
   assert.ok(staffTN.includes('cin') && staffTN.includes('passport'), 'en Tunisie : CIN + passeport pour un adulte')
   assert.ok(idTypesFor('student').some(t => t.key === 'acte'), 'un élève : acte de naissance')
-  setLocalePack('FR')
-  const staffFR = idTypesFor('staff').map(t => t.key)
-  assert.ok(staffFR.includes('cni') && !staffFR.includes('cin'), 'en France : CNI, pas la CIN tunisienne')
-  setLocalePack('INTL')
-  assert.ok(idTypesFor('staff').some(t => t.key === 'passport'), 'à l’international : le passeport, dénominateur commun')
+  setLocalePack('BH')
+  const staffBH = idTypesFor('staff').map(t => t.key)
+  assert.ok(staffBH.includes('cpr') && !staffBH.includes('cin'), 'à Bahreïn : CPR, pas la CIN tunisienne')
+  setLocalePack('QA')
+  assert.ok(idTypesFor('staff').some(t => t.key === 'passport'), 'au Qatar : le passeport, dénominateur commun')
   setLocalePack('TN')
 })
 
@@ -1186,4 +1185,41 @@ test('identité : un compte conserve le type de pièce choisi', async () => {
   const u = db().users.find(x => x.email === 'tp@alnour.tn')
   assert.equal(u.idType, 'passport', 'le type de pièce est conservé')
   assert.equal(u.cin, 'AB1234567', 'et le numéro aussi')
+})
+
+// ── Marchés cibles : 4 pays + villes (CR-023) ────────────────────────────────
+test('marchés : exactement 4 pays de lancement, chacun avec ses villes', async () => {
+  const { PACK_LIST, citiesOf, setLocalePack, countryCode } = await import('../src/locales.js')
+  const keys = PACK_LIST.map(p => p.key).sort()
+  assert.deepEqual(keys, ['BH', 'LY', 'QA', 'TN'], 'Bahreïn, Libye, Qatar, Tunisie — et rien d’autre')
+  assert.ok(citiesOf('BH').includes('Manama'), 'Bahreïn : Manama')
+  assert.ok(citiesOf('QA').includes('Doha'), 'Qatar : Doha')
+  assert.ok(citiesOf('LY').includes('Tripoli') && citiesOf('LY').includes('Benghazi'), 'Libye : Tripoli, Benghazi')
+  assert.ok(citiesOf('TN').includes('Tunis') && citiesOf('TN').includes('Sfax'), 'Tunisie : Tunis, Sfax')
+  for (const k of keys) assert.ok(citiesOf(k).length >= 8, `${k} a une vraie liste de villes`)
+})
+
+test('marchés : le pays pilote la devise, le code pays et la pièce d’identité', async () => {
+  const { setLocalePack, packCurrency, countryCode, idTypesFor } = await import('../src/locales.js')
+  setLocalePack('BH'); assert.equal(packCurrency(), 'BHD'); assert.equal(countryCode(), 'BH')
+  assert.ok(idTypesFor('staff').some(t => t.key === 'cpr'), 'Bahreïn : CPR')
+  setLocalePack('QA'); assert.equal(packCurrency(), 'QAR'); assert.equal(countryCode(), 'QA')
+  assert.ok(idTypesFor('staff').some(t => t.key === 'qid'), 'Qatar : QID')
+  setLocalePack('LY'); assert.equal(packCurrency(), 'LYD'); assert.equal(countryCode(), 'LY')
+  setLocalePack('TN')   // on remet le défaut
+})
+
+test('marchés : la langue est configurée par pays (CR-024 couche langue)', async () => {
+  const { languagesOf } = await import('../src/locales.js')
+  assert.equal(languagesOf('LY').primary, 'ar', 'Libye : arabe primaire')
+  assert.equal(languagesOf('LY').secondary, 'en', 'anglais secondaire')
+  assert.equal(languagesOf('TN').primary, 'ar', 'Tunisie : arabe primaire')
+  assert.equal(languagesOf('TN').secondary, 'fr', 'français secondaire')
+  assert.equal(languagesOf('QA').secondary, 'en', 'Qatar : anglais secondaire')
+})
+
+test('marchés : la référence ERP porte le bon code pays', async () => {
+  const { nextRef } = await import('../src/refs.js')
+  const bh = nextRef('student', [], { country: 'BH', tenant: 'T001', school: 'SCH001', year: '2026' })
+  assert.match(bh, /^STD-BH-T001-SCH001-2026-00000001-\d$/, 'un élève à Bahreïn : STD-BH-…')
 })
