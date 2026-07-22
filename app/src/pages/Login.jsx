@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { login, loginAs } from '@core/auth.js'
 import { BRAND, N } from '@core/tokens.js'
@@ -134,6 +134,12 @@ export default function Login() {
                 </button>
               </div>
               {err && <div className="text-sm text-coral">{typeof err === 'string' ? err : t('E-mail ou mot de passe incorrect.')}</div>}
+              {/* CR-013 : il n'existait AUCUN moyen de récupérer un accès. */}
+              <div className="flex justify-end">
+                <Link to="/mot-de-passe-oublie" className="text-xs font-semibold text-muted hover:text-ink">
+                  {t('Mot de passe oublié ?')}
+                </Link>
+              </div>
               <button onClick={go}
                 className="lg-cta w-full flex items-center justify-center gap-2 rounded-xl text-white font-bold text-sm py-3.5 mt-1"
                 style={{ background: `linear-gradient(135deg,${BRAND.action},${BRAND.mark})`, boxShadow: '0 10px 24px -10px rgba(117,57,228,.6)' }}>

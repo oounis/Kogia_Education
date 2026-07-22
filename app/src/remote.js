@@ -69,6 +69,18 @@ export async function remoteApply(payload) {
   const r = await call('/api/apply', payload)
   return r.json
 }
+/** Mot de passe oublié : demander un lien. Le serveur répond TOUJOURS la même
+ *  chose — savoir si un compte existe serait déjà une fuite. */
+export async function remoteForgot(email) {
+  const r = await call('/api/forgot', { email })
+  return { status: r.status, ...r.json }
+}
+/** Poser le nouveau mot de passe avec le jeton reçu par email. */
+export async function remoteReset(token, pw) {
+  const r = await call('/api/reset', { token, pw })
+  return { status: r.status, ...r.json }
+}
+
 /** Emails du candidat (accusé de réception, décision…) — envoyés par le serveur.
  *  Branché comme transport de `admissions.js` en mode serveur (voir main.jsx). */
 export async function remoteMail(mail) {

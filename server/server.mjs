@@ -96,13 +96,63 @@ const PARENT_OPS = {
   },
 }
 
-// ── Anti-abus minimal sur l'endpoint public (pré-inscription) ─────────────────
-const applyLog = new Map()
-const applyAllowed = ip => {
-  const now = Date.now(), windowMs = 60 * 60 * 1000
-  const list = (applyLog.get(ip) || []).filter(t => now - t < windowMs)
-  if (list.length >= 10) return false
-  list.push(now); applyLog.set(ip, list); return true
+// ── Anti-abus minimal sur les endpoints publics ───────────────────────────────
+const limiter = (max, windowMs) => {
+  const log = new Map()
+  return ip => {
+    const now = Date.now()
+    const list = (log.get(ip) || []).filter(t => now - t < windowMs)
+    if (list.length >= max) return false
+    list.push(now); log.set(ip, list); return true
+  }
+}
+const applyAllowed = limiter(10, 60 * 60 * 1000)        // pré-inscription
+const forgotAllowed = limiter(5, 60 * 60 * 1000)        // mot de passe oublié
+
+// ── Mot de passe oublié ───────────────────────────────────────────────────────
+// Règles tenues ici, pas dans le client : un jeton est un secret, il ne se
+// fabrique jamais dans le navigateur.
+//   · à usage unique, 60 minutes de vie
+//   · la réponse est TOUJOURS la même — savoir si un compte existe est déjà
+//     une fuite (on ne dit pas à un inconnu qui travaille dans l'école)
+//   · réinitialiser ferme toutes les sessions ouvertes du compte : si un
+//     intrus était déjà entré, le changement le met dehors
+const RESET_TTL = 60 * 60 * 1000
+auth.resets = auth.resets || {}
+
+const openReset = userId => {
+  const token = randomBytes(24).toString('hex')
+  auth.resets[token] = { userId, exp: Date.now() + RESET_TTL }
+  for (const [t, r] of Object.entries(auth.resets)) if (r.exp < Date.now()) delete auth.resets[t]
+  persistAuth()
+  return token
+}
+
+// L'e-mail part par le même relais que le reste du produit (Worker → Zoho).
+// Sans relais configuré, on écrit le lien dans le journal du serveur : en
+// développement on avance, et on ne fait jamais croire qu'un envoi a eu lieu.
+const MAIL_RELAY = process.env.COREON_MAIL_RELAY || ''
+const MAIL_TOKEN = process.env.COREON_MAIL_TOKEN || ''
+const APP_URL = process.env.COREON_APP_URL || 'https://edu.kogiagroup.com'
+const SUPPORT = process.env.COREON_SUPPORT || 'support@kogiagroup.com'
+
+async function sendResetMail(to, token) {
+  const link = `${APP_URL}/#/reinitialiser?token=${token}`
+  const subject = 'Coreon EDU — réinitialiser votre mot de passe'
+  const text =
+    `Vous avez demandé un nouveau mot de passe.\n\n${link}\n\n` +
+    `Ce lien est valable 60 minutes et ne fonctionne qu'une seule fois.\n` +
+    `Si vous n'avez rien demandé, ignorez ce message : votre mot de passe reste inchangé.\n\n` +
+    `Besoin d'aide : ${SUPPORT}\n— Coreon EDU, Kogia Group`
+  if (!MAIL_RELAY) { console.log(`[mot de passe oublié] ${to} → ${link}`); return { ok: false, via: 'no-relay' } }
+  try {
+    const r = await fetch(MAIL_RELAY, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', ...(MAIL_TOKEN ? { authorization: `Bearer ${MAIL_TOKEN}` } : {}) },
+      body: JSON.stringify({ to, subject, text }),
+    })
+    return { ok: r.ok, via: r.ok ? 'sent' : 'relay-error' }
+  } catch (e) { return { ok: false, via: 'error', error: String(e?.message || e) } }
 }
 
 // ── HTTP ──────────────────────────────────────────────────────────────────────
@@ -145,6 +195,39 @@ export const server = http.createServer(async (req, res) => {
     if (url.pathname === '/api/logout' && req.method === 'POST') {
       const token = String(req.headers.authorization || '').replace(/^Bearer\s+/i, '')
       delete auth.sessions[token]; persistAuth()
+      return send(res, 200, { ok: true }, origin)
+    }
+
+    // Demander un lien. Réponse identique quoi qu'il arrive.
+    if (url.pathname === '/api/forgot' && req.method === 'POST') {
+      const ip = req.socket.remoteAddress || '?'
+      const neutral = { ok: true, message: 'Si un compte existe pour cette adresse, un lien vient d\'être envoyé.' }
+      if (!forgotAllowed(ip)) return send(res, 429, { error: 'Trop de demandes depuis cette adresse — réessayez plus tard.' }, origin)
+      const { email } = await readBody(req)
+      const addr = String(email || '').trim().toLowerCase()
+      const cred = auth.users.find(u => u.email.toLowerCase() === addr)
+      const user = cred && (school.blob.users || []).find(u => u.id === cred.id)
+      // Compte inconnu ou désactivé : même réponse, aucun envoi, aucun jeton.
+      if (cred && user && !user.disabled) await sendResetMail(cred.email, openReset(cred.id))
+      return send(res, 200, neutral, origin)
+    }
+
+    // Poser le nouveau mot de passe. Le jeton meurt à l'usage.
+    if (url.pathname === '/api/reset' && req.method === 'POST') {
+      const { token, pw } = await readBody(req)
+      const rec = auth.resets[String(token || '')]
+      if (!rec || rec.exp < Date.now()) {
+        delete auth.resets[String(token || '')]; persistAuth()
+        return send(res, 400, { error: 'Ce lien a expiré ou a déjà servi. Demandez-en un nouveau.' }, origin)
+      }
+      if (String(pw || '').length < 8) return send(res, 400, { error: 'Le mot de passe doit faire au moins 8 caractères.' }, origin)
+      const cred = auth.users.find(u => u.id === rec.userId)
+      if (!cred) { delete auth.resets[token]; persistAuth(); return send(res, 400, { error: 'Compte introuvable.' }, origin) }
+      cred.hash = hashPw(pw)
+      delete auth.resets[token]
+      // toutes les sessions du compte tombent : un intrus éventuel est éjecté
+      for (const [t, s] of Object.entries(auth.sessions)) if (s.userId === rec.userId) delete auth.sessions[t]
+      persistAuth()
       return send(res, 200, { ok: true }, origin)
     }
 

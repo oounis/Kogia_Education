@@ -293,10 +293,14 @@ function PlatformDashboard({ d, greet }){
   const STL={active:[t('Active'),STATUS.ok],trial:[t("Essai"),STATUS.warn],suspended:[t('Suspendue'),STATUS.neutral]}
   return (<><PageHead title={greet} sub={t("Console plateforme — vos écoles clientes en un coup d'œil.")}/>
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
+      {/* Les quatre chiffres mènent au même endroit : la liste des écoles, seul
+          écran où l'on peut agir dessus. Trois d'entre eux n'avaient ni `to` ni
+          `onClick` — StatCard les rendait alors en <div> inerte, et le chiffre
+          ne menait nulle part (défaut signalé par Othman, 22/07/2026). */}
       <StatCard label={t("Écoles clientes")} value={schools.filter(s=>s.status!=='suspended').length} tint="brand" icon={<Building2/>} to="/app/schools"/>
-      <StatCard label={t("Élèves gérés")} value={totalStudents} tint="sky" icon={<Users/>}/>
-      <StatCard label={t("Revenu mensuel")} value={money(mrr)} sub={t("abonnements actifs")} tint="mint" icon={<Wallet/>}/>
-      <StatCard label={t("En essai")} value={trials.length} tint="butter" icon={<FileText/>}/>
+      <StatCard label={t("Élèves gérés")} value={totalStudents} tint="sky" icon={<Users/>} to="/app/schools"/>
+      <StatCard label={t("Revenu mensuel")} value={money(mrr)} sub={t("abonnements actifs")} tint="mint" icon={<Wallet/>} to="/app/schools"/>
+      <StatCard label={t("En essai")} value={trials.length} tint="butter" icon={<FileText/>} to="/app/schools"/>
     </div>
     <div className="grid lg:grid-cols-[340px_1fr] gap-4">
       <Card className="p-5"><h3 className="font-bold mb-1">{t('Répartition des abonnements')}</h3><p className="text-xs text-muted mb-4">{t('Écoles actives et en essai')}</p>

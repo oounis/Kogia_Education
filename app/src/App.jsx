@@ -10,6 +10,8 @@ import Login from './pages/Login.jsx'
 // ── Le reste se charge À LA DEMANDE : le premier écran n'embarque plus les 40 pages,
 //    ni jsPDF, ni les graphiques. Chaque page devient son propre fichier (code-splitting).
 const Dashboard = lazy(() => import('./pages/Dashboard.jsx'))
+const MotDePasseOublie = lazy(() => import('./pages/MotDePasseOublie.jsx'))
+const Reinitialiser = lazy(() => import('./pages/Reinitialiser.jsx'))
 const Students = lazy(() => import('./pages/Students.jsx'))
 const StudentProfile = lazy(() => import('./pages/StudentProfile.jsx'))
 const Teachers = lazy(() => import('./pages/Teachers.jsx'))
@@ -90,6 +92,10 @@ export default function App(){
         {/* PUBLIQUE, sans compte : c'est le PARENT qui dépose la candidature.
             L'école ne ressaisit rien — la donnée entre à la source. */}
         <Route path="/inscription" element={<Inscription/>}/>
+        {/* Récupération d'accès (CR-013) : publiques par nature — on y arrive
+            justement quand on ne peut PAS se connecter. */}
+        <Route path="/mot-de-passe-oublie" element={<MotDePasseOublie/>}/>
+        <Route path="/reinitialiser" element={<Reinitialiser/>}/>
         <Route path="/app" element={R(<Dashboard/>, "/app")}/>
         <Route path="/app/schools" element={R(<Schools/>, "/app/schools")}/>
         <Route path="/app/settings" element={R(<Settings/>, "/app/settings")}/>
