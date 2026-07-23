@@ -1292,3 +1292,29 @@ test('départements : les comptes de démo RH et Comptable existent', async () =
   assert.ok(d.users.find(u => u.role === 'hr' && u.email === 'rh@alnour.tn'), 'compte RH de démo')
   assert.ok(d.users.find(u => u.role === 'accountant' && u.email === 'comptable@alnour.tn'), 'compte Comptable de démo')
 })
+
+test('séparation : l\'Administration N\'ACCÈDE PAS aux pages RH & argent', async () => {
+  const { canAccess } = await import('../src/access.js')
+  for (const p of ['/app/hr', '/app/accounting', '/app/finance', '/app/budget', '/app/staff', '/app/recruit'])
+    assert.ok(!canAccess('admin', p), `admin ne doit pas ouvrir ${p}`)
+  // les départements dédiés, eux, y accèdent ; la Direction garde tout
+  assert.ok(canAccess('hr', '/app/hr') && canAccess('hr', '/app/staff') && canAccess('hr', '/app/recruit'))
+  assert.ok(canAccess('accountant', '/app/accounting') && canAccess('accountant', '/app/finance') && canAccess('accountant', '/app/budget'))
+  assert.ok(canAccess('schooladmin', '/app/hr') && canAccess('schooladmin', '/app/accounting'))
+  // l'Administration garde son quotidien
+  assert.ok(canAccess('admin', '/app/admissions') && canAccess('admin', '/app/students'))
+})
+
+test('séparation : l\'Administration N\'ÉCRIT NI la paie NI la comptabilité (mode serveur)', async () => {
+  const { mayWriteCollection, mergeWrite } = await import('../src/acl.js')
+  for (const k of ['hrPayrolls', 'hrContracts', 'invoices', 'receipts', 'payments', 'feeSchedule', 'discounts', 'expenses', 'budget', 'recruitPosts', 'recruitCandidates'])
+    assert.ok(!mayWriteCollection('admin', k), `admin ne doit pas écrire ${k}`)
+  for (const k of ['students', 'attendance', 'journal', 'documents', 'incidents'])
+    assert.ok(mayWriteCollection('admin', k), `admin doit garder ${k}`)
+  // une écriture admin qui tente de toucher la paie est ignorée ; ses élèves passent
+  const server = { hrPayrolls: [{ month: '2026-07', net: 1000 }], students: [{ id: 's1' }] }
+  const posted = { hrPayrolls: [{ month: '2026-07', net: 999999 }], students: [{ id: 's1' }, { id: 's2' }] }
+  const { merged, applied } = mergeWrite(server, posted, 'admin')
+  assert.deepEqual(merged.hrPayrolls, server.hrPayrolls, 'la paie postée par admin est ignorée')
+  assert.ok(applied.includes('students') && !applied.includes('hrPayrolls'))
+})

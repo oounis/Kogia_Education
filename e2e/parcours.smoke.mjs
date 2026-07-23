@@ -4,7 +4,9 @@
 import { scenario } from './lib.mjs'
 const ROLES = {
   'direction@alnour.tn/admin': ['/app','/app/accounts','/app/admissions','/app/students','/app/teachers','/app/staff','/app/hr','/app/accounting','/app/academic','/app/facilities','/app/child','/app/journal','/app/results','/app/timetable','/app/attendance','/app/finance','/app/events','/app/security','/app/social','/app/incidents','/app/accidents','/app/requests','/app/messages','/app/notices','/app/interop','/app/settings','/app/notifications'],
-  'admin@alnour.tn/office': ['/app','/app/admissions','/app/pointage','/app/hr','/app/accounting','/app/requests'],
+  // L'Administration ne gère PLUS la RH ni la comptabilité (CR-016/020) : son
+  // périmètre est le quotidien — admissions, élèves, documents, journal, présence.
+  'admin@alnour.tn/office': ['/app','/app/admissions','/app/students','/app/pointage','/app/documents','/app/journal','/app/attendance','/app/requests'],
   'enseignant@alnour.tn/teacher': ['/app','/app/evaluate','/app/attendance','/app/journal','/app/child','/app/timetable','/app/academic','/app/social','/app/accidents','/app/requests','/app/pointage'],
   'parent@alnour.tn/parent': ['/app','/app/live','/app/journal','/app/payments','/app/timetable','/app/events','/app/social','/app/accidents','/app/notices','/app/notifications'],
   'securite@alnour.tn/secu': ['/app','/app/security','/app/incidents','/app/pointage','/app/events','/app/social'],

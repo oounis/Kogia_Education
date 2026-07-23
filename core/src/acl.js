@@ -15,11 +15,23 @@
 //  3. Aucun mot de passe ne voyage : `stripSecrets` nettoie chaque blob sortant.
 // ════════════════════════════════════════════════════════════════════════════
 
-const DIRECTION = ['schooladmin', 'admin', 'owner']
+const DIRECTION = ['schooladmin', 'owner']
+
+// Les collections RH et ARGENT : l'Administration n'y touche JAMAIS (CR-016/020,
+// docs/quality/role-model.md §2). La RH possède la paie/contrats/recrutement ; la
+// Comptabilité possède factures/reçus/paiements/barème/remises/dépenses/budget. La
+// Direction (schooladmin) approuve et garde le tout ; l'owner opère la plateforme.
+export const HR_MONEY_COLLECTIONS = [
+  'hrPayrolls', 'hrContracts', 'recruitPosts', 'recruitCandidates',
+  'invoices', 'receipts', 'payments', 'feeSchedule', 'discounts', 'expenses', 'budget',
+]
 
 // ── Ce que chaque rôle du personnel peut ÉCRIRE (synchronisation en bloc) ────
+// admin = « tout SAUF RH & argent » : l'Administration prépare/enregistre le
+// quotidien (admissions, élèves, présence, documents…) mais ne modifie ni la paie
+// ni la comptabilité, même en mode serveur.
 export const WRITE_ACL = {
-  owner: '*', schooladmin: '*', admin: '*',
+  owner: '*', schooladmin: '*', admin: { allExcept: HR_MONEY_COLLECTIONS },
   teacher: ['journal', 'evaluations', 'attendance', 'behavior', 'moments', 'incidents',
     'accidents', 'canteen', 'homework', 'exams', 'messages', 'notifications',
     'staffClock', 'staffLeaves', 'requests', 'milestones', 'departures', 'health',
@@ -38,7 +50,9 @@ export const WRITE_ACL = {
 export const writableCollections = role => WRITE_ACL[role] || []
 export const mayWriteCollection = (role, key) => {
   const w = writableCollections(role)
-  return w === '*' || (Array.isArray(w) && w.includes(key))
+  if (w === '*') return true
+  if (w && w.allExcept) return !w.allExcept.includes(key)   // admin : tout sauf RH & argent
+  return Array.isArray(w) && w.includes(key)
 }
 
 // ── Ce que chaque rôle du personnel ne LIT PAS (retiré du blob sortant) ──────

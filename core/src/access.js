@@ -11,7 +11,8 @@ export const ROUTE_ROLES={
   // La fiche élève 360° : le personnel — le parent a ses propres vues.
   '/app/eleve': ['schooladmin','admin','supervisor','teacher'],
   '/app/teachers': ['schooladmin','admin'],
-  '/app/staff': ['schooladmin','admin','hr'],
+  // Personnel : RH et Direction. L'Administration ne gère PAS le personnel (CR-016/020).
+  '/app/staff': ['schooladmin','hr'],
   '/app/pointage': ['teacher','supervisor','security','admin'],
   '/app/evaluate': ['teacher'],
   '/app/results': ['schooladmin','admin'],
@@ -19,7 +20,7 @@ export const ROUTE_ROLES={
   '/app/attendance': ['schooladmin','teacher','admin','supervisor'],
   '/app/homework': ['teacher','admin','parent'],
   '/app/exams': ['schooladmin','admin','teacher','parent'],
-  '/app/finance': ['schooladmin','admin','accountant'],
+  '/app/finance': ['schooladmin','accountant'],
   '/app/payments': ['parent'],
   '/app/live': ['parent'],
   '/app/library': ['schooladmin','admin','teacher'],
@@ -33,14 +34,14 @@ export const ROUTE_ROLES={
   '/app/canteen': ['teacher','admin','schooladmin','parent'],
   // Le guichet des documents officiels : administration et direction seulement.
   '/app/documents': ['admin','schooladmin'],
-  '/app/budget': ['schooladmin','admin','accountant'],
+  '/app/budget': ['schooladmin','accountant'],
   '/app/inventory': ['schooladmin','admin'],
-  '/app/recruit': ['schooladmin','admin','hr'],
+  '/app/recruit': ['schooladmin','hr'],
   // Le journal du jour : l'éducatrice le remplit, le parent le lit.
   '/app/journal': ['teacher','admin','schooladmin','parent'],
   '/app/admissions': ['schooladmin','admin'],
-  '/app/hr': ['schooladmin','admin','hr'],
-  '/app/accounting': ['schooladmin','admin','accountant'],
+  '/app/hr': ['schooladmin','hr'],
+  '/app/accounting': ['schooladmin','accountant'],
   '/app/academic': ['schooladmin','admin','teacher'],
   '/app/facilities': ['schooladmin','admin'],
   '/app/accidents': ['teacher','supervisor','admin','schooladmin','parent'],

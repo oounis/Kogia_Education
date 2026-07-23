@@ -111,6 +111,12 @@ await page.goto(`${B}/#/app/accounting`); await page.waitForTimeout(700)
 ok('RBAC', !page.url().includes('/app/accounting'), 'Enseignant REFUSÉ sur la comptabilité')
 await page.goto(`${B}/#/app/hr`); await page.waitForTimeout(700)
 ok('RBAC', !page.url().includes('/app/hr'), 'Enseignant REFUSÉ sur la RH')
+// L'Administration NE gère PLUS la RH ni la comptabilité (CR-016/020) : départements dédiés
+await login('admin@alnour.tn', 'office')
+await page.goto(`${B}/#/app/accounting`); await page.waitForTimeout(700)
+ok('RBAC', !page.url().includes('/app/accounting'), 'Administration REFUSÉE sur la comptabilité')
+await page.goto(`${B}/#/app/hr`); await page.waitForTimeout(700)
+ok('RBAC', !page.url().includes('/app/hr'), 'Administration REFUSÉE sur la RH')
 // Parent ne voit que son périmètre — pas les élèves de l'école
 await login('parent@alnour.tn', 'parent')
 await page.goto(`${B}/#/app/students`); await page.waitForTimeout(700)
