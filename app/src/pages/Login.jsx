@@ -6,15 +6,18 @@ import { BRAND, N } from '@core/tokens.js'
 import { ROLE } from '@core/theme.js'
 import { db } from '@core/db.js'
 import { Mark } from '../components/ui.jsx'
+import { EvalMock } from './site/shared.jsx'
 import { t } from '@core/i18n.js'
 import LangSwitch from '../components/Lang.jsx'
 import { Mail, Lock, Eye, EyeOff, ArrowRight, Sparkles } from 'lucide-react'
 
-// Refonte 2026-07-18 : l'écran de connexion devient la première impression du
-// PRODUIT, pas un formulaire gris. Langage aligné sur kogiagroup.com (héros
-// sombre, halos, verre, aperçu produit) MAIS dans la famille de Coreon Edu :
-// le VIOLET (tokens.js — « une école n'est pas une banque »). Aucune couleur
-// hors jetons ; le logo n'apparaît qu'en haut ; mouvement coupé si réduit.
+// CR-011 — direction « Clair éditorial » (choisie par Othman, 2026-07-23).
+// L'écran de connexion quitte le sombre cinématique pour un parti pris CLAIR,
+// aligné sur kogiagroup.com (le site clair validé, Lighthouse 99) : il dit
+// « école », pas « banque ». Formulaire à gauche sur un dégradé lavande, panneau
+// marque à droite montrant la VRAIE maquette produit (l'évaluation en direct).
+// Le violet Coreon reste l'accent (tokens.js) ; aucune couleur hors jetons ; le
+// logo n'apparaît qu'en haut ; mouvement coupé si réduit ; 0 débordement à 390px.
 export default function Login() {
   const nav = useNavigate()
   const [email, setEmail] = useState(''); const [pw, setPw] = useState('')
@@ -27,89 +30,32 @@ export default function Login() {
   const quick = db().users
     .filter(u => ['schooladmin', 'admin', 'hr', 'accountant', 'teacher', 'supervisor', 'security', 'parent'].includes(u.role))
     .filter((u, i, a) => a.findIndex(x => x.role === u.role) === i)
-  const stats = [['121', 'Élèves'], ['96%', 'Présence'], ['8', 'À décider']]
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-[1.05fr_.95fr]" style={{ background: N.canvas }}>
+    <div className="min-h-screen grid lg:grid-cols-[.95fr_1.05fr]" style={{ background: N.canvas }}>
       <style>{`
-        @keyframes lgF1{to{transform:translate(50px,42px) scale(1.16)}}
-        @keyframes lgF2{to{transform:translate(-42px,52px) scale(1.1)}}
-        .lg-blob{position:absolute;border-radius:50%;pointer-events:none}
-        .lg-b1{animation:lgF1 17s cubic-bezier(.2,.8,.2,1) infinite alternate}
-        .lg-b2{animation:lgF2 21s cubic-bezier(.2,.8,.2,1) infinite alternate}
         .lg-input{transition:border-color .16s,box-shadow .16s}
         .lg-input:focus{outline:none;border-color:#7539E4;box-shadow:0 0 0 3px rgba(117,57,228,.16)}
         .lg-cta{transition:transform .16s cubic-bezier(.2,.8,.2,1),box-shadow .16s,filter .16s}
-        .lg-cta:hover{transform:translateY(-2px);box-shadow:0 16px 30px -12px rgba(117,57,228,.6);filter:brightness(1.05)}
+        .lg-cta:hover{transform:translateY(-2px);box-shadow:0 16px 30px -12px rgba(117,57,228,.5);filter:brightness(1.04)}
         .lg-cta:active{transform:translateY(0)}
         .lg-pill{transition:border-color .15s,background .15s,transform .15s}
         .lg-pill:hover{transform:translateY(-1px);border-color:#C4B0FB;background:#F6F3FF}
-        @media (prefers-reduced-motion:reduce){.lg-b1,.lg-b2{animation:none}}
       `}</style>
 
-      {/* ── PANNEAU MARQUE — sombre, violet, cinématique ── */}
-      <div className="relative hidden lg:flex flex-col justify-between p-12 overflow-hidden text-white"
-        style={{ background: `linear-gradient(155deg,#1C1046 0%,#0C0A26 55%,${N.abyss} 100%)` }}>
-        <span className="lg-blob lg-b1" style={{ width: 460, height: 460, background: BRAND.action, opacity: .5, filter: 'blur(72px)', top: -120, left: -110 }} />
-        <span className="lg-blob lg-b2" style={{ width: 360, height: 360, background: BRAND.cyan, opacity: .2, filter: 'blur(80px)', bottom: -90, right: -70 }} />
-        <span className="lg-blob" style={{ width: 300, height: 300, background: BRAND.mark, opacity: .3, filter: 'blur(90px)', top: '34%', left: '42%' }} />
-
-        <div className="relative flex items-center gap-2.5">
-          <span className="w-10 h-10 rounded-xl grid place-items-center shrink-0" style={{ background: 'rgba(255,255,255,.14)' }}><Mark size={24} className="text-white" /></span>
-          <span className="font-extrabold text-lg lowercase tracking-tight">coreon <span className="font-normal opacity-70">edu</span></span>
-        </div>
-
-        <div className="relative">
-          <div className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full mb-5"
-            style={{ background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.15)' }}>
-            <Sparkles size={13} /> {t('De la crèche au primaire')}
-          </div>
-          <h1 className="font-extrabold tracking-tight" style={{ fontFamily: 'Sora, sans-serif', fontSize: 'clamp(2.1rem,3.3vw,3.1rem)', lineHeight: 1.08, maxWidth: '15ch' }}>
-            {t('Toute votre école, sur une seule plateforme.')}
-          </h1>
-          <p className="mt-5 text-white/75 leading-relaxed" style={{ maxWidth: '44ch' }}>
-            {t('Admissions, évaluation quotidienne, finances et communication : la petite enfance et le primaire réunis dans un seul espace, sur le web comme sur mobile.')}
-          </p>
-
-          {/* aperçu produit : une carte de verre aux chiffres vivants */}
-          <div className="mt-8 rounded-2xl p-4 w-full max-w-sm"
-            style={{ background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.12)', backdropFilter: 'blur(8px)' }}>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-white/70">Tableau de bord · aujourd'hui</span>
-              <span className="w-6 h-6 rounded-lg" style={{ background: `linear-gradient(135deg,${BRAND.action},${BRAND.mark})` }} />
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {stats.map(([n, l], i) => (
-                <div key={l} className="rounded-xl p-2.5" style={{ background: i === 1 ? `linear-gradient(135deg,${BRAND.action},${BRAND.hover})` : 'rgba(255,255,255,.06)' }}>
-                  <div className="font-extrabold text-lg leading-none" style={{ fontFamily: 'Sora, sans-serif' }}>{n}</div>
-                  <div className="text-[10px] text-white/60 mt-1">{l}</div>
-                </div>
-              ))}
-            </div>
-            <div className="flex items-end gap-1.5 mt-3 h-10">
-              {[42, 66, 54, 82, 70, 92].map((h, i) => (
-                <span key={i} className="flex-1 rounded-t" style={{ height: h + '%', background: `linear-gradient(180deg,${BRAND.mark},${BRAND.action})`, opacity: .85 }} />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="relative text-white/55 text-sm">par Kogia Group · © 2026</div>
-      </div>
-
-      {/* ── FORMULAIRE ── */}
-      {/* overflow-hidden : le halo décoratif fait 440px de large et débordait de
-          25px sur téléphone (390px), créant une barre de défilement horizontale.
-          Il est décoratif — on le coupe, on ne rétrécit pas la page. */}
-      <div className="relative flex items-center justify-center p-6 sm:p-10 overflow-hidden">
-        <div className="absolute pointer-events-none" style={{ width: 440, height: 440, borderRadius: '50%', background: BRAND.mark, filter: 'blur(100px)', opacity: .1 }} />
+      {/* ── FORMULAIRE (à gauche) ── */}
+      {/* overflow-hidden : le halo décoratif est large et débordait de ~25px sur
+          téléphone (390px). Il est décoratif : on le coupe, on ne rétrécit pas. */}
+      <div className="relative flex items-center justify-center p-6 sm:p-10 overflow-hidden"
+        style={{ background: 'linear-gradient(160deg,#FFFFFF 0%,#F3F0FF 100%)' }}>
+        <div className="absolute pointer-events-none" style={{ width: 440, height: 440, borderRadius: '50%', background: BRAND.mark, filter: 'blur(110px)', opacity: .08, top: -80, left: -80 }} />
         <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .5, ease: [.2, .8, .2, 1] }} className="relative w-full max-w-sm">
-          <div className="lg:hidden flex items-center gap-2 mb-8">
+          <div className="flex items-center gap-2 mb-8">
             <Mark size={30} style={{ color: BRAND.mark }} />
             <span className="font-extrabold lowercase tracking-tight">coreon <span className="text-sm font-normal" style={{ color: BRAND.action }}>edu</span></span>
           </div>
 
-          <div className="bg-white rounded-3xl border border-line p-7 sm:p-8" style={{ boxShadow: '0 30px 60px -28px rgba(14,33,53,.28)' }}>
+          <div className="bg-white rounded-3xl border border-line p-7 sm:p-8" style={{ boxShadow: '0 30px 60px -30px rgba(14,33,53,.22)' }}>
             <div className="flex items-center justify-between mb-1">
               <h2 className="text-2xl font-extrabold" style={{ fontFamily: 'Sora, sans-serif' }}>{t('Bon retour')}</h2>
               <LangSwitch />
@@ -165,6 +111,32 @@ export default function Login() {
             </div>
           </div>
         </motion.div>
+      </div>
+
+      {/* ── PANNEAU MARQUE (à droite) — clair, la maquette produit en direct ── */}
+      <div className="relative hidden lg:flex flex-col justify-between p-12 overflow-hidden"
+        style={{ background: 'linear-gradient(160deg,#F4F2FF 0%,#EAF6FB 100%)' }}>
+        <span className="absolute rounded-full pointer-events-none" style={{ width: 360, height: 360, background: BRAND.action, opacity: .06, filter: 'blur(90px)', top: -80, right: -60 }} />
+        <span className="absolute rounded-full pointer-events-none" style={{ width: 300, height: 300, background: BRAND.cyan, opacity: .08, filter: 'blur(90px)', bottom: -70, left: -50 }} />
+
+        <div className="relative inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full w-fit"
+          style={{ background: '#FFFFFF', border: `1px solid ${N.line}`, color: BRAND.hover }}>
+          <Sparkles size={13} /> {t('De la crèche au primaire')}
+        </div>
+
+        <div className="relative">
+          <h1 className="font-extrabold tracking-tight text-ink" style={{ fontFamily: 'Sora, sans-serif', fontSize: 'clamp(2rem,3vw,2.9rem)', lineHeight: 1.1, maxWidth: '16ch' }}>
+            {t('Toute votre école, sur une seule plateforme.')}
+          </h1>
+          <p className="mt-5 text-muted leading-relaxed" style={{ maxWidth: '44ch' }}>
+            {t('Admissions, évaluation quotidienne, finances et communication : la petite enfance et le primaire réunis dans un seul espace, sur le web comme sur mobile.')}
+          </p>
+          <div className="mt-8 w-full max-w-md">
+            <EvalMock compact />
+          </div>
+        </div>
+
+        <div className="relative text-muted text-sm">par Kogia Group · © 2026</div>
       </div>
     </div>
   )
