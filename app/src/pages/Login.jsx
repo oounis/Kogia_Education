@@ -62,13 +62,13 @@ export default function Login() {
         <div className="relative">
           <div className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full mb-5"
             style={{ background: 'rgba(255,255,255,.1)', border: '1px solid rgba(255,255,255,.15)' }}>
-            <Sparkles size={13} /> {t('Pas un ERP scolaire de plus')}
+            <Sparkles size={13} /> {t('De la crèche au primaire')}
           </div>
           <h1 className="font-extrabold tracking-tight" style={{ fontFamily: 'Sora, sans-serif', fontSize: 'clamp(2.1rem,3.3vw,3.1rem)', lineHeight: 1.08, maxWidth: '15ch' }}>
-            {t("L'école qu'on a envie d'ouvrir.")}
+            {t('Toute votre école, sur une seule plateforme.')}
           </h1>
-          <p className="mt-5 text-white/75 leading-relaxed" style={{ maxWidth: '42ch' }}>
-            Évaluer une classe en 30&nbsp;secondes, suivre la journée de son enfant en direct, organiser la vie commune : web et mobile, les mêmes données.
+          <p className="mt-5 text-white/75 leading-relaxed" style={{ maxWidth: '44ch' }}>
+            {t('Admissions, évaluation quotidienne, finances et communication : la petite enfance et le primaire réunis dans un seul espace, sur le web comme sur mobile.')}
           </p>
 
           {/* aperçu produit : une carte de verre aux chiffres vivants */}

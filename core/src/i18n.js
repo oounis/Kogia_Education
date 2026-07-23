@@ -484,8 +484,9 @@ export const AR = {
   'E-mail ou mot de passe incorrect.': 'البريد الإلكتروني أو كلمة السر غير صحيحة.',
   'Ce compte a été désactivé. Contactez la direction.': 'هذا الحساب معطَّل. اتصلوا بالإدارة.',
   'Démo · connexion en un clic :': 'تجربة · دخول بنقرة واحدة:',
-  'Pas un ERP scolaire de plus': 'ليس مجرّد نظام مدرسي آخر',
-  'L\'école qu\'on a envie d\'ouvrir.': 'المدرسة التي يسعدنا أن نفتحها كل صباح.',
+  'De la crèche au primaire': 'من الحضانة إلى الابتدائي',
+  'Toute votre école, sur une seule plateforme.': 'مدرستكم بأكملها على منصّة واحدة.',
+  'Admissions, évaluation quotidienne, finances et communication : la petite enfance et le primaire réunis dans un seul espace, sur le web comme sur mobile.': 'القبول والتقييم اليومي والمالية والتواصل: الطفولة المبكرة والابتدائي في فضاء واحد، على الويب وعلى الهاتف.',
 
   // L'écorce (AppShell)
   'Rechercher…': 'بحث…',
