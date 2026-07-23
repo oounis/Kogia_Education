@@ -26,11 +26,25 @@ import { db, save } from './db.js'
 import { now, todayIso } from './clock.js'
 import { LEVELS, levelOf, labelOf, nextLevel, isEarly } from './levels.js'
 import { feesOf } from './accounting.js'
+import { curriculum, gradeOf } from './locales.js'
+export { gradeOf }
 
 // ── Deux barèmes, parce que deux réalités ───────────────────────────────────
-/** Primaire : une note sur 20 (usage tunisien). */
-export const MARK_MAX = 20
-export const PASS_MARK = 10
+// CR-024 : le barème vient du CURRICULUM DU PAYS (locales.js), pas d'une
+// constante tunisienne. /20 en Tunisie, /100 au Golfe. `export let` = liaison
+// vive : les écrans qui importent MARK_MAX voient la valeur du pays actif dès
+// qu'applyCurriculum() a été appelé au démarrage.
+export let MARK_MAX = 20
+export let PASS_MARK = 10
+
+/** Pose le barème et les matières du pays actif. Appelé au démarrage et à chaque
+ *  changement de pays (comme setCurrency / setLocalePack). */
+export function applyCurriculum() {
+  const c = curriculum()
+  MARK_MAX = c.markMax
+  PASS_MARK = c.passMark
+  SUBJECTS = c.subjects
+}
 
 /** Petite enfance : des ACQUIS observés. Jamais une note. */
 export const ACQUIS = [
@@ -51,7 +65,8 @@ export const DOMAINS = [
 /** Primaire : les matières notées. Elles vivaient dans l'écran ; elles vivent
  *  ici pour que la saisie par classe, le mobile et les tests parlent de la
  *  MÊME liste. */
-export const SUBJECTS = ['Mathématiques', 'Français', 'Arabe', 'Éveil scientifique', 'Anglais']
+// Liaison vive : réécrite par applyCurriculum() selon le pays. Défaut = Tunisie.
+export let SUBJECTS = ['Mathématiques', 'Français', 'Arabe', 'Éveil scientifique', 'Anglais']
 
 /** Ce qu'on remplit pour un niveau donné : des matières, ou des domaines.
  *  Rend toujours [{key,label}] — l'écran n'a pas à savoir lequel des deux. */

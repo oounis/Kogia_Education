@@ -43,6 +43,7 @@ import { locale, dir, setLocale } from '@core/i18n.js'
 import { settings } from '@core/db.js'
 import { setCurrency } from '@core/currency.js'
 import { setLocalePack } from '@core/locales.js'
+import { applyCurriculum } from '@core/academic.js'
 // Paramètres de l'ÉCOLE posés avant le premier rendu : le pack de PAYS (régions,
 // pièce d'identité, cadre légal), la devise (money() la lit en mémoire) et la
 // langue PAR DÉFAUT — cette dernière ne s'applique que si l'appareil n'a pas
@@ -50,6 +51,7 @@ import { setLocalePack } from '@core/locales.js'
 const _school = settings()
 setLocalePack(_school.country)
 setCurrency(_school.currency)
+applyCurriculum()   // CR-024 : matières + barème du pays, avant le 1er rendu
 if (getItem('coreon_locale') == null && _school.locale) setLocale(_school.locale)
 // L'arabe n'est pas une traduction, c'est une DIRECTION : la langue et le sens
 // de lecture se posent sur <html> avant le premier rendu.

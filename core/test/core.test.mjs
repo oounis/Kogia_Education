@@ -1223,3 +1223,41 @@ test('marchés : la référence ERP porte le bon code pays', async () => {
   const bh = nextRef('student', [], { country: 'BH', tenant: 'T001', school: 'SCH001', year: '2026' })
   assert.match(bh, /^STD-BH-T001-SCH001-2026-00000001-\d$/, 'un élève à Bahreïn : STD-BH-…')
 })
+
+// ── Couche curriculum par pays (CR-024) ──────────────────────────────────────
+test('curriculum : matières et barème changent avec le pays', async () => {
+  const { setLocalePack, subjectsForCountry, markMaxOf, passMarkOf } = await import('../src/locales.js')
+  setLocalePack('TN')
+  assert.ok(subjectsForCountry().includes('Français'), 'Tunisie : Français au programme')
+  assert.equal(markMaxOf(), 20, 'Tunisie : noté sur 20')
+  setLocalePack('BH')
+  assert.ok(subjectsForCountry().includes('English') && subjectsForCountry().includes('Islamic Studies'), 'Bahreïn : matières locales')
+  assert.equal(markMaxOf(), 100, 'Bahreïn : noté sur 100')
+  assert.equal(passMarkOf(), 50)
+  setLocalePack('QA')
+  assert.ok(subjectsForCountry().includes('Qatar History'), 'Qatar : histoire du Qatar')
+  setLocalePack('TN')
+})
+
+test('curriculum : applyCurriculum met à jour MARK_MAX/SUBJECTS (liaison vive)', async () => {
+  const { setLocalePack } = await import('../src/locales.js')
+  const acad = await import('../src/academic.js')
+  setLocalePack('BH'); acad.applyCurriculum()
+  assert.equal(acad.MARK_MAX, 100, 'après passage à Bahreïn, MARK_MAX = 100')
+  assert.ok(acad.SUBJECTS.includes('Mathematics'), 'les matières sont celles du pays')
+  setLocalePack('TN'); acad.applyCurriculum()
+  assert.equal(acad.MARK_MAX, 20, 'retour Tunisie : /20')
+  assert.ok(acad.SUBJECTS.includes('Français'))
+})
+
+test('curriculum : la mention (grade) suit l’échelle du pays', async () => {
+  const { setLocalePack, gradeOf } = await import('../src/locales.js')
+  setLocalePack('TN')
+  assert.equal(gradeOf(17).grade, 'A', 'Tunisie : 17/20 = A (Excellent)')
+  assert.equal(gradeOf(9).grade, 'E', 'Tunisie : 9/20 = insuffisant')
+  setLocalePack('BH')
+  assert.equal(gradeOf(85).grade, 'B', 'Bahreïn : 85/100 = B')
+  assert.equal(gradeOf(40).grade, 'F', 'Bahreïn : 40/100 = échec')
+  assert.equal(gradeOf(null), null, 'aucun score : aucune mention inventée')
+  setLocalePack('TN')
+})

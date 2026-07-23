@@ -7,6 +7,7 @@ import { setItem } from '@core/storage.js'
 import { LEVELS, EARLY_YEARS, PRIMARY } from '@core/levels.js'
 import { OPTIONAL_MODULES, moduleActive, setModuleOverrides } from '@core/features.js'
 import { setCurrency } from '@core/currency.js'
+import { applyCurriculum } from '@core/academic.js'
 import { setLocalePack, PACK_LIST, PACKS, citiesOf, regionLabel } from '@core/locales.js'
 import { t } from '@core/i18n.js'
 import { N, SERIES, BRAND } from '@core/tokens.js'
@@ -80,6 +81,7 @@ export default function Settings() {
     const modsChanged = OPTIONAL_MODULES.some(m => mods[m] !== moduleActive(m))
     setLocalePack(f.country)
     setCurrency(f.currency)
+    applyCurriculum()   // CR-024 : le pays change le curriculum
     saveSettings({ ...f })
     const overrides = Object.fromEntries(OPTIONAL_MODULES.map(m => [m, mods[m]]))
     setItem('coreon_modules', JSON.stringify(overrides))

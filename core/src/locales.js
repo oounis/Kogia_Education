@@ -31,6 +31,12 @@ export const PACKS = {
       ? [{ key: 'cpr', label: 'CPR' }, { key: 'passport', label: 'Passport' }, { key: 'birth', label: 'Birth certificate' }]
       : [{ key: 'cpr', label: 'CPR', pattern: /^\d{9}$/ }, { key: 'passport', label: 'Passport' }],
     validId: v => /^\d{9}$/.test(String(v || '').trim()) || String(v || '').trim().length >= 5,
+    // CR-024 : le curriculum du pays — matières, barème, échelle de notes.
+    curriculum: {
+      markMax: 100, passMark: 50,
+      subjects: ['Arabic', 'English', 'Mathematics', 'Science', 'Islamic Studies', 'Social Studies'],
+      gradeScale: [{ min: 90, grade: 'A', label: 'Excellent' }, { min: 80, grade: 'B', label: 'Very good' }, { min: 70, grade: 'C', label: 'Good' }, { min: 60, grade: 'D', label: 'Satisfactory' }, { min: 50, grade: 'E', label: 'Pass' }, { min: 0, grade: 'F', label: 'Fail' }],
+    },
     legal: {
       law: 'Personal Data Protection Law No. 30 of 2018 (PDPL)',
       authority: 'Personal Data Protection Authority — Bahrain',
@@ -50,6 +56,11 @@ export const PACKS = {
       ? [{ key: 'qid', label: 'QID' }, { key: 'passport', label: 'Passport' }, { key: 'birth', label: 'Birth certificate' }]
       : [{ key: 'qid', label: 'QID', pattern: /^\d{11}$/ }, { key: 'passport', label: 'Passport' }],
     validId: v => /^\d{11}$/.test(String(v || '').trim()) || String(v || '').trim().length >= 5,
+    curriculum: {
+      markMax: 100, passMark: 50,
+      subjects: ['Arabic', 'English', 'Mathematics', 'Science', 'Islamic Education', 'Qatar History'],
+      gradeScale: [{ min: 90, grade: 'A', label: 'Excellent' }, { min: 80, grade: 'B', label: 'Very good' }, { min: 70, grade: 'C', label: 'Good' }, { min: 60, grade: 'D', label: 'Satisfactory' }, { min: 50, grade: 'E', label: 'Pass' }, { min: 0, grade: 'F', label: 'Fail' }],
+    },
     legal: {
       law: 'Law No. 13 of 2016 on Personal Data Privacy Protection',
       authority: 'National Cyber Security Agency — Qatar',
@@ -69,6 +80,11 @@ export const PACKS = {
       ? [{ key: 'acte', label: 'Acte de naissance' }, { key: 'passport', label: 'Passeport' }]
       : [{ key: 'cin', label: 'CIN', pattern: /^\d{8}$/ }, { key: 'passport', label: 'Passeport' }, { key: 'sejour', label: 'Carte de séjour' }],
     validId: v => /^\d{8}$/.test(String(v || '').trim()) || String(v || '').trim().length >= 5,
+    curriculum: {
+      markMax: 20, passMark: 10,
+      subjects: ['Mathématiques', 'Français', 'Arabe', 'Éveil scientifique', 'Anglais'],
+      gradeScale: [{ min: 16, grade: 'A', label: 'Excellent' }, { min: 14, grade: 'B', label: 'Très bien' }, { min: 12, grade: 'C', label: 'Bien' }, { min: 10, grade: 'D', label: 'Passable' }, { min: 0, grade: 'E', label: 'Insuffisant' }],
+    },
     legal: {
       law: 'Loi organique n° 2004-63 du 27 juillet 2004',
       authority: 'INPDP : Instance Nationale de Protection des Données Personnelles',
@@ -88,6 +104,11 @@ export const PACKS = {
       ? [{ key: 'national', label: 'National number' }, { key: 'passport', label: 'Passport' }, { key: 'birth', label: 'Birth certificate' }]
       : [{ key: 'national', label: 'National number' }, { key: 'passport', label: 'Passport' }],
     validId: v => String(v || '').trim().length >= 5,
+    curriculum: {
+      markMax: 100, passMark: 50,
+      subjects: ['Arabic', 'English', 'Mathematics', 'Science', 'Islamic Education', 'Social Studies'],
+      gradeScale: [{ min: 90, grade: 'A', label: 'Excellent' }, { min: 80, grade: 'B', label: 'Very good' }, { min: 70, grade: 'C', label: 'Good' }, { min: 60, grade: 'D', label: 'Satisfactory' }, { min: 50, grade: 'E', label: 'Pass' }, { min: 0, grade: 'F', label: 'Fail' }],
+    },
     legal: {
       law: 'la réglementation libyenne applicable sur la protection des données',
       authority: '',
@@ -121,3 +142,16 @@ export const validId = v => pack().validId(v)
 export const legal = () => pack().legal
 export const packCurrency = () => pack().currency
 export const countryCode = () => pack().iso || 'XX'
+
+// ── Curriculum du pays (CR-024) ───────────────────────────────────────────────
+const DEFAULT_CURRICULUM = { markMax: 20, passMark: 10, subjects: ['Mathématiques', 'Français', 'Arabe', 'Éveil scientifique', 'Anglais'], gradeScale: [] }
+export const curriculum = () => pack().curriculum || DEFAULT_CURRICULUM
+export const subjectsForCountry = () => curriculum().subjects
+export const markMaxOf = () => curriculum().markMax
+export const passMarkOf = () => curriculum().passMark
+/** La mention correspondant à un score, selon l'échelle du pays. */
+export const gradeOf = score => {
+  if (score == null || Number.isNaN(Number(score))) return null
+  const scale = curriculum().gradeScale || []
+  return scale.find(g => Number(score) >= g.min) || null
+}

@@ -90,7 +90,8 @@ export function academicSessions() {
  * Il existe indépendamment du groupe qui le suit : c'est la définition OneRoster,
  * et c'est ce qui permettra un jour d'avoir deux classes qui suivent le même cours.
  */
-export const SUBJECTS = ['Mathématiques', 'Français', 'Arabe', 'Éveil scientifique', 'Anglais']
+import { SUBJECTS } from './academic.js'   // CR-024 : matières du pays actif
+export { SUBJECTS }
 
 export function courses() {
   const d = db()
